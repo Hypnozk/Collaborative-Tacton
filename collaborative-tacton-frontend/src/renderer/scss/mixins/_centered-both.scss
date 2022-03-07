@@ -1,0 +1,6 @@
+@mixin center-both {
+  @include flexbox;
+  @include justify-content(center);
+  @include align-items(center);
+  @include size(100%, calc(100% - #{$nav-height}));
+}

@@ -1,0 +1,15 @@
+@mixin color-classes() {
+  color: $font-color-darker;
+
+  &.dark {
+    color: $dark-font-color;
+  }
+
+  &.darker {
+    color: $dark-font-color-light;
+  }
+
+  &.light {
+    color: $font-color;
+  }
+}
