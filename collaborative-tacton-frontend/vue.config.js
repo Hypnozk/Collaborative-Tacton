@@ -1,9 +1,9 @@
 module.exports = {
   pluginOptions: {
     electronBuilder: {
+      preload: 'src/electron/lib/preload.js',
       builderOptions: {
         productName: 'Collaborative Tacton Generator',
-        preload: 'src/electron/lib/preload.js',
       }
     }
   },
