@@ -3,6 +3,7 @@ module.exports = {
     electronBuilder: {
       builderOptions: {
         productName: 'Collaborative Tacton Generator',
+        preload: 'src/electron/lib/preload.js',
       }
     }
   },
