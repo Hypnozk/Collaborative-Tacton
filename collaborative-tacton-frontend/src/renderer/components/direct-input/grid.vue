@@ -18,6 +18,7 @@
         :w="item.w"
         :h="item.h"
         :i="item.i"
+        @moved="movedEvent"
       >
         <slot name="button-content" :item="item" />
       </grid-item>
@@ -26,8 +27,9 @@
 </template>
 
 <script>
-import { GridLayout, GridItem } from "vue-grid-layout";
-import { mapGetters } from "vuex";
+import { GridLayout } from "vue-grid-layout";
+import { GridItem } from "vue-grid-layout";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "DirectInputGrid",
@@ -47,6 +49,14 @@ export default {
       "gridColNum",
       "gridLayout",
     ]),
+  },
+  methods: {
+    ...mapActions("directInput", ["updateButtonPosition"]),
+    movedEvent: function (i, newX, newY) {
+      //console.log("MOVED i=" + i + ", X=" + newX + ", Y=" + newY);
+      this.updateButtonPosition(i, newX, newY);
+      return 0;
+    },
   },
 };
 </script>

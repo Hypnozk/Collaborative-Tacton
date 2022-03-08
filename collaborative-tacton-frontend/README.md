@@ -1,4 +1,4 @@
-# electron-tactjam
+# collaborative-tacton-frontend
 
 ## Project setup
 ```
