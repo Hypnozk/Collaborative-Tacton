@@ -55,5 +55,6 @@ export default {
 }
 .info {
   grid-area: info;
+  margin-left: 5px;
 }
 </style>

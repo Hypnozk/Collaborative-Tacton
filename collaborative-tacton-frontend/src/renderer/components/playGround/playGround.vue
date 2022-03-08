@@ -1,5 +1,5 @@
 <template>
-  <div class="direct-input-grid">
+  <div class="play-ground">
     <grid-layout
       :layout="gridLayout"
       :col-num="gridColNum"
@@ -32,7 +32,7 @@ import { GridItem } from "vue-grid-layout";
 import { mapGetters, mapActions } from "vuex";
 
 export default {
-  name: "DirectInputGrid",
+  name: "PlayGround",
   components: {
     GridLayout,
     GridItem,

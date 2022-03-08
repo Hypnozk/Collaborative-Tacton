@@ -5,7 +5,6 @@
     @keyup="buttonUp"
     @keydown="buttonDown"
   >
-    <BaseRow class="row">
       <BaseButton
         class="add"
         :class="{ disabled: !editModeActive }"
@@ -30,8 +29,7 @@
         :variant="'light'"
         @update="setIntensity($event)"
       />
-    </BaseRow>
-    <DirectInputGrid>
+    <PlayGround>
       <template #button-content="{ item }">
         <keyboard-button
           :edit-mode-active="editModeActive"
@@ -40,13 +38,13 @@
           @edit="editButton"
         />
       </template>
-    </DirectInputGrid>
-    <config-dialog
+    </PlayGround>
+    <ConfigDialog
       :visible="addDialogVisible"
       @close="addDialogVisible = false"
       @confirm="addButton"
     />
-    <config-dialog
+    <ConfigDialog
       :button="buttonToEdit"
       edit-mode
       :visible="editDialogVisible"
@@ -58,10 +56,10 @@
 </template>
 
 <script lang="ts">
-import ConfigDialog from "@/renderer/components/direct-input/config-dialog.vue";
-import DirectInputGrid from "@/renderer/components/direct-input/grid.vue";
-import Intensity from "@/renderer/components/direct-input/intensity.vue";
-import KeyboardButton from "@/renderer/components/direct-input/button.vue";
+import ConfigDialog from "@/renderer/components/playGround/configDialog.vue";
+import PlayGround from "@/renderer/components/playGround/playGround.vue";
+import Intensity from "@/renderer/components/playGround/intensity.vue";
+import KeyboardButton from "@/renderer/components/playGround/keyboardButton.vue";
 import { mapActions, mapGetters } from "vuex";
 import { defineComponent } from "@vue/runtime-core";
 
@@ -69,7 +67,7 @@ export default defineComponent({
   name: "DirectInput",
   components: {
     ConfigDialog,
-    DirectInputGrid,
+    PlayGround,
     Intensity,
     KeyboardButton,
   },
@@ -171,7 +169,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.row {
+.direct-input {
   display: grid;
   grid-template-columns: 25% 50% 25%;
   gap: 1.5em;
@@ -185,6 +183,7 @@ export default defineComponent({
   grid-area: add;
   width: 100px;
   height: 30px;
+  justify-self: center;
 }
 .save {
   grid-area: save;

@@ -21,7 +21,7 @@
           @update="editableButton.intensity = $event"
         />
         <!-- Key Selector -->
-        <key-selector
+        <KeySelector
           :selected-key="editableButton.key"
           @selectKey="selectKey"
         />
@@ -73,9 +73,9 @@
 </template>
 
 <script>
-import Intensity from "@/renderer/components/direct-input/intensity.vue";
-import KeyboardButtonConfig from "@/renderer/components/direct-input/button-config.vue";
-import KeySelector from "@/renderer/components/direct-input/key-selector.vue";
+import Intensity from "./intensity.vue";
+import KeyboardButtonConfig from "./buttonConfig.vue";
+import KeySelector from "./keySelector.vue";
 import { mapGetters } from "vuex";
 import { Twitter } from "@ckpack/vue-color";
 import { computed, ref, watch } from "vue";
