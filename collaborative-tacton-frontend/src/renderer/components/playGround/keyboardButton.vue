@@ -3,20 +3,6 @@
     <BaseButton
       v-if="!editModeActive"
       class="button"
-      @mousedown="
-        mouseDown();
-        buttonPressed = true;
-      "
-      @mouseup="
-        mouseUp();
-        buttonPressed = false;
-      "
-      @mouseleave="
-        if (buttonPressed) {
-          mouseUp();
-          buttonPressed = false;
-        }
-      "
     >
       <div class="content" :style="{ background: color }">
         <div class="name">{{ button.name }}</div>
@@ -43,7 +29,6 @@
 import { lightenDarkenColor } from "@/renderer/lib/colors";
 import { mapGetters } from "vuex";
 import { mdiPencil } from "@mdi/js";
-import { mapActions } from "vuex";
 
 export default {
   name: "KeyboardButton",
@@ -70,8 +55,10 @@ export default {
     },
     ...mapGetters("directInput", [
       "channelsActive",
-      "editModeActive",
       "globalIntensity",
+    ]),
+     ...mapGetters("viewPort", [
+      "editModeActive",
     ]),
   },
 };

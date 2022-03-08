@@ -45,9 +45,11 @@ export default {
   },
   computed: {
     ...mapGetters("directInput", [
-      "editModeActive",
       "gridColNum",
       "gridLayout",
+    ]),
+         ...mapGetters("viewPort", [
+      "editModeActive",
     ]),
   },
   methods: {

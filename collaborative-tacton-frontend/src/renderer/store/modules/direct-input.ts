@@ -1,5 +1,3 @@
-import { stat } from 'original-fs';
-import { StyleValue } from 'vue';
 import { MutationTree, GetterTree } from 'vuex'
 /**
  * Tyopes
@@ -32,7 +30,6 @@ export type State = typeof state;
 const state = {
   activeChannels: [] as Channel[],
   activeKeys: [] as string[],
-  editModeActive: false,
   globalIntensity: 1,
   gridColNum: 10,
   gridLayout: [] as any[],
@@ -50,7 +47,6 @@ export enum MutationTypes {
   REMOVE_ACTIVE_CHANNEL = "REMOVE_ACTIVE_CHANNEL",
   REMOVE_ACTIVE_KEY = "REMOVE_ACTIVE_KEY",
   RESET_GRID = "RESET_GRID",
-  SET_EDIT_MODE_ACTIVE = "SET_EDIT_MODE_ACTIVE",
   SET_GLOBAL_INTENSITY = "SET_GLOBAL_INTENSITY",
   UPDATE_POSITION_BUTTON = "UPDATE_POSITION_BUTTON",
 }
@@ -65,7 +61,6 @@ export type Mutations<S = State> = {
   [MutationTypes.REMOVE_ACTIVE_CHANNEL](state: S, activeChannel: { id: string[], intensity: number }): void
   [MutationTypes.REMOVE_ACTIVE_KEY](state: S, key: string): void
   [MutationTypes.RESET_GRID](state: S): void
-  [MutationTypes.SET_EDIT_MODE_ACTIVE](state: S, active: boolean): void
   [MutationTypes.SET_GLOBAL_INTENSITY](state: S, intensity: number): void
 }
 /**
@@ -77,7 +72,6 @@ export type Mutations<S = State> = {
  const REMOVE_ACTIVE_CHANNEL = "REMOVE_ACTIVE_CHANNEL";
  const REMOVE_ACTIVE_KEY = "REMOVE_ACTIVE_KEY";
  const RESET_GRID = "RESET_GRID";
- const SET_EDIT_MODE_ACTIVE = "SET_EDIT_MODE_ACTIVE";
  const SET_GLOBAL_INTENSITY = "SET_GLOBAL_INTENSITY";
  */
 
@@ -146,9 +140,6 @@ const mutations: MutationTree<State> & Mutations = {
   [MutationTypes.RESET_GRID](state) {
     state.gridLayout = [];
   },
-  [MutationTypes.SET_EDIT_MODE_ACTIVE](state, active) {
-    state.editModeActive = active;
-  },
   [MutationTypes.SET_GLOBAL_INTENSITY](state, intensity) {
     state.globalIntensity = intensity;
   },
@@ -171,7 +162,7 @@ const actions = {
   addActiveKey({ commit }: any, key: string) {
     commit(MutationTypes.ADD_ACTIVE_KEY, key);
   },
-  addButtonToGrid({ commit, rootGetters }: any, button: InputButton) {
+  addButtonToGrid({ commit }: any, button: InputButton) {
     button.i = state.gridLayout.length;
     commit(MutationTypes.ADD_BUTTON_TO_GRID, button);
   },
@@ -194,9 +185,6 @@ const actions = {
   removeActiveKey({ commit }: any, key: string) {
     commit(MutationTypes.REMOVE_ACTIVE_KEY, key);
   },
-  setEditModeActive({ commit }: any, active: boolean) {
-    commit(MutationTypes.SET_EDIT_MODE_ACTIVE, active);
-  },
   setGlobalIntensity({ commit }: any, intensity: number) {
     commit(MutationTypes.SET_GLOBAL_INTENSITY, intensity);
   },
@@ -208,7 +196,6 @@ const actions = {
 export type Getters = {
   activeChannels(state: State): Channel[]
   channelsActive(state: State): any
-  editModeActive(state: State): boolean
   globalIntensity(state: State): number
   gridColNum(state: State): number
   gridLayout(state: State): any[]
@@ -220,7 +207,6 @@ const getters: GetterTree<State, State> & Getters = {
   activeChannels: (state) => state.activeChannels,
   channelsActive: (state) => (channels: any) =>
     channels.every((ch: any) => state.activeChannels.some((aCh) => aCh.id === ch)),
-  editModeActive: (state) => state.editModeActive,
   globalIntensity: (state) => state.globalIntensity,
   gridColNum: (state) => state.gridColNum,
   gridLayout: (state) => state.gridLayout,

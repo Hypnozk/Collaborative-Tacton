@@ -1,53 +1,53 @@
 <template>
-    <div class="header">
-      <BaseButton
-        class="add"
-        :class="{ disabled: !editModeActive }"
-        :disabled="!editModeActive"
-        @click="addDialogVisible = true"
-      >
-        Add button
-      </BaseButton>
-      <div class="toggle">
-        <BaseText class="play" :variant="'light'">Play</BaseText>
-        <BaseToggleIcon
-          :value="editModeActive"
-          :icon-size="50"
-          @update="toggleEditMode"
-        />
-        <BaseText class="edit" :variant="'light'">Edit</BaseText>
-      </div>
-      <Intensity
-        class="intensity"
-        :label="'global intensity'"
-        :value="globalIntensity.toString()"
-        :variant="'light'"
-        @update="setIntensity($event)"
+  <div class="header">
+    <BaseButton
+      class="add"
+      :class="{ disabled: !editModeActive }"
+      :disabled="!editModeActive"
+      @click="addDialogVisible = true"
+    >
+      Add button
+    </BaseButton>
+    <div class="toggle">
+      <BaseText class="play" :variant="'light'">Play</BaseText>
+      <BaseToggleIcon
+        :value="editModeActive"
+        :icon-size="50"
+        @update="toggleEditMode"
       />
+      <BaseText class="edit" :variant="'light'">Edit</BaseText>
     </div>
-    <PlayGround>
-      <template #button-content="{ item }">
-        <keyboard-button
-          :edit-mode-active="editModeActive"
-          :global-intensity="globalIntensity"
-          :button="item"
-          @edit="editButton"
-        />
-      </template>
-    </PlayGround>
-    <ConfigDialog
-      :visible="addDialogVisible"
-      @close="addDialogVisible = false"
-      @confirm="addButton"
+    <Intensity
+      class="intensity"
+      :label="'global intensity'"
+      :value="globalIntensity.toString()"
+      :variant="'light'"
+      @update="setIntensity($event)"
     />
-    <ConfigDialog
-      :button="buttonToEdit"
-      edit-mode
-      :visible="editDialogVisible"
-      @close="editDialogVisible = false"
-      @confirm="confirmEditedButton"
-      @delete="deleteButton"
-    />
+  </div>
+  <PlayGround>
+    <template #button-content="{ item }">
+      <keyboard-button
+        :edit-mode-active="editModeActive"
+        :global-intensity="globalIntensity"
+        :button="item"
+        @edit="editButton"
+      />
+    </template>
+  </PlayGround>
+  <ConfigDialog
+    :visible="addDialogVisible"
+    @close="addDialogVisible = false"
+    @confirm="addButton"
+  />
+  <ConfigDialog
+    :button="buttonToEdit"
+    edit-mode
+    :visible="editDialogVisible"
+    @close="editDialogVisible = false"
+    @confirm="confirmEditedButton"
+    @delete="deleteButton"
+  />
 </template>
 
 <script lang="ts">
@@ -75,28 +75,25 @@ export default defineComponent({
   },
 
   computed: {
-    anyDialogOpen(): boolean {
-      return this.addDialogVisible || this.editDialogVisible;
-    },
     ...mapGetters("directInput", [
       "activeChannels",
-      "editModeActive",
       "globalIntensity",
       "gridColNum",
       "gridLayout",
       "keyAlreadyActive",
     ]),
+        ...mapGetters("viewPort", [
+      "editModeActive"
+    ]),
   },
   methods: {
     ...mapActions("directInput", [
       "addButtonToGrid",
-      "addActiveKey",
       "deleteButtonFromGrid",
       "editButtonFromGrid",
-      "removeActiveKey",
-      "setEditModeActive",
       "setGlobalIntensity",
     ]),
+    ...mapActions("viewPort", ["changeEditModeActive"]),
     addButton({ config }: any) {
       this.addButtonToGrid({
         channels: config.selectedActuators,
@@ -110,28 +107,6 @@ export default defineComponent({
         h: 1,
       });
       this.addDialogVisible = false;
-    },
-    buttonDown(e: any) {
-      const key = e.key.toUpperCase();
-      if (this.anyDialogOpen || this.keyAlreadyActive(key)) return;
-      const item = this.gridLayout.find(
-        (item: any) => item.key.toUpperCase() === key
-      );
-      if (item && !this.editModeActive) {
-        // activateChannels(item.channels, item.intensity);
-        this.addActiveKey(key);
-      }
-    },
-    buttonUp(e: any) {
-      const key = e.key.toUpperCase();
-      if (this.anyDialogOpen || !this.keyAlreadyActive(key)) return;
-      const item = this.gridLayout.find(
-        (item: any) => item.key.toUpperCase() === key
-      );
-      if (item && !this.editModeActive) {
-        //deactivateChannels(item.channels, item.intensity);
-        this.removeActiveKey(key);
-      }
     },
     confirmEditedButton({ key, config }: any) {
       this.editButtonFromGrid({ key, config });
@@ -157,7 +132,7 @@ export default defineComponent({
       // changeGlobalIntensity();
     },
     toggleEditMode(active: boolean) {
-      this.setEditModeActive(active);
+      this.changeEditModeActive(active);
     },
   },
 });
