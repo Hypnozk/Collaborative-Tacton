@@ -1,10 +1,5 @@
 <template>
-  <div
-    tabindex="0"
-    class="direct-input"
-    @keyup="buttonUp"
-    @keydown="buttonDown"
-  >
+    <div class="header">
       <BaseButton
         class="add"
         :class="{ disabled: !editModeActive }"
@@ -29,6 +24,7 @@
         :variant="'light'"
         @update="setIntensity($event)"
       />
+    </div>
     <PlayGround>
       <template #button-content="{ item }">
         <keyboard-button
@@ -52,7 +48,6 @@
       @confirm="confirmEditedButton"
       @delete="deleteButton"
     />
-  </div>
 </template>
 
 <script lang="ts">
@@ -93,7 +88,7 @@ export default defineComponent({
     ]),
   },
   methods: {
-        ...mapActions("directInput", [
+    ...mapActions("directInput", [
       "addButtonToGrid",
       "addActiveKey",
       "deleteButtonFromGrid",
@@ -102,17 +97,17 @@ export default defineComponent({
       "setEditModeActive",
       "setGlobalIntensity",
     ]),
-    addButton({ config }:any) {
+    addButton({ config }: any) {
       this.addButtonToGrid({
         channels: config.selectedActuators,
         color: config.color,
         intensity: config.intensity,
         name: config.name,
         key: config.key,
-        w:1,
-        x:1,
-        y:1,
-        h:1,
+        w: 1,
+        x: 1,
+        y: 1,
+        h: 1,
       });
       this.addDialogVisible = false;
     },
@@ -147,7 +142,7 @@ export default defineComponent({
       this.editDialogVisible = false;
     },
     editButton(id: string) {
-      const item = this.gridLayout.find((item:any) => item.i === id);
+      const item = this.gridLayout.find((item: any) => item.i === id);
       this.buttonToEdit = {
         color: item.color,
         name: item.name,
@@ -169,12 +164,11 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.direct-input {
+.header {
   display: grid;
   grid-template-columns: 25% 50% 25%;
   gap: 1.5em;
   grid-template-areas: "add save load toggle intensity";
-  height: 100%;
   width: 85vw;
   margin-bottom: 10px;
   align-items: center;

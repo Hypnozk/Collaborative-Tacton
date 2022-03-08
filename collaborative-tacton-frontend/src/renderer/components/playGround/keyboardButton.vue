@@ -43,7 +43,7 @@
 import { lightenDarkenColor } from "@/renderer/lib/colors";
 import { mapGetters } from "vuex";
 import { mdiPencil } from "@mdi/js";
-//import { activateChannels, deactivateChannels } from "@/lib/direct-input.js";
+import { mapActions } from "vuex";
 
 export default {
   name: "KeyboardButton",
@@ -73,15 +73,6 @@ export default {
       "editModeActive",
       "globalIntensity",
     ]),
-  },
-
-  methods: {
-    mouseDown() {
-    //  activateChannels(this.button.channels, this.button.intensity);
-    },
-    mouseUp() {
-     // deactivateChannels(this.button.channels, this.button.intensity);
-    },
   },
 };
 </script>

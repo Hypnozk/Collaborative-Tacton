@@ -6,7 +6,7 @@ import { MutationTree, GetterTree } from 'vuex'
  * 
  */
 type Channel = {
-  id: string,
+  id: string[],
   intensities: number[]
 };
 
@@ -56,13 +56,13 @@ export enum MutationTypes {
 }
 
 export type Mutations<S = State> = {
-  [MutationTypes.ADD_ACTIVE_CHANNEL](state: S, adChannel: { id: string, intensity: number }): void
+  [MutationTypes.ADD_ACTIVE_CHANNEL](state: S, adChannel: { id: string[], intensity: number }): void
   [MutationTypes.ADD_ACTIVE_KEY](state: S, key: string): void
   [MutationTypes.ADD_BUTTON_TO_GRID](state: S, inputButton: InputButton): void
   [MutationTypes.DELETE_BUTTON_FROM_GRID](state: S, key: string): void
   [MutationTypes.EDIT_BUTTON_FROM_GRID](state: S, inputButton: InputButton): void
   [MutationTypes.UPDATE_POSITION_BUTTON](state: S, updateInfo: { key: string, x: number, y: number }): void
-  [MutationTypes.REMOVE_ACTIVE_CHANNEL](state: S, activeChannel: { id: string, intensity: number }): void
+  [MutationTypes.REMOVE_ACTIVE_CHANNEL](state: S, activeChannel: { id: string[], intensity: number }): void
   [MutationTypes.REMOVE_ACTIVE_KEY](state: S, key: string): void
   [MutationTypes.RESET_GRID](state: S): void
   [MutationTypes.SET_EDIT_MODE_ACTIVE](state: S, active: boolean): void
@@ -125,7 +125,7 @@ const mutations: MutationTree<State> & Mutations = {
       state.gridLayout[index].y = y;
     }
   },
-  [MutationTypes.REMOVE_ACTIVE_CHANNEL](state, activeChannel: { id: string, intensity: number }) {
+  [MutationTypes.REMOVE_ACTIVE_CHANNEL](state, activeChannel: { id: string[], intensity: number }) {
     const index = state.activeChannels.findIndex(
       (channel) => channel.id === activeChannel.id
     );
@@ -165,8 +165,8 @@ export enum ActionTypes {
 
 
 const actions = {
-  addActiveChannel({ commit }: any, adChannel: { id: string, intensity: number }) {
-    commit(MutationTypes.ADD_ACTIVE_CHANNEL, adChannel);
+  addActiveChannel({ commit }: any, adChannels: { channels: string[], intensity: number }) {
+    commit(MutationTypes.ADD_ACTIVE_CHANNEL, adChannels);
   },
   addActiveKey({ commit }: any, key: string) {
     commit(MutationTypes.ADD_ACTIVE_KEY, key);
@@ -188,8 +188,8 @@ const actions = {
       dispatch("addButtonToGrid", item);
     });
   },
-  removeActiveChannel({ commit }: any, adChannel: { id: string, intensity: number }) {
-    commit(MutationTypes.REMOVE_ACTIVE_CHANNEL, adChannel);
+  removeActiveChannel({ commit }: any, adChannels: { id: string[], intensity: number }) {
+    commit(MutationTypes.REMOVE_ACTIVE_CHANNEL, adChannels);
   },
   removeActiveKey({ commit }: any, key: string) {
     commit(MutationTypes.REMOVE_ACTIVE_KEY, key);
