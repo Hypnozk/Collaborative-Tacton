@@ -32,7 +32,7 @@ export default {
   box-shadow: 0 2px 8px 3px;
   transition: all 0.2s ease-in;
   color: black;
-  overflow-y: auto;
+  overflow-y: clip;
   max-height: 95%;
 }
 .fadeIn-enter {

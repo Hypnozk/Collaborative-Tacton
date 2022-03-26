@@ -4,39 +4,34 @@
       <BaseHeadline :variant="'dark'">{{
         editMode ? "Edit Button" : "Add Button"
       }}</BaseHeadline>
-      <div class="content">
+      <div class="contentConfigDialog">
         <BaseLabeledInput
           class="name"
-          :model-value="editableButton.name"
+          :model-value="button.name"
           :label="'Name'"
           invert-color
           :variant="'dark'"
-          @update="editableButton.name = $event"
+          @update="updateButtonName"
         />
         <intensity
           class="intenstity"
           :label="'Intensity'"
-          :value="editableButton.intensity.toString()"
+          :value="button.intensity.toString()"
           :variant="'dark'"
-          @update="editableButton.intensity = $event"
+          @update="updateButtonIntensity"
         />
         <!-- Key Selector -->
-        <KeySelector
-          :selected-key="editableButton.key"
-          @selectKey="selectKey"
-        />
-        <color-picker v-model="color" class="color" />
+        <KeySelector :selected-key="button.key" @selectKey="selectKey" />
+        <color-picker v-model="colorCustom" class="color" />
         <!-- Select Channels Field -->
         <div class="list">
           <div v-for="actuator in actuators" :key="actuator.i">
             <keyboard-button-config
               class="item"
-              :color="color"
-              :button="actuator"
-              :selected="
-                editableButton.selectedActuators.includes(actuator.key)
-              "
-              @select="selectActuator"
+              :color="colorCustom.hex8"
+              :buttonKey="actuator.key"
+              :isSelected="button.selectedActuators.includes(actuator.key)"
+              @select="selectActuators"
             />
           </div>
         </div>
@@ -49,17 +44,15 @@
             <BaseButton
               :class="{
                 disabled:
-                  editableButton.key === '' ||
-                  editableButton.selectedActuators.length == 0,
+                  button.key === '' || button.selectedActuators.length == 0,
               }"
               :disabled="
-                editableButton.key === '' ||
-                editableButton.selectedActuators.length == 0
+                button.key === '' || button.selectedActuators.length == 0
               "
               @click="
                 $emit('confirm', {
                   key: button.key,
-                  config: editableButton,
+                  config: {...button, color:colorCustom.hex8},
                 })
               "
             >
@@ -78,7 +71,6 @@ import KeyboardButtonConfig from "./buttonConfig.vue";
 import KeySelector from "./keySelector.vue";
 import { mapGetters } from "vuex";
 import { Twitter } from "@ckpack/vue-color";
-import { computed, ref, watch } from "vue";
 
 export default {
   name: "ConfigDialog",
@@ -88,18 +80,15 @@ export default {
     KeyboardButtonConfig,
     KeySelector,
   },
+  data() {
+    return {
+      colorCustom: { hex8: this.button.color },
+    };
+  },
   props: {
     button: {
       type: Object,
-      default: () => {
-        return {
-          color: "#0693E3",
-          name: "",
-          intensity: 1,
-          key: "",
-          selectedActuators: [],
-        };
-      },
+      required: true,
     },
     editMode: {
       type: Boolean,
@@ -110,54 +99,42 @@ export default {
       required: true,
     },
   },
-  emits: ["close", "confirm", "delete"],
-  setup(props) {
-    var editableButton = ref({
-      color: "#0693E3",
-      name: "",
-      intensity: 1,
-      key: "",
-      selectedActuators: [],
-    });
-    watch(
-      () => props.visible,
-      () => {
-        editableButton.value = JSON.parse(
-          JSON.stringify({
-            color: "#2188E8",
-            name: "",
-            intensity: 1,
-            key: "",
-            selectedActuators: [],
-          })
-        );
-        editableButton.value = JSON.parse(JSON.stringify(props.button));
+  emits: ["close", "confirm", "delete", "update:button"],
+  methods: {
+    updateButtonName(nameButon) {
+      const modifiedButton = { ...this.button, name: nameButon };
+      this.$emit("update:button", modifiedButton);
+    },
+    updateButtonIntensity(event) {
+      this.$emit("update:button", { ...this.button, intensity: event });
+    },
+    selectActuators(actuator) {
+      const selectedActuators = this.button.selectedActuators;
+      if (this.button.selectedActuators.includes(actuator)) {
+        const index = this.button.selectedActuators.indexOf(actuator);
+        if (index > -1) {
+          selectedActuators.splice(index, 1);
+          const modifiedButton = {
+            ...this.button,
+            selectedActuators: selectedActuators,
+          };
+          this.$emit("update:button", modifiedButton);
+        }
+      } else {
+        selectedActuators.push(actuator);
+        const modifiedButton = {
+          ...this.button,
+          selectedActuators: selectedActuators,
+        };
+        this.$emit("update:button", modifiedButton);
       }
-    );
-
-    const color = computed({
-      get() {
-        return editableButton.value.color;
-      },
-      set(newValue) {
-        editableButton.value.color = newValue.hex;
-      },
-    });
-
-    const selectActuator = (actuator) => {
-      if (editableButton.value.selectedActuators.includes(actuator)) {
-        const index = editableButton.value.selectedActuators.indexOf(actuator);
-        if (index > -1) editableButton.value.selectedActuators.splice(index, 1);
-      } else editableButton.value.selectedActuators.push(actuator);
-    };
-
-    const selectKey = (key) => {
-      editableButton.value.key = key;
-    };
-
-    return { editableButton, color, selectActuator, selectKey };
+    },
+    selectKey(key) {
+      this.$emit("update:button", { ...this.button, key: key });
+    },
   },
   computed: {
+    ...mapGetters("devices", ["numberOfOutputs"]),
     actuators() {
       const actuators = [];
       for (var i = 0; i < this.numberOfOutputs; i++) {
@@ -168,49 +145,19 @@ export default {
       }
       return actuators;
     },
-    ...mapGetters("devices", ["numberOfOutputs"]),
   },
 };
 </script>
 
 <style scoped lang="scss">
-.content {
-  display: grid;
-  grid-template-columns: 100%;
-  grid-auto-flow: row;
-  grid-template-areas:
-    "name"
-    "intensity"
-    "key"
-    "color"
-    "channels"
-    "buttons";
-  padding: 10px;
-  width: 100%;
+.contentConfigDialog {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
 }
-.name {
-  grid-area: name;
-  padding-right: 12%;
-}
-.intensity {
-  grid-area: intensity;
-}
-.color {
-  grid-area: color;
-  margin-bottom: 15px;
-}
-.key {
-  grid-area: key;
-  padding-right: 12%;
-}
-.channels {
-  grid-area: channels;
-}
+
 .buttons {
   grid-area: buttons;
-  margin-top: 10px;
-  text-align: justify;
-
   button {
     margin: 0 10px 0 10px;
   }

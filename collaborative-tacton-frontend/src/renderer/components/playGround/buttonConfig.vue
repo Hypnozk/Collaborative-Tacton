@@ -1,29 +1,13 @@
 <template>
   <div class="direct-input-keyboard-button">
-    <BaseButton
-      class="button"
-      @mousedown="
-        mouseDown();
-        buttonPressed = true;
-      "
-      @mouseup="
-        mouseUp();
-        buttonPressed = false;
-      "
-      @mouseleave="
-        if (buttonPressed) {
-          mouseUp();
-          buttonPressed = false;
-        }
-      "
-    >
+    <BaseButton class="button" @click=" $emit('select', this.buttonKey)">
       <div
         class="container"
         :style="{
-          backgroundColor: selected ? color : '#c4c4cc',
+          backgroundColor: isSelected ? color : '#c4c4cc',
         }"
       >
-        <div class="key">{{ button.key + 1 }}</div>
+        <div class="key">{{ buttonKey + 1 }}</div>
       </div>
     </BaseButton>
   </div>
@@ -40,14 +24,14 @@ export default {
       type: String,
       default: "cornflowerblue",
     },
-    button: {
-      type: Object,
+    buttonKey: {
+      type: Number,
       required: true,
     },
-    selected: {
-      type: Boolean,
-      required: true,
-    },
+    isSelected:{
+      type:Boolean,
+      required:true
+    }
   },
   emits: ["select"],
   data: function () {
@@ -61,13 +45,6 @@ export default {
     },
     lightenDarkenColor(color, amount) {
       return lightenDarkenColor(color, amount);
-    },
-    mouseDown() {
-    //  activateChannels([this.button.key], 1);
-      this.$emit("select", this.button.key);
-    },
-    mouseUp() {
-     // deactivateChannels([this.button.key], 1);
     },
   },
 };

@@ -1,53 +1,50 @@
 <template>
-  <div class="header">
-    <BaseButton
-      class="add"
-      :class="{ disabled: !editModeActive }"
-      :disabled="!editModeActive"
-      @click="addDialogVisible = true"
-    >
-      Add button
-    </BaseButton>
-    <div class="toggle">
-      <BaseText class="play" :variant="'light'">Play</BaseText>
-      <BaseToggleIcon
-        :value="editModeActive"
-        :icon-size="50"
-        @update="toggleEditMode"
+  <div>
+    <div class="header">
+      <BaseButton
+        class="add"
+        :class="{ disabled: !editModeActive }"
+        :disabled="!editModeActive"
+        @click="dialogVisible = true"
+      >
+        Add button
+      </BaseButton>
+      <div class="toggle">
+        <BaseText class="play" :variant="'light'">Play</BaseText>
+        <BaseToggleIcon
+          :value="editModeActive"
+          :icon-size="50"
+          @update="toggleEditMode"
+        />
+        <BaseText class="edit" :variant="'light'">Edit</BaseText>
+      </div>
+      <Intensity
+        class="intensity"
+        :label="'global intensity'"
+        :value="globalIntensity.toString()"
+        :variant="'light'"
+        @update="setIntensity($event)"
       />
-      <BaseText class="edit" :variant="'light'">Edit</BaseText>
     </div>
-    <Intensity
-      class="intensity"
-      :label="'global intensity'"
-      :value="globalIntensity.toString()"
-      :variant="'light'"
-      @update="setIntensity($event)"
+    <PlayGround>
+      <template #button-content="{ item }">
+        <keyboard-button
+          :edit-mode-active="editModeActive"
+          :global-intensity="globalIntensity"
+          :button="item"
+          @edit="editButton"
+        />
+      </template>
+    </PlayGround>
+    <ConfigDialog
+      :button="customButton"
+      :visible="dialogVisible"
+      @update:button="updateButton"
+      @close="closeDialog"
+      @confirm="addButton"
+      @delete="deleteButton"
     />
   </div>
-  <PlayGround>
-    <template #button-content="{ item }">
-      <keyboard-button
-        :edit-mode-active="editModeActive"
-        :global-intensity="globalIntensity"
-        :button="item"
-        @edit="editButton"
-      />
-    </template>
-  </PlayGround>
-  <ConfigDialog
-    :visible="addDialogVisible"
-    @close="addDialogVisible = false"
-    @confirm="addButton"
-  />
-  <ConfigDialog
-    :button="buttonToEdit"
-    edit-mode
-    :visible="editDialogVisible"
-    @close="editDialogVisible = false"
-    @confirm="confirmEditedButton"
-    @delete="deleteButton"
-  />
 </template>
 
 <script lang="ts">
@@ -68,9 +65,14 @@ export default defineComponent({
   },
   data() {
     return {
-      addDialogVisible: false,
-      buttonToEdit: undefined as any,
-      editDialogVisible: false,
+      customButton: {
+        color: "#0693E3",
+        name: "",
+        intensity: 1,
+        key: "",
+        selectedActuators: [],
+      },
+      dialogVisible: false,
     };
   },
 
@@ -82,9 +84,7 @@ export default defineComponent({
       "gridLayout",
       "keyAlreadyActive",
     ]),
-        ...mapGetters("viewPort", [
-      "editModeActive"
-    ]),
+    ...mapGetters("viewPort", ["editModeActive"]),
   },
   methods: {
     ...mapActions("directInput", [
@@ -94,6 +94,15 @@ export default defineComponent({
       "setGlobalIntensity",
     ]),
     ...mapActions("viewPort", ["changeEditModeActive"]),
+        resetButton() {
+      this.customButton = {
+        color: "#0693E3",
+        name: "",
+        intensity: 1,
+        key: "",
+        selectedActuators: [],
+      };
+    },
     addButton({ config }: any) {
       this.addButtonToGrid({
         channels: config.selectedActuators,
@@ -106,26 +115,32 @@ export default defineComponent({
         y: 1,
         h: 1,
       });
-      this.addDialogVisible = false;
+      this.resetButton();
+      this.dialogVisible = false;
+    },
+    updateButton(button: any) {
+      this.customButton = button;
     },
     confirmEditedButton({ key, config }: any) {
       this.editButtonFromGrid({ key, config });
-      this.editDialogVisible = false;
+      this.resetButton();
+      this.dialogVisible = false;
     },
     deleteButton(key: string) {
       this.deleteButtonFromGrid(key);
-      this.editDialogVisible = false;
+      this.resetButton();
+      this.dialogVisible = false;
     },
     editButton(id: string) {
       const item = this.gridLayout.find((item: any) => item.i === id);
-      this.buttonToEdit = {
+      this.customButton = {
         color: item.color,
         name: item.name,
         intensity: item.intensity,
         key: item.key,
         selectedActuators: item.channels,
       };
-      this.editDialogVisible = true;
+      this.dialogVisible = true;
     },
     setIntensity(intensity: number) {
       this.setGlobalIntensity(intensity);
@@ -133,6 +148,10 @@ export default defineComponent({
     },
     toggleEditMode(active: boolean) {
       this.changeEditModeActive(active);
+    },
+    closeDialog() {
+      this.resetButton();
+      this.dialogVisible = false;
     },
   },
 });

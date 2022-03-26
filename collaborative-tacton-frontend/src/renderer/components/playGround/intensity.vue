@@ -1,25 +1,22 @@
 <template>
   <div class="direct-input-intensity">
-    <BaseLabeledInput
+    <BaseText :variant="variant">{{ label }}</BaseText>
+
+    <BaseSlider
       class="slider"
-      :label="label"
-      :model-value="value"
-      :type="'range'"
       min="0"
       max="1"
       step="0.05"
       :variant="variant"
-      @update="$emit('update', parseFloat($event))"
+      @update:sliderValue="$emit('update', parseFloat($event))"
     />
-    <BaseText class="info" :variant="variant">
-      {{ Math.round(value * 100) }}%
-    </BaseText>
   </div>
 </template>
 
 <script>
 export default {
   name: "Intensity",
+  emits: ["update:sliderValue"],
   props: {
     label: {
       type: String,
@@ -37,24 +34,29 @@ export default {
       },
     },
   },
-  emits: ["update"],
+  //emits: ["update"],
+  methods: {
+    onClickChild(value) {
+      console.log("onClickChild " + value); // someValue
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .direct-input-intensity {
   display: grid;
-  grid-template-columns: 90% 10%;
-  gap: 1.5em;
-  grid-template-areas: "slider info";
-  width: 100%;
+  grid-template-columns: 30% 70%;
+  gap: 0.7em 0.7em;
+  height: 100%;
+  padding: 10px;
+  vertical-align: middle;
 }
 .slider {
-  grid-area: slider;
-  padding: 5;
-}
-.info {
-  grid-area: info;
-  margin-left: 5px;
+  display: grid;
+  grid-template-columns: 85% 15%;
+  gap: 0.7em;
+  padding: 10px;
+  vertical-align: middle;
 }
 </style>

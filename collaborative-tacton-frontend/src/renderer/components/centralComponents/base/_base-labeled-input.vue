@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="containerNameButton">
     <label class="label">
       <BaseText :variant="variant">{{ label }}</BaseText>
     </label>
@@ -63,22 +63,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.container {
+.containerNameButton {
   display: grid;
   grid-template-columns: 30% 70%;
   gap: 0.7em 0.7em;
-  grid-template-areas: "label input";
   height: 100%;
   padding: 10px;
-  width: 100%;
   vertical-align: middle;
 }
-.label {
-  box-sizing: content-box;
-  grid-area: label;
-  padding-top: 10px;
-}
-.input {
-  grid-area: input;
+.input{
+  margin-left: 10px;
 }
 </style>
