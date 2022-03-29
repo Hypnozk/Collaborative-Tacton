@@ -16,7 +16,7 @@
 <script>
 export default {
   name: "Intensity",
-  emits: ["update:sliderValue"],
+  emits: ["update"],
   props: {
     label: {
       type: String,
@@ -32,12 +32,6 @@ export default {
       validator(value) {
         return ["", "darker", "light", "dark"].includes(value);
       },
-    },
-  },
-  //emits: ["update"],
-  methods: {
-    onClickChild(value) {
-      console.log("onClickChild " + value); // someValue
     },
   },
 };

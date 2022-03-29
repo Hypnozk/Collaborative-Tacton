@@ -1,16 +1,16 @@
 <template>
   <div class="play-ground">
     <grid-layout
-      :layout="gridLayout"
-      :col-num="gridColNum"
+      :layout="store.getters.gridLayout"
+      :col-num="store.getters.gridColNum"
       :row-height="50"
-      :is-draggable="editModeActive"
+      :is-draggable="store.getters.editModeActive"
       :is-resizable="false"
       :vertical-compact="false"
       :prevent-collision="true"
     >
       <grid-item
-        v-for="item in gridLayout"
+        v-for="item in store.getters.gridLayout"
         :key="item.i"
         :static="false"
         :x="item.x"
@@ -27,10 +27,10 @@
 </template>
 
 <script>
+import { useStore } from '@/renderer/store/store';
 import { GridLayout } from "vue-grid-layout";
 import { GridItem } from "vue-grid-layout";
-import { mapGetters, mapActions } from "vuex";
-
+import { ActionTypes } from "../../store/modules/directInput/directInput";
 export default {
   name: "PlayGround",
   components: {
@@ -39,24 +39,19 @@ export default {
   },
   data() {
     return {
+      store:useStore(),
       draggable: true,
       static_: false,
     };
   },
-  computed: {
-    ...mapGetters("directInput", [
-      "gridColNum",
-      "gridLayout",
-    ]),
-         ...mapGetters("viewPort", [
-      "editModeActive",
-    ]),
-  },
   methods: {
-    ...mapActions("directInput", ["updateButtonPosition"]),
     movedEvent: function (i, newX, newY) {
       //console.log("MOVED i=" + i + ", X=" + newX + ", Y=" + newY);
-      this.updateButtonPosition(i, newX, newY);
+      this.store.dispatch(ActionTypes.updateButtonPosition, {
+        i,
+        newX,
+        newY,
+      });
       return 0;
     },
   },

@@ -69,8 +69,8 @@
 import Intensity from "./intensity.vue";
 import KeyboardButtonConfig from "./buttonConfig.vue";
 import KeySelector from "./keySelector.vue";
-import { mapGetters } from "vuex";
 import { Twitter } from "@ckpack/vue-color";
+import { useStore } from '@/renderer/store/store';
 
 export default {
   name: "ConfigDialog",
@@ -82,6 +82,7 @@ export default {
   },
   data() {
     return {
+      store:useStore(),
       colorCustom: { hex8: this.button.color },
     };
   },
@@ -134,10 +135,9 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("devices", ["numberOfOutputs"]),
     actuators() {
       const actuators = [];
-      for (var i = 0; i < this.numberOfOutputs; i++) {
+      for (var i = 0; i < this.store.getters.numberOfOutputs; i++) {
         actuators.push({
           key: i,
           selected: false,

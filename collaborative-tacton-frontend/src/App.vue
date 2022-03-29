@@ -40,50 +40,61 @@ nav a.router-link-exact-active {
 </style>
 <script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
-import { mapGetters, mapActions } from "vuex";
 import { RouteNames } from "./renderer/router/routes";
-
+import { ActionTypes } from "./renderer/store/modules/directInput/directInput";
+import { ActionTypes as ActionTypesViewPort } from "./renderer/store/modules/viewPort/viewPort";
+import {useStore} from "./renderer/store/store"
 export default defineComponent({
   name: "App",
-  computed: {
-    ...mapGetters("viewPort", ["playGroundVisible", "editModeActive"]),
-    ...mapGetters("directInput", ["keyAlreadyActive", "gridLayout"]),
+    data() {
+    return {
+      store: useStore(),
+    }
   },
   watch: {
     $route(to) {
       //this.show = false;
-      this.changePlayGroundVisible(to.name == RouteNames.PLAY_GROUND);
-      console.log(to.name == RouteNames.PLAY_GROUND);
+      this.store.dispatch(
+        ActionTypesViewPort.changePlayGroundVisible,
+        to.name == RouteNames.PLAY_GROUND
+      );
     },
   },
   methods: {
-    ...mapActions("directInput", ["addActiveKey", "removeActiveKey"]),
-    ...mapActions("viewPort", ["changePlayGroundVisible"]),
     correctFrameForInput(): boolean {
-      return this.playGroundVisible || !this.editModeActive;
+      return (
+        this.store.getters.playGroundVisible ||
+        !this.store.getters.editModeActive
+      );
     },
     buttonDown(e: any) {
       const key: string = e.key.toUpperCase();
-      if (!this.correctFrameForInput || this.keyAlreadyActive(key)) return;
-      const item = this.gridLayout.find(
+      if (
+        !this.correctFrameForInput ||
+        this.store.getters.keyAlreadyActive(key)
+      )
+        return;
+      const item = this.store.getters.gridLayout.find(
         (item: any) => item.key.toUpperCase() === key
       );
       if (item) {
         // activateChannels(item.channels, item.intensity);
-        this.addActiveKey(key);
-        console.log("down" + key)
+        this.store.dispatch(ActionTypes.addActiveKey, key);
       }
     },
     buttonUp(e: any) {
       const key = e.key.toUpperCase();
-      if (!this.correctFrameForInput || !this.keyAlreadyActive(key)) return;
-      const item = this.gridLayout.find(
+      if (
+        !this.correctFrameForInput ||
+        !this.store.getters.keyAlreadyActive(key)
+      )
+        return;
+      const item = this.store.getters.gridLayout.find(
         (item: any) => item.key.toUpperCase() === key
       );
       if (item) {
         //deactivateChannels(item.channels, item.intensity);
-        this.removeActiveKey(key);
-         console.log("up" + key)
+        this.store.dispatch(ActionTypes.removeActiveKey, key);
       }
     },
   },
