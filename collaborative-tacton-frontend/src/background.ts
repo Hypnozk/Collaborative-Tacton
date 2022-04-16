@@ -1,9 +1,10 @@
 "use strict";
-
+import { setBrowserWindow } from './electron/IPCManager/IPCController';
 import { app, protocol, BrowserWindow } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import path from 'path';
+
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -34,6 +35,8 @@ async function createWindow() {
   win.once('ready-to-show', () => {
     win.show()
   })
+
+  setBrowserWindow(win);
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
@@ -90,12 +93,3 @@ if (isDevelopment) {
     });
   }
 }
-
-const { ipcMain } = require('electron')
-ipcMain.on('asynchronous-message', (event, arg) => {
-  console.log(arg) // prints "ping"
-})
-
-ipcMain.on("tactile-jam.send.output.scanning", (event, scanning) => {
-  console.log("hello main")
-});

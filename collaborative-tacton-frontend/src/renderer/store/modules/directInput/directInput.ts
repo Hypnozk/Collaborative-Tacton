@@ -1,7 +1,7 @@
 import { MutationTree, GetterTree } from 'vuex'
 import { ActionTree, ActionContext } from 'vuex'
 import { State as RootState } from '../../store';
-import { ipcRenderer } from 'electron'
+import { IPC_CHANNELS } from "../../../../electron/IPCManager/IPCChannels";
 
 /**
  * Tyopes
@@ -246,21 +246,13 @@ export const actions: ActionTree<State, State> & Actions = {
 }
  */
 
-declare global {
-  interface Window {
-    api: any;
-  }
-}
-
 export const actions: ActionTree<State, RootState> & Actions = {
   [ActionTypes.addActiveChannel]({ commit }, adChannels: { id: string[], intensity: number }) {
     commit(MutationTypes.ADD_ACTIVE_CHANNEL, adChannels);
   },
   [ActionTypes.addActiveKey]({ commit, state }, key: string) {
-    const win: any = window;
-    console.log("Start sending")
-    window.api.send("tactile-jam.send.output.scanning", "renderer");
-    //ipcRenderer.send('asynchronous-message', 'ping')
+    window.api.send(IPC_CHANNELS.send.actuator, "renderer");
+    
     const item = state.gridLayout.find(
       (item: any) => item.key.toUpperCase() === key
     );
