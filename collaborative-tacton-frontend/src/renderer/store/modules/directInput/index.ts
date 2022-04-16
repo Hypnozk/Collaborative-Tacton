@@ -6,8 +6,11 @@ import {
 } from 'vuex';
 
 import { State as RootState } from '../../store';
-
-import { mutations, Mutations, Actions, actions, getters, Getters, state, State } from './directInput';
+import { actions } from './actions';
+import { Mutations, mutations } from './mutations';
+import { Actions } from "./actionTypes"
+import { State, state } from './state';
+import { Getters, getters } from './getters';
 
 export type Store<S = State> = Omit<VuexStore<S>, 'getters' | 'commit' | 'dispatch'>
     & {

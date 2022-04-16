@@ -18,7 +18,7 @@ import {
 
 import {
   State as DirectInputState,
-} from './modules/directInput/directInput'
+} from './modules/directInput/state'
 
 import {
   DevicesModule,
@@ -61,10 +61,6 @@ declare global {
     api: any;
   }
 }
-
-window.api.receive(IPC_CHANNELS.receive.actuator, (arg: any) => {
-  console.log("Get from main " +arg); // prints "pong"
-});
 
 /**
  * interface State extends StateDirectInput,StateBreakPoint {}

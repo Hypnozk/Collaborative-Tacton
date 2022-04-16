@@ -30,7 +30,8 @@
 import { useStore } from '@/renderer/store/store';
 import { GridLayout } from "vue-grid-layout";
 import { GridItem } from "vue-grid-layout";
-import { ActionTypes } from "../../store/modules/directInput/directInput";
+import { ActionTypes } from "../../store/modules/directInput/actions";
+
 export default {
   name: "PlayGround",
   components: {

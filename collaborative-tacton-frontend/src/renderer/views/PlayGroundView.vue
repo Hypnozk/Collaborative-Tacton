@@ -53,9 +53,10 @@ import PlayGround from "@/renderer/components/playGround/playGround.vue";
 import Intensity from "@/renderer/components/playGround/intensity.vue";
 import KeyboardButton from "@/renderer/components/playGround/keyboardButton.vue";
 import { defineComponent } from "@vue/runtime-core";
-import { ActionTypes } from "../store/modules/directInput/directInput";
+import { ActionTypes } from "../store/modules/directInput/actionTypes";
 import { ActionTypes as ActionTypesViewPort } from "../store/modules/viewPort/viewPort";
 import { useStore } from "../store/store";
+
 export default defineComponent({
   name: "DirectInput",
   components: {

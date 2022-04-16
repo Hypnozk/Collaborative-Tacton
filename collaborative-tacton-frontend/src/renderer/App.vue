@@ -40,10 +40,10 @@ nav a.router-link-exact-active {
 </style>
 <script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
-import { RouteNames } from "./renderer/router/routes";
-import { ActionTypes } from "./renderer/store/modules/directInput/directInput";
-import { ActionTypes as ActionTypesViewPort } from "./renderer/store/modules/viewPort/viewPort";
-import {useStore} from "./renderer/store/store"
+import { RouteNames } from "./router/routes";
+import { ActionTypes } from "./store/modules/directInput/actionTypes";
+import { ActionTypes as ActionTypesViewPort } from "./store/modules/viewPort/viewPort";
+import {useStore} from "./store/store"
 export default defineComponent({
   name: "App",
     data() {
