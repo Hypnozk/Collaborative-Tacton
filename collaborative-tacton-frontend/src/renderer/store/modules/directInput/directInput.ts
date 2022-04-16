@@ -1,6 +1,8 @@
 import { MutationTree, GetterTree } from 'vuex'
 import { ActionTree, ActionContext } from 'vuex'
 import { State as RootState } from '../../store';
+import { ipcRenderer } from 'electron'
+
 /**
  * Tyopes
  * 
@@ -34,7 +36,7 @@ export const state = {
   activeKeys: [] as string[],
   globalIntensity: 1,
   gridColNum: 10,
-  gridLayout: [] as any[],
+  gridLayout: [] as InputButton[],
 };
 /**
  * mutations
@@ -62,7 +64,7 @@ export type Mutations<S = State> = {
   [MutationTypes.UPDATE_POSITION_BUTTON](state: S, updateInfo: { key: string, x: number, y: number }): void
   [MutationTypes.REMOVE_ACTIVE_CHANNEL](state: S, activeChannel: { id: string[], intensity: number }): void
   [MutationTypes.REMOVE_ACTIVE_KEY](state: S, key: string): void
-  [MutationTypes.RESET_GRID](state: S, temp:string): void
+  [MutationTypes.RESET_GRID](state: S, temp: string): void
   [MutationTypes.SET_GLOBAL_INTENSITY](state: S, intensity: number): void
 }
 /**
@@ -99,26 +101,32 @@ export const mutations: MutationTree<State> & Mutations = {
 
   [MutationTypes.DELETE_BUTTON_FROM_GRID](state, key) {
     const button = state.gridLayout.find((b) => b.key === key);
-    const index = state.gridLayout.indexOf(button);
-    if (index > -1) state.gridLayout.splice(index, 1);
+    if (button !== undefined) {
+      const index = state.gridLayout.indexOf(button);
+      if (index > -1) state.gridLayout.splice(index, 1);
+    }
   },
   [MutationTypes.EDIT_BUTTON_FROM_GRID](state, inputButton) {
     const button = state.gridLayout.find((b) => b.key === inputButton.key);
-    const index = state.gridLayout.indexOf(button);
-    if (index > -1) {
-      state.gridLayout[index].color = inputButton.color;
-      state.gridLayout[index].name = inputButton.name;
-      state.gridLayout[index].intensity = inputButton.intensity;
-      state.gridLayout[index].key = inputButton.key;
-      state.gridLayout[index].channels = inputButton.channels;
+    if (button !== undefined) {
+      const index = state.gridLayout.indexOf(button);
+      if (index > -1) {
+        state.gridLayout[index].color = inputButton.color;
+        state.gridLayout[index].name = inputButton.name;
+        state.gridLayout[index].intensity = inputButton.intensity;
+        state.gridLayout[index].key = inputButton.key;
+        state.gridLayout[index].channels = inputButton.channels;
+      }
     }
   },
   [MutationTypes.UPDATE_POSITION_BUTTON](state, { key, x, y }) {
     const button = state.gridLayout.find((b) => b.key === key);
-    const index = state.gridLayout.indexOf(button);
-    if (index > -1) {
-      state.gridLayout[index].x = x;
-      state.gridLayout[index].y = y;
+    if (button !== undefined) {
+      const index = state.gridLayout.indexOf(button);
+      if (index > -1) {
+        state.gridLayout[index].x = x;
+        state.gridLayout[index].y = y;
+      }
     }
   },
   [MutationTypes.REMOVE_ACTIVE_CHANNEL](state, activeChannel: { id: string[], intensity: number }) {
@@ -238,12 +246,29 @@ export const actions: ActionTree<State, State> & Actions = {
 }
  */
 
+declare global {
+  interface Window {
+    api: any;
+  }
+}
+
 export const actions: ActionTree<State, RootState> & Actions = {
   [ActionTypes.addActiveChannel]({ commit }, adChannels: { id: string[], intensity: number }) {
     commit(MutationTypes.ADD_ACTIVE_CHANNEL, adChannels);
   },
-  [ActionTypes.addActiveKey]({ commit }: any, key: string) {
-    commit(MutationTypes.ADD_ACTIVE_KEY, key);
+  [ActionTypes.addActiveKey]({ commit, state }, key: string) {
+    const win: any = window;
+    console.log("Start sending")
+    window.api.send("tactile-jam.send.output.scanning", "renderer");
+    //ipcRenderer.send('asynchronous-message', 'ping')
+    const item = state.gridLayout.find(
+      (item: any) => item.key.toUpperCase() === key
+    );
+    if (item) {
+      console.log("correctItem" + item)
+
+      commit(MutationTypes.ADD_ACTIVE_KEY, key);
+    }
   },
   [ActionTypes.addButtonToGrid]({ commit }, button: {
     channels: string[],

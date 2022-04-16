@@ -69,18 +69,17 @@ export default defineComponent({
     },
     buttonDown(e: any) {
       const key: string = e.key.toUpperCase();
+      /**
       if (
         !this.correctFrameForInput ||
         this.store.getters.keyAlreadyActive(key)
       )
         return;
-      const item = this.store.getters.gridLayout.find(
-        (item: any) => item.key.toUpperCase() === key
-      );
-      if (item) {
+
+       */
         // activateChannels(item.channels, item.intensity);
         this.store.dispatch(ActionTypes.addActiveKey, key);
-      }
+      
     },
     buttonUp(e: any) {
       const key = e.key.toUpperCase();

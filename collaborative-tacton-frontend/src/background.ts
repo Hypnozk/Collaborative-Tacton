@@ -3,6 +3,8 @@
 import { app, protocol, BrowserWindow } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
+import path from 'path';
+
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // Scheme must be registered before the app is ready
@@ -25,6 +27,7 @@ async function createWindow() {
       nodeIntegration: process.env
         .ELECTRON_NODE_INTEGRATION as unknown as boolean,
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+      preload: path.join(__dirname, 'preload.js')
     },
   });
 
@@ -91,5 +94,8 @@ if (isDevelopment) {
 const { ipcMain } = require('electron')
 ipcMain.on('asynchronous-message', (event, arg) => {
   console.log(arg) // prints "ping"
-  event.reply('asynchronous-reply', 'pong')
 })
+
+ipcMain.on("tactile-jam.send.output.scanning", (event, scanning) => {
+  console.log("hello main")
+});

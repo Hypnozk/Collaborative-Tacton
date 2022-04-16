@@ -61,6 +61,11 @@ interface Getters extends GettersDirectInput,GettersBreakPoint {}
 export type Store = BreakPointStore<Pick<State, 'breakPoint'>> & DirectInputStore<Pick<State, 'directInput'>> 
 & DevicesStore<Pick<State, 'devices'>>  & ViewPortStore<Pick<State, 'viewPort'>>
 
+/**
+ * use following to get the store in every file of the renderer 
+ * useStore function of this file
+ * const store = useStore()
+ */
 export function useStore(): Store {
   return store as Store
 }
