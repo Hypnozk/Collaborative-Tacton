@@ -1,9 +1,7 @@
 <template>
   <div class="direct-input-config-dialog">
     <BaseModalDialog :visible="visible" @close="$emit('close')">
-      <BaseHeadline :variant="'dark'">{{
-        editMode ? "Edit Button" : "Add Button"
-      }}</BaseHeadline>
+      <BaseHeadline :variant="'dark'">{{ "Configure Button" }}</BaseHeadline>
       <div class="contentConfigDialog">
         <BaseLabeledInput
           class="name"
@@ -30,7 +28,7 @@
               class="item"
               :color="colorCustom.hex8"
               :buttonKey="actuator.key"
-              :isSelected="button.selectedActuators.includes(actuator.key)"
+              :isSelected="button.channels.includes(actuator.key)"
               @select="selectActuators"
             />
           </div>
@@ -43,18 +41,10 @@
             </BaseButton>
             <BaseButton
               :class="{
-                disabled:
-                  button.key === '' || button.selectedActuators.length == 0,
+                disabled: button.key === '' || button.channels.length == 0,
               }"
-              :disabled="
-                button.key === '' || button.selectedActuators.length == 0
-              "
-              @click="
-                $emit('confirm', {
-                  key: button.key,
-                  config: {...button, color:colorCustom.hex8},
-                })
-              "
+              :disabled="button.key === '' || button.channels.length == 0"
+              @click="$emit('confirm', { ...button, color: colorCustom.hex8 })"
             >
               Confirm
             </BaseButton>
@@ -70,7 +60,7 @@ import Intensity from "./intensity.vue";
 import KeyboardButtonConfig from "./buttonConfig.vue";
 import KeySelector from "./keySelector.vue";
 import { Twitter } from "@ckpack/vue-color";
-import { useStore } from '@/renderer/store/store';
+import { useStore } from "@/renderer/store/store";
 
 export default {
   name: "ConfigDialog",
@@ -82,7 +72,7 @@ export default {
   },
   data() {
     return {
-      store:useStore(),
+      store: useStore(),
       colorCustom: { hex8: this.button.color },
     };
   },
@@ -93,7 +83,7 @@ export default {
     },
     editMode: {
       type: Boolean,
-      default: false,
+      required: true,
     },
     visible: {
       type: Boolean,
@@ -110,22 +100,22 @@ export default {
       this.$emit("update:button", { ...this.button, intensity: event });
     },
     selectActuators(actuator) {
-      const selectedActuators = this.button.selectedActuators;
-      if (this.button.selectedActuators.includes(actuator)) {
-        const index = this.button.selectedActuators.indexOf(actuator);
+      const channels = this.button.channels;
+      if (this.button.channels.includes(actuator)) {
+        const index = this.button.channels.indexOf(actuator);
         if (index > -1) {
-          selectedActuators.splice(index, 1);
+          channels.splice(index, 1);
           const modifiedButton = {
             ...this.button,
-            selectedActuators: selectedActuators,
+            channels: channels,
           };
           this.$emit("update:button", modifiedButton);
         }
       } else {
-        selectedActuators.push(actuator);
+        channels.push(actuator);
         const modifiedButton = {
           ...this.button,
-          selectedActuators: selectedActuators,
+          channels: channels,
         };
         this.$emit("update:button", modifiedButton);
       }

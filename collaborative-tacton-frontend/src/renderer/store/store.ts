@@ -38,8 +38,6 @@ import {
   State as ViewPortState,
 } from './modules/viewPort/viewPort'
 
-import { IPC_CHANNELS } from "../../electron/IPCManager/IPCChannels";
-
 export type State = {
   breakPoint: BreakPointState,
   directInput: DirectInputState,

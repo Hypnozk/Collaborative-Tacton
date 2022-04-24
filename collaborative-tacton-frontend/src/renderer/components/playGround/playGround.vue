@@ -4,7 +4,7 @@
       :layout="store.getters.gridLayout"
       :col-num="store.getters.gridColNum"
       :row-height="50"
-      :is-draggable="store.getters.editModeActive"
+      :is-draggable="true"
       :is-resizable="false"
       :vertical-compact="false"
       :prevent-collision="true"
@@ -30,7 +30,7 @@
 import { useStore } from '@/renderer/store/store';
 import { GridLayout } from "vue-grid-layout";
 import { GridItem } from "vue-grid-layout";
-import { ActionTypes } from "../../store/modules/directInput/actions";
+import { ActionTypes } from "../../store/modules/directInput/actionTypes";
 
 export default {
   name: "PlayGround",

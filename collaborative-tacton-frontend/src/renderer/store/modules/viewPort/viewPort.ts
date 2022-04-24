@@ -14,7 +14,7 @@ export type State = typeof state;
 
 export const state = {
     playGroundVisible: false,
-    editModeActive: false,
+    editModeActive: true,
 };
 /**
  * mutations

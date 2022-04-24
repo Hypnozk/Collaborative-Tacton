@@ -5,7 +5,10 @@
         class="add"
         :class="{ disabled: !store.getters.editModeActive }"
         :disabled="!store.getters.editModeActive"
-        @click="dialogVisible = true"
+        @click="
+          dialogVisible = true;
+          editMode = false;
+        "
       >
         Add button
       </BaseButton>
@@ -28,7 +31,7 @@
     </div>
     <PlayGround>
       <template #button-content="{ item }">
-        <keyboard-button
+        <KeyboardButton
           :edit-mode-active="store.getters.editModeActive"
           :global-intensity="store.getters.globalIntensity"
           :button="item"
@@ -39,9 +42,10 @@
     <ConfigDialog
       :button="customButton"
       :visible="dialogVisible"
+      :editMode="editMode"
       @update:button="updateButton"
       @close="closeDialog"
-      @confirm="addButton"
+      @confirm="confirmDialog"
       @delete="deleteButton"
     />
   </div>
@@ -56,6 +60,7 @@ import { defineComponent } from "@vue/runtime-core";
 import { ActionTypes } from "../store/modules/directInput/actionTypes";
 import { ActionTypes as ActionTypesViewPort } from "../store/modules/viewPort/viewPort";
 import { useStore } from "../store/store";
+import { InputButton } from "@/types/GeneralType";
 
 export default defineComponent({
   name: "DirectInput",
@@ -69,41 +74,65 @@ export default defineComponent({
     return {
       store: useStore(),
       customButton: {
+        channels: [],
         color: "#0693E3",
-        name: "",
         intensity: 1,
+        name: "",
         key: "",
-        selectedActuators: [],
-      },
+        i: 1,
+        h: 1,
+        w: 1,
+        x: 1,
+        y: 1,
+      } as InputButton,
       dialogVisible: false,
+      editMode: false,
     };
   },
   methods: {
     resetButton() {
       this.customButton = {
+        channels: [],
         color: "#0693E3",
-        name: "",
         intensity: 1,
+        name: "",
         key: "",
-        selectedActuators: [],
-      };
-    },
-    addButton({ config }: any) {
-      this.store.dispatch(ActionTypes.addButtonToGrid, {
-        channels: config.selectedActuators,
-        color: config.color,
-        intensity: config.intensity,
-        name: config.name,
-        key: config.key,
+        i: 1,
         h: 1,
         w: 1,
         x: 1,
         y: 1,
-      });
+      };
+    },
+    confirmDialog(config: InputButton) {
+      console.log("hi");
+      console.log(config);
+      if (this.editMode) {
+        this.store.dispatch(ActionTypes.editButtonFromGrid, {
+          channels: config.channels,
+          color: config.color,
+          intensity: config.intensity,
+          name: config.name,
+          key: config.key,
+          h: this.customButton.h,
+          w: this.customButton.w,
+          x: this.customButton.x,
+          y: this.customButton.y,
+        });
+      } else {
+        this.store.dispatch(ActionTypes.addButtonToGrid, {
+          ...this.customButton,
+          channels: config.channels,
+          color: config.color,
+          intensity: config.intensity,
+          name: config.name,
+          key: config.key,
+        });
+      }
       this.resetButton();
       this.dialogVisible = false;
     },
-    updateButton(button: any) {
+    updateButton(button: InputButton) {
       this.customButton = button;
     },
     confirmEditedButton({ key, config }: any) {
@@ -121,12 +150,14 @@ export default defineComponent({
         (item: any) => item.i === id
       );
       this.customButton = {
+        ...this.customButton,
         color: item.color,
         name: item.name,
         intensity: item.intensity,
         key: item.key,
-        selectedActuators: item.channels,
+        channels: item.channels,
       };
+      this.editMode = true;
       this.dialogVisible = true;
     },
     setIntensity(intensity: number) {
@@ -134,7 +165,7 @@ export default defineComponent({
       // changeGlobalIntensity();
     },
     toggleEditMode(active: boolean) {
-      this.store.dispatch(ActionTypesViewPort.changeEditModeActive, active);
+      this.store.dispatch(ActionTypesViewPort.changeEditModeActive, true);
     },
     closeDialog() {
       this.resetButton();

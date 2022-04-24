@@ -2,6 +2,7 @@ import { ActionContext } from 'vuex'
 import { Mutations } from './mutations';
 import {State} from "./state"
 import { State as RootState } from '../../store';
+import { InputButton } from '@/types/GeneralType';
 
 /**
  * actions
@@ -39,17 +40,7 @@ export interface Actions {
   ): void,
   [ActionTypes.addButtonToGrid](
     { commit }: AugmentedActionContext,
-    payload: {
-      channels: string[],
-      color: string,
-      intensity: number,
-      name: string,
-      key: string,
-      h: number,
-      w: number,
-      x: number,
-      y: number,
-    }
+    payload: InputButton
   ): void,
   [ActionTypes.deleteButtonFromGrid](
     { commit }: AugmentedActionContext,

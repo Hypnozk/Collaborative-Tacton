@@ -98,7 +98,10 @@ export const mutations: MutationTree<State> & Mutations = {
     },
     [MutationTypes.REMOVE_ACTIVE_KEY](state, key: string) {
         const index = state.activeKeys.indexOf(key);
-        if (index > -1) state.activeKeys.splice(index, 1);
+        if (index > -1) {
+            console.log("removeKey " + key)
+            state.activeKeys.splice(index, 1)
+        }
     },
     [MutationTypes.RESET_GRID](state) {
         state.gridLayout = [];

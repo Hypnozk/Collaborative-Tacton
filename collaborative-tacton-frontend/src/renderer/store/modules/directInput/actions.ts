@@ -11,28 +11,17 @@ export const actions: ActionTree<State, RootState> & Actions = {
     commit(MutationTypes.ADD_ACTIVE_CHANNEL, adChannels);
   },
   [ActionTypes.addActiveKey]({ commit, state }, key: string) {
-    window.api.send(IPC_CHANNELS.send.actuator, "renderer");
+    // window.api.send(IPC_CHANNELS.send.actuator, "renderer");
 
     const item = state.gridLayout.find(
       (item: any) => item.key.toUpperCase() === key
     );
-    if (item) {
-      console.log("correctItem" + item)
-
+    if (item && !state.activeKeys.includes(key)) {
+      console.log("addItem" + item)
       commit(MutationTypes.ADD_ACTIVE_KEY, key);
     }
   },
-  [ActionTypes.addButtonToGrid]({ commit }, button: {
-    channels: string[],
-    color: string,
-    intensity: number,
-    name: string,
-    key: string,
-    h: number,
-    w: number,
-    x: number,
-    y: number,
-  }) {
+  [ActionTypes.addButtonToGrid]({ commit }, button: InputButton) {
     commit(MutationTypes.ADD_BUTTON_TO_GRID, { ...button, i: state.gridLayout.length });
   },
   [ActionTypes.deleteButtonFromGrid]({ commit }, key: string) {
