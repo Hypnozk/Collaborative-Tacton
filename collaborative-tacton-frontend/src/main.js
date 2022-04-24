@@ -5,7 +5,7 @@ import { store } from "./renderer/store/store";
 import { IPC_CHANNELS } from './electron/IPCManager/IPCChannels';
 
 const registerListener = () => {
-  window.api.receive(IPC_CHANNELS.receive.actuator, (arg) => {
+  window.api.receive(IPC_CHANNELS.renderer.actuator, (arg) => {
     console.log("Get from main " + arg); // prints "pong"
   });
 }
@@ -25,3 +25,4 @@ globalComponents(app);
 registerListener()
 // mount the app
 app.mount('#app');
+

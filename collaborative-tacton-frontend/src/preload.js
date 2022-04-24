@@ -15,7 +15,7 @@ contextBridge.exposeInMainWorld(
     send: (channel, data) => {
         // whitelist channels
         //send to the main
-        let validChannels = ["tactile-jam.send"];
+        let validChannels = ["tactile-jam.main"];
         const isValid = validChannels.some(el => isValidChannel(el, channel));
 
         if (isValid == true) {
@@ -24,7 +24,7 @@ contextBridge.exposeInMainWorld(
     },
     receive: (channel, func) => {
         //get messages from main
-        let validChannels = ['tactile-jam.receive']
+        let validChannels = ['tactile-jam.renderer']
         const isValid = validChannels.some(el => isValidChannel(el, channel));
 
         if (isValid == true) {

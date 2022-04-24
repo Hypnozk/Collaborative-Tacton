@@ -1,9 +1,10 @@
 const IPC_CHANNELS = {
-    send: {
-        actuator: "tactile-jam.send.actuator"
+    main: {
+        actuator: "tactile-jam.main.actuator",
+        changeScan: "tactile-jam.main.changeScan"
     },
-    receive: {
-        actuator: "tactile-jam.receive.devices",
+    renderer: {
+        actuator: "tactile-jam.renderer.devices",
     }
 };
 

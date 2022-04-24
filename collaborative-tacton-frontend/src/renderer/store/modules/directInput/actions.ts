@@ -11,7 +11,7 @@ export const actions: ActionTree<State, RootState> & Actions = {
     commit(MutationTypes.ADD_ACTIVE_CHANNEL, adChannels);
   },
   [ActionTypes.addActiveKey]({ commit, state }, key: string) {
-    // window.api.send(IPC_CHANNELS.send.actuator, "renderer");
+    //window.api.send(IPC_CHANNELS.main.actuator, "renderer");
 
     const item = state.gridLayout.find(
       (item: any) => item.key.toUpperCase() === key

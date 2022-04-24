@@ -93,3 +93,13 @@ if (isDevelopment) {
     });
   }
 }
+/**
+process.on('uncaughtException', function (err) {
+   console.log("Unexpected Exception");
+});
+
+process.on('unhandledRejection', function (err) {
+  console.log("Unexpected error occured");
+  app.quit();
+});
+ */
