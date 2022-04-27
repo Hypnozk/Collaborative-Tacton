@@ -40,9 +40,6 @@ export default {
     };
   },
   methods: {
-    editButton() {
-      console.log("edit");
-    },
     lightenDarkenColor(color, amount) {
       return lightenDarkenColor(color, amount);
     },

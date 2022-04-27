@@ -1,7 +1,7 @@
 <template>
   <div class="direct-input-keyboard-button">
     <BaseButton
-      v-if="!editModeActive"
+      v-if="!store.getters.editModeActive"
       class="button"
     >
       <div class="content" :style="{ background: color }">
@@ -27,8 +27,8 @@
 
 <script>
 import { lightenDarkenColor } from "@/renderer/lib/colors";
-import { mapGetters } from "vuex";
 import { mdiPencil } from "@mdi/js";
+import { useStore } from '@/renderer/store/store';
 
 export default {
   name: "KeyboardButton",
@@ -44,22 +44,16 @@ export default {
   },
   data: function () {
     return {
+      store:useStore(),
       buttonPressed: false,
     };
   },
   computed: {
     color() {
-      return this.channelsActive(this.button.channels)
+      return this.store.getters.channelsActive(this.button.channels)
         ? lightenDarkenColor(this.button.color, -50)
         : this.button.color;
     },
-    ...mapGetters("directInput", [
-      "channelsActive",
-      "globalIntensity",
-    ]),
-     ...mapGetters("viewPort", [
-      "editModeActive",
-    ]),
   },
 };
 </script>

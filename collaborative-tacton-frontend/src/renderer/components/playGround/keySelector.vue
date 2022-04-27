@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { useStore } from "@/renderer/store/store";
 
 export default {
   name: "KeySelector",
@@ -27,21 +27,19 @@ export default {
   emits: ["selectKey"],
   data() {
     return {
+      store: useStore(),
       selectionActive: false,
       showWarning: false,
     };
   },
-  computed: {
-    ...mapGetters("directInput", ["keyAlreadyTaken"]),
-  },
   methods: {
     keydown(event) {
       const key = event.key.toUpperCase();
-      if (this.selectionActive && !this.keyAlreadyTaken(key)) {
+      if (this.selectionActive && !this.store.getters.keyAlreadyTaken(key)) {
         this.$emit("selectKey", key);
         this.selectionActive = false;
         this.showWarning = false;
-      } else if (this.keyAlreadyTaken(key)) this.showWarning = true;
+      } else if (this.store.getters.keyAlreadyTaken(key)) this.showWarning = true;
     },
     toggleSelectionActive() {
       this.selectionActive = !this.selectionActive;

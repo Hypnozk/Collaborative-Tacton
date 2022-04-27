@@ -3,16 +3,19 @@
     <div class="header">
       <BaseButton
         class="add"
-        :class="{ disabled: !editModeActive }"
-        :disabled="!editModeActive"
-        @click="dialogVisible = true"
+        :class="{ disabled: !store.getters.editModeActive }"
+        :disabled="!store.getters.editModeActive"
+        @click="
+          dialogVisible = true;
+          editMode = false;
+        "
       >
         Add button
       </BaseButton>
       <div class="toggle">
         <BaseText class="play" :variant="'light'">Play</BaseText>
         <BaseToggleIcon
-          :value="editModeActive"
+          :value="store.getters.editModeActive"
           :icon-size="50"
           @update="toggleEditMode"
         />
@@ -21,16 +24,16 @@
       <Intensity
         class="intensity"
         :label="'global intensity'"
-        :value="globalIntensity.toString()"
+        :value="store.getters.globalIntensity.toString()"
         :variant="'light'"
         @update="setIntensity($event)"
       />
     </div>
     <PlayGround>
       <template #button-content="{ item }">
-        <keyboard-button
-          :edit-mode-active="editModeActive"
-          :global-intensity="globalIntensity"
+        <KeyboardButton
+          :edit-mode-active="store.getters.editModeActive"
+          :global-intensity="store.getters.globalIntensity"
           :button="item"
           @edit="editButton"
         />
@@ -39,9 +42,10 @@
     <ConfigDialog
       :button="customButton"
       :visible="dialogVisible"
+      :editMode="editMode"
       @update:button="updateButton"
       @close="closeDialog"
-      @confirm="addButton"
+      @confirm="confirmDialog"
       @delete="deleteButton"
     />
   </div>
@@ -52,8 +56,11 @@ import ConfigDialog from "@/renderer/components/playGround/configDialog.vue";
 import PlayGround from "@/renderer/components/playGround/playGround.vue";
 import Intensity from "@/renderer/components/playGround/intensity.vue";
 import KeyboardButton from "@/renderer/components/playGround/keyboardButton.vue";
-import { mapActions, mapGetters } from "vuex";
 import { defineComponent } from "@vue/runtime-core";
+import { ActionTypes } from "../store/modules/directInput/actionTypes";
+import { ActionTypes as ActionTypesViewPort } from "../store/modules/viewPort/viewPort";
+import { useStore } from "../store/store";
+import { InputButton } from "@/types/GeneralType";
 
 export default defineComponent({
   name: "DirectInput",
@@ -65,89 +72,100 @@ export default defineComponent({
   },
   data() {
     return {
+      store: useStore(),
       customButton: {
+        channels: [],
         color: "#0693E3",
-        name: "",
         intensity: 1,
-        key: "",
-        selectedActuators: [],
-      },
-      dialogVisible: false,
-    };
-  },
-
-  computed: {
-    ...mapGetters("directInput", [
-      "activeChannels",
-      "globalIntensity",
-      "gridColNum",
-      "gridLayout",
-      "keyAlreadyActive",
-    ]),
-    ...mapGetters("viewPort", ["editModeActive"]),
-  },
-  methods: {
-    ...mapActions("directInput", [
-      "addButtonToGrid",
-      "deleteButtonFromGrid",
-      "editButtonFromGrid",
-      "setGlobalIntensity",
-    ]),
-    ...mapActions("viewPort", ["changeEditModeActive"]),
-        resetButton() {
-      this.customButton = {
-        color: "#0693E3",
         name: "",
-        intensity: 1,
         key: "",
-        selectedActuators: [],
-      };
-    },
-    addButton({ config }: any) {
-      this.addButtonToGrid({
-        channels: config.selectedActuators,
-        color: config.color,
-        intensity: config.intensity,
-        name: config.name,
-        key: config.key,
+        i: 1,
+        h: 1,
         w: 1,
         x: 1,
         y: 1,
+      } as InputButton,
+      dialogVisible: false,
+      editMode: false,
+    };
+  },
+  methods: {
+    resetButton() {
+      this.customButton = {
+        channels: [],
+        color: "#0693E3",
+        intensity: 1,
+        name: "",
+        key: "",
+        i: 1,
         h: 1,
-      });
+        w: 1,
+        x: 1,
+        y: 1,
+      };
+    },
+    confirmDialog(config: InputButton) {
+      console.log("hi");
+      console.log(config);
+      if (this.editMode) {
+        this.store.dispatch(ActionTypes.editButtonFromGrid, {
+          channels: config.channels,
+          color: config.color,
+          intensity: config.intensity,
+          name: config.name,
+          key: config.key,
+          h: this.customButton.h,
+          w: this.customButton.w,
+          x: this.customButton.x,
+          y: this.customButton.y,
+        });
+      } else {
+        this.store.dispatch(ActionTypes.addButtonToGrid, {
+          ...this.customButton,
+          channels: config.channels,
+          color: config.color,
+          intensity: config.intensity,
+          name: config.name,
+          key: config.key,
+        });
+      }
       this.resetButton();
       this.dialogVisible = false;
     },
-    updateButton(button: any) {
+    updateButton(button: InputButton) {
       this.customButton = button;
     },
     confirmEditedButton({ key, config }: any) {
-      this.editButtonFromGrid({ key, config });
+      this.store.dispatch(ActionTypes.editButtonFromGrid, { key, config });
       this.resetButton();
       this.dialogVisible = false;
     },
     deleteButton(key: string) {
-      this.deleteButtonFromGrid(key);
+      this.store.dispatch(ActionTypes.deleteButtonFromGrid, key);
       this.resetButton();
       this.dialogVisible = false;
     },
     editButton(id: string) {
-      const item = this.gridLayout.find((item: any) => item.i === id);
+      const item = this.store.getters.gridLayout.find(
+        (item: any) => item.i === id
+      );
       this.customButton = {
+        ...this.customButton,
         color: item.color,
         name: item.name,
         intensity: item.intensity,
         key: item.key,
-        selectedActuators: item.channels,
+        channels: item.channels,
       };
+      this.editMode = true;
       this.dialogVisible = true;
     },
     setIntensity(intensity: number) {
-      this.setGlobalIntensity(intensity);
+      this.store.dispatch(ActionTypes.setGlobalIntensity, intensity);
       // changeGlobalIntensity();
     },
     toggleEditMode(active: boolean) {
-      this.changeEditModeActive(active);
+      this.store.dispatch(ActionTypesViewPort.changeEditModeActive, true);
     },
     closeDialog() {
       this.resetButton();

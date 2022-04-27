@@ -11,7 +11,7 @@ const routes: Array<RouteRecordRaw> =[
         path: "/devices",
         name: RouteNames.DEVICES,
         component: () =>
-        import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
+        import(/* webpackChunkName: "about" */ "../views/DeviceView.vue"),
     
       },
       {

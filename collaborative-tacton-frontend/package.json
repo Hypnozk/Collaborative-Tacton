@@ -13,6 +13,7 @@
   },
   "main": "background.js",
   "dependencies": {
+    "@abandonware/noble": "^1.9.2-15",
     "@ckpack/vue-color": "^1.1.8",
     "@mdi/js": "^6.5.95",
     "core-js": "^3.8.3",
