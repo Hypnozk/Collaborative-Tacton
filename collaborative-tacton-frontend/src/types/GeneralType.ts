@@ -2,10 +2,6 @@
  * Types
  * 
  */
-export type Channel = {
-  id: string[],
-  intensities: number[]
-};
 
 export type InputButton = {
   channels: string[],
@@ -18,4 +14,5 @@ export type InputButton = {
   w: number,
   x: number,
   y: number,
+  isActive: boolean
 }

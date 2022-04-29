@@ -1,26 +1,19 @@
-import PlayGroundView from "../views/PlayGroundView.vue";
+import RoomView from "../views/RoomView.vue";
 import { RouteRecordRaw } from "vue-router";
 
-export enum RouteNames {
-    PLAY_GROUND = "playGround",
-    DEVICES = "devices",
+export enum RouterNames {
+    ROOM = "ROOM_VIEW",
+    PLAY_GROUND = "PLAY_GROUND"
   }
 
 const routes: Array<RouteRecordRaw> =[
-    {
-        path: "/devices",
-        name: RouteNames.DEVICES,
-        component: () =>
-        import(/* webpackChunkName: "about" */ "../views/DeviceView.vue"),
-    
-      },
       {
         path: "/",
-        name: RouteNames.PLAY_GROUND,
+        name: RouterNames.ROOM,
         // route level code-splitting
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
-        component: PlayGroundView,
+        component: RoomView,
       },
     ]
    

@@ -4,9 +4,12 @@ module.exports = {
     electronBuilder: {
       preload: 'src/preload.js',
       builderOptions: {
-        productName: 'Collaborative Tacton Generator',
+        productName: 'Collaborative Tacton Generator'
       }
-    }
+    },
+    vuetify: {
+			// https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vuetify-loader
+		}
   },
   pages: {
     index: {

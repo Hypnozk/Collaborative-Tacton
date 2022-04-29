@@ -39,4 +39,4 @@ ipcMain.on(IPC_CHANNELS.main.changeScan, (event, scanStatus: boolean) => {
 
 export function setBrowserWindow(browserWindow: BrowserWindow) {
     _win = browserWindow;
-};
+}

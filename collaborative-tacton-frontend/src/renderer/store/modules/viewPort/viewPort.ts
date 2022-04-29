@@ -1,3 +1,4 @@
+import { RouterNames } from '@/renderer/router/routes';
 import { MutationTree, GetterTree, ActionTree, ActionContext } from 'vuex'
 import { State as RootState } from '../../store';
 /**
@@ -13,29 +14,23 @@ import { State as RootState } from '../../store';
 export type State = typeof state;
 
 export const state = {
-    playGroundVisible: false,
-    editModeActive: true,
+    currentView: RouterNames.ROOM,
 };
 /**
  * mutations
  * 
  */
 export enum MutationTypes {
-    CHANGE_PLAY_GROUND_VISIBILE = "CHANGE_PLAY_GROUND_VISIBILE",
-    CHANGE_EDIT_MODE_ACTIVE = "CHANGE_EDIT_MODE_ACTIVE",
+    CHANGE_VISIBILE_VIEW = "CHANGE_VISIBILE_VIEW",
 }
 
 export type Mutations<S = State> = {
-    [MutationTypes.CHANGE_PLAY_GROUND_VISIBILE](state: S, visible: boolean): void
-    [MutationTypes.CHANGE_EDIT_MODE_ACTIVE](state: S, active: boolean): void
+    [MutationTypes.CHANGE_VISIBILE_VIEW](state: S, view: RouterNames): void
 }
 
 export const mutations: MutationTree<State> & Mutations = {
-    [MutationTypes.CHANGE_PLAY_GROUND_VISIBILE](state, visible) {
-        state.playGroundVisible = visible;
-    },
-    [MutationTypes.CHANGE_EDIT_MODE_ACTIVE](state, active) {
-        state.editModeActive = active;
+    [MutationTypes.CHANGE_VISIBILE_VIEW](state, view) {
+        state.currentView = view;
     },
 };
 
@@ -44,9 +39,9 @@ export const mutations: MutationTree<State> & Mutations = {
  * 
  */
  export enum ActionTypes {
-    changePlayGroundVisible = 'changePlayGroundVisible',
-    changeEditModeActive = 'changeEditModeActive',
+    changeCurrentView = 'changeCurrentView',
   }
+
   type AugmentedActionContext = {
     commit<K extends keyof Mutations>(
       key: K,
@@ -55,22 +50,15 @@ export const mutations: MutationTree<State> & Mutations = {
   } & Omit<ActionContext<State, RootState>, 'commit'>
   
   export interface Actions {
-    [ActionTypes.changePlayGroundVisible](
+    [ActionTypes.changeCurrentView](
       { commit }: AugmentedActionContext,
-      payload: boolean
+      payload: RouterNames
     ): void,
-    [ActionTypes.changeEditModeActive](
-        { commit }: AugmentedActionContext,
-        payload: boolean
-      ): void,
   }
 
  export const actions: ActionTree<State, RootState> & Actions = {
-    changePlayGroundVisible({ commit }, visible: boolean) {
-        commit(MutationTypes.CHANGE_PLAY_GROUND_VISIBILE, visible);
-    },
-    changeEditModeActive({ commit }, active: boolean) {
-        commit(MutationTypes.CHANGE_EDIT_MODE_ACTIVE, active);
+    changeCurrentView({ commit }, view: RouterNames) {
+        commit(MutationTypes.CHANGE_VISIBILE_VIEW, view);
     },
 };
 
@@ -78,11 +66,9 @@ export const mutations: MutationTree<State> & Mutations = {
  * Getters
  */
 export type Getters = {
-    playGroundVisible(state: State): boolean
-    editModeActive(state: State): boolean
+    currentView(state: State): RouterNames
 }
 
 export const getters: GetterTree<State, RootState> & Getters = {
-    playGroundVisible: (state) => state.playGroundVisible,
-    editModeActive: (state) => state.editModeActive,
+    currentView: (state) => state.currentView
 };

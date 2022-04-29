@@ -98,7 +98,7 @@ const descriptorRegExp = new RegExp(descriptorUserDescription);
 let blueToothState = "";
 let scanning = false;
 let discoveredDevices = [];
-let devices = [];
+const devices = [];
 const pwmMapping = [];
 const numberOfOutputs = [];
 
