@@ -1,7 +1,7 @@
 import RoomView from "../views/RoomView.vue";
 import { RouteRecordRaw } from "vue-router";
 
-export enum RouterNames {
+enum RouterNames {
     ROOM = "ROOM_VIEW",
     PLAY_GROUND = "PLAY_GROUND"
   }

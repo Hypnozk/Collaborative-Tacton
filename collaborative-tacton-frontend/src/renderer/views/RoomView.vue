@@ -18,12 +18,12 @@
           <v-text-field hide-details="auto"></v-text-field>
         </v-col>
       </v-row>
-      <v-row align="center" justify="center" style="margintop: 40px">
+      <v-row align="center" justify="center" style="marginTop: 40px">
         <v-btn elevation="2" color="primary" @click="enterRoom"
           >Enter Room</v-btn
         >
       </v-row>
-       <v-row align="center" justify="center" style="margintop: 40px">
+       <v-row align="center" justify="center" style="marginTop: 40px">
         <v-btn elevation="2" color="primary" @click="enter"
           >Enter</v-btn
         >
@@ -31,36 +31,6 @@
     </v-container>
   </v-container>
 </template>
-
-<script lang="ts">
-import { defineComponent } from "@vue/runtime-core";
-
-export default defineComponent({
-  name: "RoomView",
-  data() {
-    return {
-      roomName: "",
-      userName: "",
-      clientWS: null as any
-    };
-  },
-  methods: {
-    enterRoom() {
-      this.clientWS = new WebSocket("ws://localhost:8080/patth?token=secure");
-      this.clientWS.addEventListener("error", function (event:any) {
-        console.log("WebSocket error: ", event);
-      });
-      //clientWS.send("hello")
-      console.log(this.roomName);
-    },
-    enter() {
-      
-      this.clientWS.send("hello")
-      console.log(this.roomName);
-    },
-  },
-});
-</script>
 
 <style lang="scss" scoped>
 .container {
@@ -72,3 +42,34 @@ export default defineComponent({
   font-size: 1.5em;
 }
 </style>
+
+<script lang="ts">
+import {RouterNames} from "../../types/Routernames"
+import { defineComponent } from "@vue/runtime-core";
+import {useStore} from "../store/store"
+
+export default defineComponent({
+  name: "RoomView",
+  data() {
+    return {
+      roomName: "",
+      userName: "",
+      store: useStore()
+    };
+  },
+  methods: {
+    enterRoom() {
+      console.log(this.store.getters.currentSocketClient);
+    },
+    enter() {
+      
+      //this.clientWS.send("hello")
+      console.log(this.roomName);
+    },
+  },
+
+/**
+
+ */
+});
+  </script>

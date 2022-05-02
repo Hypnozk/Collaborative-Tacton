@@ -3,15 +3,6 @@ import {
 } from 'vuex'
 
 import {
-  BreakPointModule,
-  Store as BreakPointStore,
-} from './modules/breakPoint'
-
-import {
-  State as BreakPointState,
-} from './modules/breakPoint/breakpoint'
-
-import {
   DirectInputModule,
   Store as DirectInputStore,
 } from './modules/directInput'
@@ -21,36 +12,23 @@ import {
 } from './modules/directInput/state'
 
 import {
-  DevicesModule,
-  Store as DevicesStore,
-} from './modules/devices'
+  GeneralSettingsModule,
+  Store as GeneralSettingsStore,
+} from './modules/generalSettings'
 
 import {
-  State as DevicesState,
-} from './modules/devices/devices'
-
-import {
-  ViewPortModule,
-  Store as ViewPortStore,
-} from './modules/viewPort'
-
-import {
-  State as ViewPortState,
-} from './modules/viewPort/viewPort'
+  State as GeneralSettingsState,
+} from './modules/generalSettings/generalSettings'
 
 export type State = {
-  breakPoint: BreakPointState,
+  generalSettings: GeneralSettingsState
   directInput: DirectInputState,
-  devices: DevicesState,
-  viewPort: ViewPortState
 }
 
-export const store = createStore({
+const store = createStore({
   modules: {
-    BreakPointModule,
-    DirectInputModule,
-    DevicesModule,
-    ViewPortModule
+    GeneralSettingsModule,
+    DirectInputModule
   },
 })
 
@@ -66,8 +44,7 @@ interface Mutations extends MutationsDirectInput,MutationsBreakPoint {}
 interface Actions extends ActionsDirectInput,ActionsBreakPoint {}
 interface Getters extends GettersDirectInput,GettersBreakPoint {}
 */
-export type Store = BreakPointStore<Pick<State, 'breakPoint'>> & DirectInputStore<Pick<State, 'directInput'>>
-  & DevicesStore<Pick<State, 'devices'>> & ViewPortStore<Pick<State, 'viewPort'>>
+export type Store = GeneralSettingsStore<Pick<State, 'generalSettings'>> & DirectInputStore<Pick<State, 'directInput'>>;
 
 /**
  * use following to get the store in every file of the renderer 

@@ -7,7 +7,7 @@ import {
 
 import { State as RootState } from '../../store';
 
-import { mutations, Mutations, Actions, actions, getters, Getters, state, State } from './viewPort';
+import { mutations, Mutations, Actions, actions, getters, Getters, state, State } from './generalSettings';
 
 export type Store<S = State> = Omit<VuexStore<S>, 'getters' | 'commit' | 'dispatch'>
     & {
@@ -19,7 +19,7 @@ export type Store<S = State> = Omit<VuexStore<S>, 'getters' | 'commit' | 'dispat
     } & {
         dispatch<K extends keyof Actions>(
             key: K,
-            payload: Parameters<Actions[K]>[1],
+            payload?: Parameters<Actions[K]>[1],
             options?: DispatchOptions
         ): ReturnType<Actions[K]>;
     } & {
@@ -28,7 +28,7 @@ export type Store<S = State> = Omit<VuexStore<S>, 'getters' | 'commit' | 'dispat
         };
     };
 
-export const ViewPortModule: Module<State, RootState> = {
+export const GeneralSettingsModule: Module<State, RootState> = {
     state,
     getters,
     mutations,
