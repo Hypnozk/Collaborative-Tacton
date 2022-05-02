@@ -18,14 +18,4 @@ module.exports = {
       title: 'Collaborative Tacton Generator',
     },
   },
-  css: {
-    loaderOptions: {
-      scss: {
-        prependData: `
-              @import "~@/renderer/scss/_variables.scss";
-              @import "~@/renderer/scss/_mixins.scss";
-            `,
-      },
-    },
-  },
 }

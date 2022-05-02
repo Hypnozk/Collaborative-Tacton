@@ -36,7 +36,7 @@ export default defineComponent({
   },
   methods: {
     correctFrameForInput(): boolean {
-      return this.store.getters.currentView == RouterNames.PLAY_GROUND;
+      return this.store.getters.currentView !== RouterNames.PLAY_GROUND;
     },
     buttonDown(e: any) {
       const key: string = e.key.toUpperCase();
