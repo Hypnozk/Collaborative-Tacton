@@ -14,7 +14,11 @@ npm run serve
 ```
 npm run build
 ```
-
+### Run as electron app
+Execute in `dist` folder
+```
+npm run electron:serve
+```
 ### Lints and fixes files
 ```
 npm run lint
