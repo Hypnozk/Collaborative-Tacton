@@ -1,0 +1,4 @@
+export enum WS_MSG_TYPE {
+    ENTER_ROOM = "ENTER_ROOM",
+    GET_ROOM_INFO = "ROOM_INFORMATION"
+}
