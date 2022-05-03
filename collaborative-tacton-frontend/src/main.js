@@ -4,6 +4,7 @@ import vuetify from './plugins/vuetify'
 import { loadFonts } from './plugins/webfontloader'
 import router from "./renderer/router"
 import { useStore } from "./renderer/store/store";
+import { initWebsocket } from "./renderer/WebSocketManager"
 
 loadFonts()
 
@@ -12,3 +13,5 @@ createApp(App)
   .use(useStore())
   .use(router)
   .mount('#app')
+
+initWebsocket();

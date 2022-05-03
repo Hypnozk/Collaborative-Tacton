@@ -23,10 +23,8 @@
           >Enter Room</v-btn
         >
       </v-row>
-       <v-row align="center" justify="center" style="marginTop: 40px">
-        <v-btn elevation="2" color="primary" @click="enter"
-          >Enter</v-btn
-        >
+      <v-row align="center" justify="center" style="marginTop: 40px">
+        <v-btn elevation="2" color="primary" @click="enter">Enter</v-btn>
       </v-row>
     </v-container>
   </v-container>
@@ -44,32 +42,31 @@
 </style>
 
 <script lang="ts">
-import {RouterNames} from "../../types/Routernames"
+import { RouterNames } from "../../types/Routernames";
 import { defineComponent } from "@vue/runtime-core";
-import {useStore} from "../store/store"
-
+import { useStore } from "../store/store";
+import {sendMessage} from "../WebSocketManager"
 export default defineComponent({
   name: "RoomView",
   data() {
     return {
       roomName: "",
       userName: "",
-      store: useStore()
+      store: useStore(),
     };
   },
   methods: {
     enterRoom() {
-      console.log(this.store.getters.currentSocketClient);
+        sendMessage();
     },
     enter() {
-      
       //this.clientWS.send("hello")
       console.log(this.roomName);
     },
   },
 
-/**
+  /**
 
  */
 });
-  </script>
+</script>

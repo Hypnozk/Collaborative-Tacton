@@ -1,14 +1,15 @@
 <template>
   <div tabindex="0" class="main" @keyup="buttonUp" @keydown="buttonDown">
     <div class="root">
-    <v-app>
-      <v-main>
-        <router-view />
-      </v-main>
-    </v-app>
+      <v-app>
+        <v-main>
+          <router-view />
+        </v-main>
+      </v-app>
     </div>
+    <button @click="temp">tesztin</button>
     <transition name="fade">
-      <div id="snackbar" v-show="snackbar">Some text some message..</div>
+      <div id="snackbar" v-show="!count">Some text some message..</div>
     </transition>
   </div>
 </template>
@@ -20,7 +21,7 @@
   justify-content: center;
   display: flex;
 }
-.root{
+.root {
   display: block;
   width: 100%;
 }
@@ -29,9 +30,9 @@
 }
 #snackbar {
   width: 90%; /* Set a default minimum width */
-  box-shadow:0 10px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0, 0, 0, 0.19) !important;
-  border-radius: 5px  !important;
- // box-shadow: #333;
+  box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) !important;
+  border-radius: 5px !important;
+  // box-shadow: #333;
   background-color: #333; /* Black background color */
   color: #fff; /* White text color */
   text-align: center; /* Centered text */
@@ -52,47 +53,69 @@
 }
 </style>
 <script lang="ts">
-import { defineComponent } from "@vue/runtime-core";
+import { computed, defineComponent } from "@vue/runtime-core";
 import { RouterNames } from "../types/Routernames";
-import { ActionTypes } from "./store/modules/directInput/actionTypes";
-import { ActionTypes as ActionTypesGeneral } from "./store/modules/generalSettings/generalSettings";
-import { useStore } from "./store/store";
+import { GeneralSettingsActionTypes } from "./store/modules/generalSettings/generalSettings";
+import { useStore, store } from "./store/store";
+import {sendMessage} from "./WebSocketManager"
 export default defineComponent({
   name: "App",
+  setup() {
+    const store = useStore();
+    return {
+      isConnected: computed(() => store.getters.isConnectedToSocket),
+    };
+  },
   data() {
     return {
+      //isConnected: false,
       store: useStore(),
       snackbar: true,
     };
   },
+  computed: {
+    count() {
+      console.log("count " + store.getters.isConnectedToSocket)
+      return store.getters.isConnectedToSocket;
+    },
+  },
   mounted() {
     console.log("get mounted");
-    this.store.dispatch(ActionTypesGeneral.addSocketClient);
   },
   watch: {
     $route(to) {
       //this.show = false;
-      this.store.dispatch(ActionTypesGeneral.changeCurrentView, to.name);
+      this.store.dispatch(
+        GeneralSettingsActionTypes.changeCurrentView,
+        to.name
+      );
     },
   },
   methods: {
+    temp() {
+      console.log("temp count" + this.count)
+      console.log(this.isConnected);
+      //
+      sendMessage();
+    },
     correctFrameForInput(): boolean {
       return this.store.getters.currentView !== RouterNames.PLAY_GROUND;
     },
     buttonDown(e: any) {
-       console.log("buttondd");
+      // console.log(this.store.state.directInput.globalIntensity)
+      console.log("buttondd");
       const key: string = e.key.toUpperCase();
       if (this.correctFrameForInput()) return;
 
       console.log("buttondd");
-      this.store.dispatch(ActionTypes.addActiveKey, key);
+      // this.store.dispatch(ActionTypes.addActiveKey, key);
     },
     buttonUp(e: any) {
       const key = e.key.toUpperCase();
       if (this.correctFrameForInput()) return;
 
       console.log("buttonUp");
-      this.store.dispatch(ActionTypes.removeActiveKey, key);
+      //this.store.dispatch(ActionTypes.removeActiveKey, key);
     },
   },
 });
