@@ -11,8 +11,18 @@ import {
   State as GeneralSettingsState,
 } from './modules/generalSettings/generalSettings'
 
+import {
+  store as roomSettings,
+  RoomSettingsStore,
+} from './modules/roomSettings'
+
+import {
+  State as RoomSettingsState,
+} from './modules/roomSettings/roomSettings'
+
 export type RootState = {
-  generalSettings: GeneralSettingsState
+  generalSettings: GeneralSettingsState,
+  roomSettings: RoomSettingsState
 }
 
 /**
@@ -21,11 +31,12 @@ interface Mutations extends MutationsDirectInput,MutationsBreakPoint {}
 interface Actions extends ActionsDirectInput,ActionsBreakPoint {}
 interface Getters extends GettersDirectInput,GettersBreakPoint {}
 */
-export type Store = GeneralSettingsStore<Pick<RootState, 'generalSettings'>>
+export type Store = GeneralSettingsStore<Pick<RootState, 'generalSettings'>> & RoomSettingsStore<Pick<RootState,'roomSettings'>>
 
 export const store = createStore({
   modules: {
-    generalSettings
+    generalSettings,
+    roomSettings
   },
 })
 

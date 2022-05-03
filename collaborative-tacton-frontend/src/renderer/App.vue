@@ -4,13 +4,31 @@
       <v-app>
         <v-main>
           <router-view />
+          <transition name="fade">
+            <div class="snackbar" v-show="!isConnected">
+              <div class="label">
+                It seems you are offline pleasy try to reconnect
+              </div>
+              <v-btn
+                text
+                color="transparent"
+                @click="reconnectSocket"
+                loading="isReconnecting"
+              >
+                <v-progress-circular
+                  v-if="isReconnecting"
+                  indeterminate
+                  color="red"
+                  :size="20"
+                ></v-progress-circular>
+                <v-icon v-else left> mdi-reload </v-icon>
+                <div class="customIcon">Retry</div>
+              </v-btn>
+            </div>
+          </transition>
         </v-main>
       </v-app>
     </div>
-    <button @click="temp">tesztin</button>
-    <transition name="fade">
-      <div id="snackbar" v-show="!count">Some text some message..</div>
-    </transition>
   </div>
 </template>
 
@@ -25,10 +43,12 @@
   display: block;
   width: 100%;
 }
-.customSnackbar {
-  background-color: aquamarine;
+.customIcon {
+  padding-left: 5px;
 }
-#snackbar {
+.snackbar {
+  display: flex;
+  justify-content: space-between;
   width: 90%; /* Set a default minimum width */
   box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) !important;
   border-radius: 5px !important;
@@ -44,6 +64,10 @@
   bottom: 30px; /* 30px from the bottom */
 }
 
+.label {
+  display: flex;
+  align-items: center;
+}
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.9s;
@@ -57,7 +81,7 @@ import { computed, defineComponent } from "@vue/runtime-core";
 import { RouterNames } from "../types/Routernames";
 import { GeneralSettingsActionTypes } from "./store/modules/generalSettings/generalSettings";
 import { useStore, store } from "./store/store";
-import {sendMessage} from "./WebSocketManager"
+import { sendMessage, initWebsocket } from "./WebSocketManager";
 export default defineComponent({
   name: "App",
   setup() {
@@ -68,19 +92,9 @@ export default defineComponent({
   },
   data() {
     return {
-      //isConnected: false,
       store: useStore(),
-      snackbar: true,
+      isReconnecting: false,
     };
-  },
-  computed: {
-    count() {
-      console.log("count " + store.getters.isConnectedToSocket)
-      return store.getters.isConnectedToSocket;
-    },
-  },
-  mounted() {
-    console.log("get mounted");
   },
   watch: {
     $route(to) {
@@ -92,28 +106,24 @@ export default defineComponent({
     },
   },
   methods: {
-    temp() {
-      console.log("temp count" + this.count)
-      console.log(this.isConnected);
-      //
-      sendMessage();
+    reconnectSocket() {
+      this.isReconnecting = true;
+      initWebsocket();
+      setTimeout(() => (this.isReconnecting = false), 5000);
     },
     correctFrameForInput(): boolean {
       return this.store.getters.currentView !== RouterNames.PLAY_GROUND;
     },
     buttonDown(e: any) {
-      // console.log(this.store.state.directInput.globalIntensity)
-      console.log("buttondd");
-      const key: string = e.key.toUpperCase();
       if (this.correctFrameForInput()) return;
 
+      const key: string = e.key.toUpperCase();
       console.log("buttondd");
       // this.store.dispatch(ActionTypes.addActiveKey, key);
     },
     buttonUp(e: any) {
-      const key = e.key.toUpperCase();
       if (this.correctFrameForInput()) return;
-
+      const key = e.key.toUpperCase();
       console.log("buttonUp");
       //this.store.dispatch(ActionTypes.removeActiveKey, key);
     },

@@ -1,8 +1,10 @@
 import { GeneralSettingsActionTypes, MutationTypes } from "../store/modules/generalSettings/generalSettings";
 import { useStore } from "../store/store";
+import { handleMessage, SocketMessage } from "./messageHandler";
+import { WS_MSG_TYPE } from "./ws_types";
 
 const store = useStore()
-let clientWs = null as WebSocket |null;
+let clientWs = null as WebSocket | null;
 export const initWebsocket = () => {
     //store.dispatch(GeneralSettingsActionTypes.addSocketClient, new WebSocket("ws://localhost:8080/patth?token=secure"));
     clientWs = new WebSocket("ws://localhost:8080/patth?token=secure")
@@ -20,12 +22,22 @@ export const initWebsocket = () => {
             store.commit(MutationTypes.UPDATE_SOCKET_CONNECTION, false);
             console.log("Error websocket  connection " + event);
         };
-        clientWs.onmessage = function (event: Event) {
-            console.log("Message websocket  connection " + event);
+        clientWs.onmessage = function (event: MessageEvent<any>) {
+            // console.log("Message websocket  connection " + event.data);
+            try{
+                handleMessage(JSON.parse(event.data));
+            }catch(err){
+                console.log(`Error occured ${err}`)
+            }
         };
     }
 }
 
-export const sendMessage = () => {
-    clientWs?.send("my name is ts")
+export const sendMessage = (msgType: WS_MSG_TYPE, payload: any) => {
+    if (clientWs?.readyState == 1) {
+        clientWs?.send(JSON.stringify({
+            type: msgType,
+            payload: payload,
+        }))
+    }
 }

@@ -6,7 +6,6 @@ import { RouterNames } from '../../../../types/Routernames';
  * Tyopes
  * 
  */
-
 /**
  * state
  * 
@@ -14,14 +13,12 @@ import { RouterNames } from '../../../../types/Routernames';
 
 export type State = {
   currentView: RouterNames,
-  webSocketClient: WebSocket | null,
-  socketConnectionStatus: boolean
+  socketConnectionStatus: boolean,
 };
 
 export const state: State = {
   currentView: RouterNames.ROOM,
-  webSocketClient: null,
-  socketConnectionStatus: true
+  socketConnectionStatus: false,
 };
 /**
  * mutations
@@ -29,22 +26,17 @@ export const state: State = {
  */
 export enum MutationTypes {
   CHANGE_VISIBILE_VIEW = "CHANGE_VISIBILE_VIEW",
-  UPDATE_WEBSOCKET_CLIENT = "UPDATE_WEBSOCKET_CLIENT",
-  UPDATE_SOCKET_CONNECTION = "UPDATE_SOCKET_CONNECTION"
+  UPDATE_SOCKET_CONNECTION = "UPDATE_SOCKET_CONNECTION",
 }
 
 export type Mutations<S = State> = {
   [MutationTypes.CHANGE_VISIBILE_VIEW](state: S, view: RouterNames): void
-  [MutationTypes.UPDATE_WEBSOCKET_CLIENT](state: S, webSocket: WebSocket): void
   [MutationTypes.UPDATE_SOCKET_CONNECTION](state: S, status: boolean): void
 }
 
 export const mutations: MutationTree<State> & Mutations = {
   [MutationTypes.CHANGE_VISIBILE_VIEW](state, view) {
     state.currentView = view;
-  },
-  [MutationTypes.UPDATE_WEBSOCKET_CLIENT](state, webSocket) {
-    state.webSocketClient = webSocket;
   },
   [MutationTypes.UPDATE_SOCKET_CONNECTION](state, status) {
     state.socketConnectionStatus = status;
@@ -57,7 +49,6 @@ export const mutations: MutationTree<State> & Mutations = {
  */
 export enum GeneralSettingsActionTypes {
   changeCurrentView = 'changeCurrentView',
-  addSocketClient = 'addSocketClient',
   updateSocketConnectionStatus = 'updateSocketConnectionStatus',
 }
 
@@ -73,10 +64,6 @@ export interface Actions {
     { commit }: AugmentedActionContext,
     payload: RouterNames, // Obsolete in here but left as an example
   ): void;
-  [GeneralSettingsActionTypes.addSocketClient](
-    { commit }: AugmentedActionContext,
-    payload: WebSocket, // Obsolete in here but left as an example
-  ): void;
   [GeneralSettingsActionTypes.updateSocketConnectionStatus](
     { commit }: AugmentedActionContext,
     payload: boolean, // Obsolete in here but left as an example
@@ -86,9 +73,6 @@ export interface Actions {
 export const actions: ActionTree<State, RootState> & Actions = {
   [GeneralSettingsActionTypes.changeCurrentView]({ commit }, view: RouterNames) {
     commit(MutationTypes.CHANGE_VISIBILE_VIEW, view);
-  },
-  [GeneralSettingsActionTypes.addSocketClient]({ commit }, webSocket: WebSocket) {
-    commit(MutationTypes.UPDATE_WEBSOCKET_CLIENT, webSocket);
   },
   [GeneralSettingsActionTypes.updateSocketConnectionStatus]({ commit }, status: boolean) {
     commit(MutationTypes.UPDATE_SOCKET_CONNECTION, status);
@@ -100,12 +84,12 @@ export const actions: ActionTree<State, RootState> & Actions = {
  */
 export type Getters = {
   currentView(state: State): RouterNames,
-  currentSocketClient(state: State): WebSocket | null,
+  showRoomDialog(state:State): boolean,
   isConnectedToSocket(state: State): boolean
 }
 
 export const getters: GetterTree<State, RootState> & Getters = {
   currentView: (state) => state.currentView,
-  currentSocketClient: (state) => state.webSocketClient,
+  showRoomDialog: (state) => state.currentView == RouterNames.ROOM_DIALOG,
   isConnectedToSocket: (state) => state.socketConnectionStatus
 };

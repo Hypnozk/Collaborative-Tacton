@@ -10,14 +10,9 @@ const wss = new WebSocketServer({ noServer: true });
 
 
 
-wss.on('connection', function connection(ws: any, request: string, client: string) {
-    ws.on('message', (data:any) => {
-        ws.send('something');
-        console.log(ws)
-        console.log(typeof ws)
-        onMessage(data, client)
-    });
-    ws.on("close", (data:any) => onClose(data, client));
+wss.on('connection', function connection(ws: WebSocket, request: string, client: string) {
+    ws.onmessage = (ev) => onMessage(ws, ev.data, client)
+    ws.onclose = () => onClose(client);
     
 });
 
@@ -51,7 +46,6 @@ server.on('upgrade', function upgrade(request, socket, head) {
         }
 
         wss.handleUpgrade(request, socket, head, function done(ws) {
-            
             wss.emit('connection', ws, request, client);
         });
     });
