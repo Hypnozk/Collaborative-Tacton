@@ -86,26 +86,9 @@ export interface Actions {
 export const actions: ActionTree<State, RootState> & Actions = {
   [RoomSettingsActionTypes.addRoomInformations]({ commit }, room: Room) {
     //commit(MutationTypes.CHANGE_VISIBILE_VIEW, view);
-    let name = state.name;
-    if (name.length == 0) {
-      //get a nice name of room if no one want it
-      const today = new Date();
-      const dd = String(today.getDate()).padStart(2, '0');
-      const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-      const yyyy = today.getFullYear();
-
-      name = `${mm}/${dd}/${yyyy}::${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
-    }
-    const newRoom: Room = { id: "", name: name, participants: [] };
-    if (room !== undefined) {
-      if (room.id !== undefined)
-        newRoom.id = room.id;
-      if (room.participants !== undefined)
-        newRoom.participants = room.participants;
-    }
-
+    console.log(room)
     const store = useStore();
-    store.commit(MutationTypes.CHANGE_ROOM, newRoom);
+    store.commit(MutationTypes.CHANGE_ROOM, room);
     store.commit(GeneralMutations.CHANGE_VISIBILE_VIEW, RouterNames.ROOM_DIALOG)
   },
 };

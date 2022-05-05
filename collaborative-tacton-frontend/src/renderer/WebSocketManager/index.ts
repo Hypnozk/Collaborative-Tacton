@@ -23,10 +23,12 @@ export const initWebsocket = () => {
             console.log("Error websocket  connection " + event);
         };
         clientWs.onmessage = function (event: MessageEvent<any>) {
-            // console.log("Message websocket  connection " + event.data);
+            console.log("Message websocket  connection " + event.data);
+            console.log(event.data);
             try{
                 handleMessage(JSON.parse(event.data));
             }catch(err){
+                console.log("error Past");
                 console.log(`Error occured ${err}`)
             }
         };

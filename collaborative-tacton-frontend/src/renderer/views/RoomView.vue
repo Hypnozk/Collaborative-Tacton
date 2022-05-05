@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="showRoomDialog" max-width="40%">
+  <v-dialog v-model="showRoomDialog" max-width="70%">
     <template v-slot:activator>
       <RoomLayout />
     </template>

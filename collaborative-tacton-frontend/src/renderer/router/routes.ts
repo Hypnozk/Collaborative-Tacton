@@ -1,10 +1,7 @@
 import RoomView from "../views/RoomView.vue";
+import DeviceView from "../views/DeviceView.vue"
 import { RouteRecordRaw } from "vue-router";
-
-enum RouterNames {
-    ROOM = "ROOM_VIEW",
-    PLAY_GROUND = "PLAY_GROUND"
-  }
+import { RouterNames } from "@/types/Routernames";
 
 const routes: Array<RouteRecordRaw> =[
       {
@@ -14,6 +11,14 @@ const routes: Array<RouteRecordRaw> =[
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
         component: RoomView,
+      },
+      {
+        path: "/device",
+        name: RouterNames.DEVICE,
+        // route level code-splitting
+        // this generates a separate chunk (about.[hash].js) for this route
+        // which is lazy-loaded when the route is visited.
+        component: DeviceView,
       },
     ]
    

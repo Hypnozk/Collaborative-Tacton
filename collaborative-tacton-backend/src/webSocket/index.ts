@@ -2,8 +2,9 @@ import { WS_MSG_TYPE } from "./ws_types";
 import StorageManager from "../store/StoreManager"
 interface SocketMessage {
     type: WS_MSG_TYPE;
-    data: any;
+    payload: any;
 }
+
 export const onMessage = (ws: WebSocket, data: any, client: string) => {
     console.log(`Received message ${data} from user ${client}`);
     console.log(data)
@@ -15,8 +16,14 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 break;
             }
             case WS_MSG_TYPE.GET_ROOM_INFO: {
-                const roomInfo = StorageManager.getRoomInfo(msg.data);
-                console.log(roomInfo)
+                let roomInfo = StorageManager.getRoomInfo(msg.payload);
+                console.log(msg.payload)
+                if (roomInfo == undefined)
+                    roomInfo = {
+                        id: "",
+                        name: msg.payload ? msg.payload : StorageManager.getNewRoomName(),
+                        participants: []
+                    }
                 ws.send(JSON.stringify({
                     type: WS_MSG_TYPE.SEND_ROOM_INFO,
                     payload: roomInfo,
