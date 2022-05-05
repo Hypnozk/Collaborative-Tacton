@@ -4,7 +4,8 @@ import vuetify from './plugins/vuetify'
 import { loadFonts } from './plugins/webfontloader'
 import router from "./renderer/router"
 import { useStore } from "./renderer/store/store";
-import { initWebsocket } from "./renderer/WebSocketManager"
+import { initWebsocket } from "./renderer/CommunicationManager/WebSocketManager"
+import {initIPCListener} from "./renderer/CommunicationManager/IPCListener"
 
 loadFonts()
 
@@ -14,4 +15,5 @@ createApp(App)
   .use(router)
   .mount('#app')
 
+initIPCListener();
 initWebsocket();

@@ -5,7 +5,7 @@ import { RouterNames } from "@/types/Routernames";
 
 const routes: Array<RouteRecordRaw> =[
       {
-        path: "/",
+        path: "/device",
         name: RouterNames.ROOM,
         // route level code-splitting
         // this generates a separate chunk (about.[hash].js) for this route
@@ -13,7 +13,7 @@ const routes: Array<RouteRecordRaw> =[
         component: RoomView,
       },
       {
-        path: "/device",
+        path: "/",
         name: RouterNames.DEVICE,
         // route level code-splitting
         // this generates a separate chunk (about.[hash].js) for this route

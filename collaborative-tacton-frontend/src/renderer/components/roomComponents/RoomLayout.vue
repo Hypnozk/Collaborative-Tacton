@@ -47,10 +47,10 @@
 </style>
 
 <script lang="ts">
-import { WS_MSG_TYPE } from "../../WebSocketManager/ws_types";
+import { WS_MSG_TYPE } from "../../CommunicationManager/WebSocketManager/ws_types";
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "../../store/store";
-import { sendMessage } from "../../WebSocketManager";
+import { sendMessage } from "../../CommunicationManager/WebSocketManager";
 import { MutationTypes } from "../../store/modules/roomSettings/roomSettings";
 
 export default defineComponent({

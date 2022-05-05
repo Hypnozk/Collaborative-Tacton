@@ -1,4 +1,6 @@
-import noble from "@abandonware/noble";
+import noble, { Peripheral } from "@abandonware/noble";
+import { IPC_CHANNELS } from "../IPCMainManager/IPCChannels";
+import { sendMessageToRenderer } from "../IPCMainManager/IPCController";
 import { WS_DEVICE_DISPLAY, WS_DEVICE_INFO } from "../websocket/calls";
 
 const hm10Service = {
@@ -78,67 +80,50 @@ const tactileDisplayService = {
         },
     },
 };
+//dont know why needed
+const numberOfOutputs = [];
+//probbly could delete
+const trashDevice = [] as Peripheral[]
 
-const knownServices = [pwmService, hm10Service, tactileDisplayService];
+//important
 const knownServiceUuids = [
     pwmService.service.uuid,
     hm10Service.service.uuid,
     tactileDisplayService.service.uuid,
 ];
-const knownCharacteristicUuids = [];
-
-const descriptorUserDescription = "2901";
-// const descriptorRange = "2906";
-// const descriptorRegExp = new RegExp(
-//   descriptorUserDescription + "|" + descriptorRange
-// );
-const descriptorRegExp = new RegExp(descriptorUserDescription);
-// const pwmRegExp = new RegExp(/^PWM_/i);
-
 let blueToothState = "";
-let scanning = false;
-let discoveredDevices = [];
-const devices = [];
-const pwmMapping = [];
-const numberOfOutputs = [];
+let discoveredDevices = [] as Peripheral[]
 
-noble.on("stateChange", (state:any) => {
+const isKnownService = (serviceIds: string[]): boolean => {
+    return serviceIds.some((serviceId) =>
+        knownServiceUuids.includes(serviceId)
+    )
+}
+
+noble.on("stateChange", (state: any) => {
     console.log("stateChange: " + state)
     blueToothState = state;
-    //webSocketServer.broadcastData(WS_BT.newBluetoothState, state);
 });
 
-noble.on("scanStart", () => {
-    scanning = true;
-    console.log("scanStart: ")
-    //webSocketServer.broadcastData(WS_BT.scanStateChanged, true);
-});
-
-noble.on("scanStop", () => {
-    console.log("scanStop: ")
-    scanning = false;
-    //webSocketServer.broadcastData(WS_BT.scanStateChanged, false);
-});
-
-noble.on("discover", function (peripheral: any) {
+noble.on("discover", function (peripheral: Peripheral) {
     console.log("[Bluetooth] Found:" + peripheral);
     // add discovered device to the list
-    // console.log(peripheral.advertisement.serviceUuids);
-    discoveredDevices.push(peripheral);
 
-    // automatic connectm check if we saved the id
-    /**
-    const reconnectDeviceIndex = savedConnections.findIndex(
-      (x) => x.deviceId === peripheral.id
-    );
-    if (reconnectDeviceIndex !== -1) {
-      // the id is known, try to connect!
-      connectDevice(peripheral.id);
+    if (!isKnownService(peripheral.advertisement.serviceUuids)) {
+        trashDevice.push(peripheral)
+        return;
     }
-     */
+
+    discoveredDevices.push(peripheral);
+    sendMessageToRenderer(IPC_CHANNELS.renderer.foundDevice, {
+        id: peripheral.id,
+        name: peripheral.advertisement.localName,
+        rssi: peripheral.rssi,
+        state: peripheral.state
+    })
 });
 
-function startScan() {
+const startScan = () => {
     return new Promise<void>((resolve, reject) => {
         if (blueToothState === "poweredOn") {
             // clear list
@@ -155,7 +140,7 @@ function startScan() {
     });
 }
 
-function stopScan() {
+const stopScan = () => {
     console.log("[Bluetooth] Stop Scan");
     noble.stopScanning();
 }

@@ -1,5 +1,5 @@
-import { useStore } from "../store/store";
-import { RoomSettingsActionTypes } from "../store/modules/roomSettings/roomSettings";
+import { useStore } from "../../store/store";
+import { RoomSettingsActionTypes } from "../../store/modules/roomSettings/roomSettings";
 import { WS_MSG_TYPE } from "./ws_types";
 
 export interface SocketMessage {

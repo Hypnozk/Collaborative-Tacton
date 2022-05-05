@@ -1,5 +1,5 @@
-import { GeneralSettingsActionTypes, MutationTypes } from "../store/modules/generalSettings/generalSettings";
-import { useStore } from "../store/store";
+import { GeneralSettingsActionTypes, MutationTypes } from "../../store/modules/generalSettings/generalSettings";
+import { useStore } from "../../store/store";
 import { handleMessage, SocketMessage } from "./messageHandler";
 import { WS_MSG_TYPE } from "./ws_types";
 

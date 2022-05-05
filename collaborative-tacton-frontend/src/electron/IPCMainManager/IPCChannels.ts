@@ -5,6 +5,7 @@ const IPC_CHANNELS = {
     },
     renderer: {
         actuator: "tactile-jam.renderer.devices",
+        foundDevice: "tactile-jam.renderer.foundDevice"
     }
 };
 

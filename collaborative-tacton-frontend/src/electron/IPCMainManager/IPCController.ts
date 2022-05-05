@@ -29,13 +29,17 @@ ipcMain.on(IPC_CHANNELS.main.actuator, (event, actuator) => {
 });
 
 ipcMain.on(IPC_CHANNELS.main.changeScan, (event, scanStatus: boolean) => {
-    console.log("recieved meesageL: " + scanStatus)
+    console.log("recieved meesage to make Scan: " + scanStatus)
     if (scanStatus) {
         DeviceManager.startScan()
     } else {
         DeviceManager.stopScan()
     }
 });
+
+export function sendMessageToRenderer(channel: string, payload: any): void {
+    _win.webContents.send(channel, payload)
+}
 
 export function setBrowserWindow(browserWindow: BrowserWindow) {
     _win = browserWindow;

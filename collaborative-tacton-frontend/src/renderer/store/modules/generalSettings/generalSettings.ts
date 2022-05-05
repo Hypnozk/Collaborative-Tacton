@@ -6,6 +6,12 @@ import { RouterNames } from '../../../../types/Routernames';
  * Tyopes
  * 
  */
+export interface VibrotactileDevice {
+  id:string,
+  name:string,
+  rssi: number,
+  state: string
+}
 /**
  * state
  * 
@@ -14,11 +20,13 @@ import { RouterNames } from '../../../../types/Routernames';
 export type State = {
   currentView: RouterNames,
   socketConnectionStatus: boolean,
+  deviceList: VibrotactileDevice[]
 };
 
 export const state: State = {
   currentView: RouterNames.ROOM,
   socketConnectionStatus: false,
+  deviceList:[]
 };
 /**
  * mutations
