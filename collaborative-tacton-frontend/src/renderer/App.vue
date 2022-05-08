@@ -81,7 +81,7 @@ import { computed, defineComponent } from "@vue/runtime-core";
 import { RouterNames } from "../types/Routernames";
 import { GeneralSettingsActionTypes } from "./store/modules/generalSettings/generalSettings";
 import { useStore, store } from "./store/store";
-import { sendMessage, initWebsocket } from "./CommunicationManager/WebSocketManager";
+import { initWebsocket } from "./CommunicationManager/WebSocketManager";
 export default defineComponent({
   name: "App",
   setup() {

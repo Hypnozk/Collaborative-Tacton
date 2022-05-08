@@ -37,6 +37,17 @@ ipcMain.on(IPC_CHANNELS.main.changeScan, (event, scanStatus: boolean) => {
     }
 });
 
+ipcMain.on(IPC_CHANNELS.main.connectDevice, (event, deviceID: string) => {
+    console.log("Starting Connection");
+    DeviceManager.connectDevice(deviceID);
+});
+
+ipcMain.on(IPC_CHANNELS.main.disconnectDevice, () => {
+    console.log("Starting Discconnect");
+    DeviceManager.disconnectDevice();
+});
+
+
 export function sendMessageToRenderer(channel: string, payload: any): void {
     _win.webContents.send(channel, payload)
 }

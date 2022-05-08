@@ -50,7 +50,7 @@
 import { WS_MSG_TYPE } from "../../CommunicationManager/WebSocketManager/ws_types";
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "../../store/store";
-import { sendMessage } from "../../CommunicationManager/WebSocketManager";
+import { sendSocketMessage } from "../../CommunicationManager/WebSocketManager";
 import { MutationTypes } from "../../store/modules/roomSettings/roomSettings";
 
 export default defineComponent({
@@ -74,7 +74,7 @@ export default defineComponent({
   methods: {
     enterRoom() {
       console.log("send");
-      sendMessage(WS_MSG_TYPE.GET_ROOM_INFO, this.roomName);
+      sendSocketMessage(WS_MSG_TYPE.GET_ROOM_INFO, this.roomName);
     },
     enter() {
       //this.clientWS.send("hello")

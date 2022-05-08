@@ -93,6 +93,7 @@ const knownServiceUuids = [
 ];
 let blueToothState = "";
 let discoveredDevices = [] as Peripheral[]
+let connectedDevice: Peripheral | null = null;
 
 const isKnownService = (serviceIds: string[]): boolean => {
     return serviceIds.some((serviceId) =>
@@ -106,7 +107,7 @@ noble.on("stateChange", (state: any) => {
 });
 
 noble.on("discover", function (peripheral: Peripheral) {
-    console.log("[Bluetooth] Found:" + peripheral);
+    console.log("[Bluetooth] Found:" + !isKnownService(peripheral.advertisement.serviceUuids));
     // add discovered device to the list
 
     if (!isKnownService(peripheral.advertisement.serviceUuids)) {
@@ -145,8 +146,58 @@ const stopScan = () => {
     noble.stopScanning();
 }
 
+const connectDevice = (deviceID: string) => {
+    const device = discoveredDevices.find(device => device.id === deviceID);
+    //check if device is already connected
+    if (device == undefined || device.state === "connected") return;
+
+    // setup events
+    device.once("connect", async () => {
+        console.log(`[Bluetooth][${device.id}]: ${device.advertisement.localName} connected`);
+        connectedDevice = device;
+        sendMessageToRenderer(IPC_CHANNELS.renderer.deviceStatusChanged, {
+            id: device.id,
+            name: device.advertisement.localName,
+            rssi: device.rssi,
+            state: device.state,
+        })
+        // TODO unsafe for multi device operatio
+    });
+    device.once("disconnect", () => {
+        console.log(`[Bluetooth][${device.id}]: ${device.advertisement.localName} disconnected`);
+        connectedDevice = null;
+        sendMessageToRenderer(IPC_CHANNELS.renderer.deviceStatusChanged, {
+            id: device.id,
+            name: device.advertisement.localName,
+            rssi: device.rssi,
+            state: device.state,
+        })
+    })
+
+    console.log(`[Bluetooth][${device.id}]: trying to connected`);
+    // connect to device
+    device.connect();
+}
+
+const disconnectDevice = () => {
+    if (connectedDevice == null)
+        return;
+
+    connectedDevice.disconnect()
+    //connectedDevice?.disconnect()
+}
+
+const executeInstruction = () => {
+    if (connectedDevice == null)
+        return;
+
+
+}
 
 export default {
     startScan,
     stopScan,
+    connectDevice,
+    disconnectDevice,
+    executeInstruction
 };

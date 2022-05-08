@@ -35,7 +35,7 @@ export const initWebsocket = () => {
     }
 }
 
-export const sendMessage = (msgType: WS_MSG_TYPE, payload: any) => {
+export const sendSocketMessage = (msgType: WS_MSG_TYPE, payload: any) => {
     if (clientWs?.readyState == 1) {
         clientWs?.send(JSON.stringify({
             type: msgType,

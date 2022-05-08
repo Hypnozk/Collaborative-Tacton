@@ -6,11 +6,17 @@ import { RouterNames } from '../../../../types/Routernames';
  * Tyopes
  * 
  */
+export enum DeviceStatus {
+  connected = "connected",
+  disconnected = "disconnected",
+  loading = "loading"
+}
+
 export interface VibrotactileDevice {
-  id:string,
-  name:string,
+  id: string,
+  name: string,
   rssi: number,
-  state: string
+  state: DeviceStatus
 }
 /**
  * state
@@ -26,7 +32,7 @@ export type State = {
 export const state: State = {
   currentView: RouterNames.ROOM,
   socketConnectionStatus: false,
-  deviceList:[]
+  deviceList: []
 };
 /**
  * mutations
@@ -35,11 +41,17 @@ export const state: State = {
 export enum MutationTypes {
   CHANGE_VISIBILE_VIEW = "CHANGE_VISIBILE_VIEW",
   UPDATE_SOCKET_CONNECTION = "UPDATE_SOCKET_CONNECTION",
+  ADD_DEVICE = "ADD_DEVICE",
+  UPDATE_DEVICE_LIST = "UPDATE_DEVICE_LIST",
+  UPDATE_DEVICE = "UPDATE_DEVICE",
 }
 
 export type Mutations<S = State> = {
   [MutationTypes.CHANGE_VISIBILE_VIEW](state: S, view: RouterNames): void
   [MutationTypes.UPDATE_SOCKET_CONNECTION](state: S, status: boolean): void
+  [MutationTypes.ADD_DEVICE](state: S, device: VibrotactileDevice): void
+  [MutationTypes.UPDATE_DEVICE_LIST](state: S, deviceList: VibrotactileDevice[]): void
+  [MutationTypes.UPDATE_DEVICE](state: S, item: { index: number, device: VibrotactileDevice }): void
 }
 
 export const mutations: MutationTree<State> & Mutations = {
@@ -48,6 +60,15 @@ export const mutations: MutationTree<State> & Mutations = {
   },
   [MutationTypes.UPDATE_SOCKET_CONNECTION](state, status) {
     state.socketConnectionStatus = status;
+  },
+  [MutationTypes.ADD_DEVICE](state, device) {
+    state.deviceList.push(device);
+  },
+  [MutationTypes.UPDATE_DEVICE_LIST](state, deviceList) {
+    state.deviceList = deviceList;
+  },
+  [MutationTypes.UPDATE_DEVICE](state, item) {
+    state.deviceList[item.index] = item.device;
   },
 };
 
@@ -58,6 +79,8 @@ export const mutations: MutationTree<State> & Mutations = {
 export enum GeneralSettingsActionTypes {
   changeCurrentView = 'changeCurrentView',
   updateSocketConnectionStatus = 'updateSocketConnectionStatus',
+  addNewDevice = 'addNewDevice',
+  updateDeviceStatus = 'updateDeviceStatus'
 }
 
 type AugmentedActionContext = {
@@ -76,6 +99,14 @@ export interface Actions {
     { commit }: AugmentedActionContext,
     payload: boolean, // Obsolete in here but left as an example
   ): void;
+  [GeneralSettingsActionTypes.addNewDevice](
+    { commit }: AugmentedActionContext,
+    payload: VibrotactileDevice, // Obsolete in here but left as an example
+  ): void;
+  [GeneralSettingsActionTypes.updateDeviceStatus](
+    { commit }: AugmentedActionContext,
+    payload: VibrotactileDevice, // Obsolete in here but left as an example
+  ): void;
 }
 
 export const actions: ActionTree<State, RootState> & Actions = {
@@ -85,6 +116,26 @@ export const actions: ActionTree<State, RootState> & Actions = {
   [GeneralSettingsActionTypes.updateSocketConnectionStatus]({ commit }, status: boolean) {
     commit(MutationTypes.UPDATE_SOCKET_CONNECTION, status);
   },
+  [GeneralSettingsActionTypes.addNewDevice]({ commit }, newDevice: VibrotactileDevice) {
+    console.log("newDevice")
+    console.log(newDevice)
+    if (state.deviceList.some(device => device.id == newDevice.id))
+      return;
+
+    commit(MutationTypes.ADD_DEVICE, newDevice);
+  },
+  [GeneralSettingsActionTypes.updateDeviceStatus]({ commit }, modifiedDevice: VibrotactileDevice) {
+    console.log("updateDeviceStatus")
+    console.log(state.deviceList)
+    console.log(modifiedDevice.id)
+    const index = state.deviceList.findIndex(device => device.id === modifiedDevice.id);
+    //no device found
+    console.log(index == -1)
+    if (index == -1)
+      return;
+
+    commit(MutationTypes.UPDATE_DEVICE, { index: index, device: modifiedDevice });
+  },
 };
 
 /**
@@ -92,12 +143,25 @@ export const actions: ActionTree<State, RootState> & Actions = {
  */
 export type Getters = {
   currentView(state: State): RouterNames,
-  showRoomDialog(state:State): boolean,
-  isConnectedToSocket(state: State): boolean
+  showRoomDialog(state: State): boolean,
+  isConnectedToSocket(state: State): boolean,
+  getDeviceStatus(state: State): (id: string) => DeviceStatus
 }
 
 export const getters: GetterTree<State, RootState> & Getters = {
   currentView: (state) => state.currentView,
   showRoomDialog: (state) => state.currentView == RouterNames.ROOM_DIALOG,
-  isConnectedToSocket: (state) => state.socketConnectionStatus
+  isConnectedToSocket: (state) => state.socketConnectionStatus,
+  getDeviceStatus: (state) => (id) => {
+    console.log("deviceId + ")
+    console.log(id)
+
+    const index = state.deviceList.findIndex(
+      (deviceStore) => deviceStore.id === id
+    );
+    if (index == -1)
+      return DeviceStatus.loading;
+
+    return state.deviceList[index].state;
+  }
 };
