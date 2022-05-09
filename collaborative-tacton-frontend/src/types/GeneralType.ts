@@ -16,3 +16,8 @@ export type InputButton = {
   y: number,
   isActive: boolean
 }
+
+export interface TactileTask {
+  channel:number[],
+  intensity:number
+}

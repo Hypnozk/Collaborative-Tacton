@@ -9,11 +9,7 @@
     ><v-btn @click="vibrateDevice" elevation="2" color="primary">Retry</v-btn>
   </v-col>
   <v-col style="display: flex; justify-content: flex-end"
-    ><v-btn
-      @click="changeConnectionStatus"
-      elevation="2"
-      color="primary"
-    >
+    ><v-btn @click="changeConnectionStatus" elevation="2" color="primary">
       {{ device.state == "connected" ? "Disconnect" : "Connect" }}</v-btn
     >
   </v-col>
@@ -56,6 +52,10 @@ export default defineComponent({
     },
     vibrateDevice() {
       console.log("vibrateDevice");
+      window.api.send(IPC_CHANNELS.main.executeTask, {
+        channel: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        intensity: 1,
+      });
     },
   },
 });

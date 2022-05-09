@@ -1,7 +1,8 @@
 const { ipcMain } = require('electron');
 import { BrowserWindow } from "electron";
 import { IPC_CHANNELS } from "./IPCChannels";
-import DeviceManager from "../BluetootManager/DeviceManager"
+import DeviceManager from "../DeviceManager/DeviceManager"
+import { TactileTask } from "@/types/GeneralType";
 let _win: BrowserWindow;
 /*
 to recieve messages from the renderer process
@@ -21,7 +22,6 @@ to send directly messages to the renderer process
 electronCache.getBrowserWindow().webContents.send('tactile-jam.receive', 'pong')
 ---function to send informations to the renderer
 */
-
 
 ipcMain.on(IPC_CHANNELS.main.actuator, (event, actuator) => {
     console.log("User pressed " + actuator)
@@ -45,6 +45,14 @@ ipcMain.on(IPC_CHANNELS.main.connectDevice, (event, deviceID: string) => {
 ipcMain.on(IPC_CHANNELS.main.disconnectDevice, () => {
     console.log("Starting Discconnect");
     DeviceManager.disconnectDevice();
+});
+
+ipcMain.on(IPC_CHANNELS.main.executeTask, (event, task: TactileTask) => {
+    console.log("Starting Discconnect");
+    DeviceManager.executeTask({
+        channel: [0, 1, 2, 3, 4],
+        intensity: 1
+    })
 });
 
 

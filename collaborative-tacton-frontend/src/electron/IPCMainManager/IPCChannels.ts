@@ -4,6 +4,7 @@ const IPC_CHANNELS = {
         changeScan: "tactile-jam.main.changeScan",
         connectDevice: "tactile-jam.main.connectDevice",
         disconnectDevice:"tactile-jam.main.disconnectDevice",
+        executeTask: "tactile-jam.main.executeTask",
     },
     renderer: {
         actuator: "tactile-jam.renderer.devices",

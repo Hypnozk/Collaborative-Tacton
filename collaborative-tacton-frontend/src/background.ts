@@ -95,6 +95,7 @@ if (isDevelopment) {
 }
 
 process.on('uncaughtException', function (err) {
+  console.log(err)
    console.log("Unexpected Exception");
 });
 
