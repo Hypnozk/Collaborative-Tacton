@@ -10,6 +10,7 @@ let connectedDevice: Peripheral | undefined = undefined;
 
 const startScan = () => {
     discoveredDevices = [];
+    disconnectDevice()
     startBluetoothScan()
 }
 

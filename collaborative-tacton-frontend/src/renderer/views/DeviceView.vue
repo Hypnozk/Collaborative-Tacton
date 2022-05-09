@@ -8,7 +8,7 @@
     <v-row class="test">
       <v-container class="listSection">
         <v-list-item v-for="item in deviceList" :key="item.id">
-          <DeviceRow :device="item"/>
+          <DeviceRow :device="item" />
         </v-list-item>
       </v-container>
     </v-row>
@@ -19,7 +19,9 @@
         </v-btn>
       </v-col>
       <v-col cols="6" class="pa-2">
-        <v-btn elevation="2" color="primary"> Finish Configuration </v-btn>
+        <v-btn elevation="2" color="primary" @click="finishConfiguration">
+          Finish Configuration
+        </v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -37,7 +39,7 @@
 }
 
 .listSection {
-  margin:0;
+  margin: 0;
   padding: 0;
   max-width: 100% !important;
   min-width: 100% !important;
@@ -79,9 +81,12 @@ export default defineComponent({
     cancelDevice() {
       router.push("/");
     },
+    finishConfiguration() {
+      router.push("/playGround");
+    },
     startScanning() {
       this.isScanning = !this.isScanning;
-      this.store.commit(MutationTypes.UPDATE_DEVICE_LIST, [])
+      this.store.commit(MutationTypes.UPDATE_DEVICE_LIST, []);
       window.api.send(IPC_CHANNELS.main.changeScan, this.isScanning);
     },
   },

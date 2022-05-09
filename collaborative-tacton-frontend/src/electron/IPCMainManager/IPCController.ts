@@ -49,10 +49,7 @@ ipcMain.on(IPC_CHANNELS.main.disconnectDevice, () => {
 
 ipcMain.on(IPC_CHANNELS.main.executeTask, (event, task: TactileTask) => {
     console.log("Starting Discconnect");
-    DeviceManager.executeTask({
-        channel: [0, 1, 2, 3, 4],
-        intensity: 1
-    })
+    DeviceManager.executeTask(task)
 });
 
 
