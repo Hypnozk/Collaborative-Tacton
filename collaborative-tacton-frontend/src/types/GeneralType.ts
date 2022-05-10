@@ -3,13 +3,12 @@
  * 
  */
 
-export type InputButton = {
-  channels: string[],
+export interface KeyBoardAttributes {
+  channels: number[],
   color: string,
   intensity: number,
-  name: string,
+  name?: string,
   key: string,
-  i: number,
   h: number,
   w: number,
   x: number,
@@ -17,6 +16,9 @@ export type InputButton = {
   isActive: boolean
 }
 
+export interface KeyBoardButton extends KeyBoardAttributes {
+  i: string,
+}
 export interface TactileTask {
   channel:number[],
   intensity:number

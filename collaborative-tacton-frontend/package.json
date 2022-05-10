@@ -22,8 +22,9 @@
     "protobufjs": "^6.11.2",
     "roboto-fontface": "*",
     "ts-loader": "^8.3.0",
+    "uuid": "^8.3.2",
     "vue": "^3.2.13",
-    "vue-grid-layout": "https://github.com/lvjunhao/vue-grid-layout.git",
+    "vue-grid-layout": "git+https://github.com/lvjunhao/vue-grid-layout.git",
     "vue-router": "^4.0.3",
     "vuetify": "^3.0.0-beta.1",
     "vuex": "^4.0.0",
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@types/electron-devtools-installer": "^2.2.0",
+    "@types/uuid": "^8.3.4",
     "@types/webfontloader": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
