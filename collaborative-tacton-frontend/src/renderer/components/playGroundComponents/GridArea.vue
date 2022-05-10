@@ -45,7 +45,7 @@ import { GridLayout, GridItem } from "vue-grid-layout";
 import KeyBoardButton from "./KeyBoardButton.vue";
 
 export default defineComponent({
-  name: "TactonScreen",
+  name: "GridArea",
   components: {
     GridLayout,
     GridItem,

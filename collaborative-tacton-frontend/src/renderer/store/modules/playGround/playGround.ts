@@ -10,11 +10,13 @@ import { KeyBoardAttributes, KeyBoardButton } from '@/types/GeneralType';
  */
 
 export type State = {
-    gridLayout: KeyBoardButton[]
+    gridLayout: KeyBoardButton[],
+    globalIntensity: number
 };
 
 export const state: State = {
-    gridLayout: []
+    gridLayout: [],
+    globalIntensity: 1
 };
 /**
  * mutations
@@ -24,12 +26,14 @@ export enum MutationTypes {
     BULK_GRID_UPDATE = "BULK_GRID_UPDATE",
     UPDATE_GRID_ITEM = "UPDATE_GRID_ITEM",
     ADD_ITEM_TO_GRID = "UPDATE_ITEM_TO_GRID",
+    UPDATE_GLOBAL_INTENSITY = "UPDATE_GLOBAL_INTENSITY"
 }
 
 export type Mutations<S = State> = {
     [MutationTypes.BULK_GRID_UPDATE](state: S, buttons: KeyBoardButton[]): void
     [MutationTypes.UPDATE_GRID_ITEM](state: S, button: KeyBoardButton): void
-    [MutationTypes.ADD_ITEM_TO_GRID](state: S, UPDATE_ITEM_TO_GRID: KeyBoardButton): void
+    [MutationTypes.ADD_ITEM_TO_GRID](state: S, button: KeyBoardButton): void
+    [MutationTypes.UPDATE_GLOBAL_INTENSITY](state: S, intensity: number): void
 }
 
 export const mutations: MutationTree<State> & Mutations = {
@@ -47,6 +51,9 @@ export const mutations: MutationTree<State> & Mutations = {
         const index = state.gridLayout.findIndex(keyBoardButton => keyBoardButton.i == button.i)
         if (index != -1)
             state.gridLayout[index] = button;
+    },
+    [MutationTypes.UPDATE_GLOBAL_INTENSITY](state, intensity) {
+        state.globalIntensity = intensity;
     },
 };
 
@@ -91,10 +98,17 @@ export const actions: ActionTree<State, RootState> & Actions = {
  * Getters
  */
 export type Getters = {
+    getKeyButton(state: State): (id: string) => KeyBoardButton | undefined,
     isActiveKey(state: State): (id: string) => boolean
 }
 
 export const getters: GetterTree<State, RootState> & Getters = {
+    getKeyButton: (state) => (id) => {
+        const index = state.gridLayout.findIndex((keyBoardButton) => keyBoardButton.i === id);
+        if (index == -1) return;
+
+        return state.gridLayout[index];
+    },
     isActiveKey: (state) => (id) => {
         const index = state.gridLayout.findIndex((keyBoardButton) => keyBoardButton.i === id);
         if (index == -1)
