@@ -38,7 +38,7 @@ export const state: State = {
  * mutations
  * 
  */
-export enum MutationTypes {
+export enum GeneralMutations {
   CHANGE_VISIBILE_VIEW = "CHANGE_VISIBILE_VIEW",
   UPDATE_SOCKET_CONNECTION = "UPDATE_SOCKET_CONNECTION",
   ADD_DEVICE = "ADD_DEVICE",
@@ -47,27 +47,27 @@ export enum MutationTypes {
 }
 
 export type Mutations<S = State> = {
-  [MutationTypes.CHANGE_VISIBILE_VIEW](state: S, view: RouterNames): void
-  [MutationTypes.UPDATE_SOCKET_CONNECTION](state: S, status: boolean): void
-  [MutationTypes.ADD_DEVICE](state: S, device: VibrotactileDevice): void
-  [MutationTypes.UPDATE_DEVICE_LIST](state: S, deviceList: VibrotactileDevice[]): void
-  [MutationTypes.UPDATE_DEVICE](state: S, item: { index: number, device: VibrotactileDevice }): void
+  [GeneralMutations.CHANGE_VISIBILE_VIEW](state: S, view: RouterNames): void
+  [GeneralMutations.UPDATE_SOCKET_CONNECTION](state: S, status: boolean): void
+  [GeneralMutations.ADD_DEVICE](state: S, device: VibrotactileDevice): void
+  [GeneralMutations.UPDATE_DEVICE_LIST](state: S, deviceList: VibrotactileDevice[]): void
+  [GeneralMutations.UPDATE_DEVICE](state: S, item: { index: number, device: VibrotactileDevice }): void
 }
 
 export const mutations: MutationTree<State> & Mutations = {
-  [MutationTypes.CHANGE_VISIBILE_VIEW](state, view) {
+  [GeneralMutations.CHANGE_VISIBILE_VIEW](state, view) {
     state.currentView = view;
   },
-  [MutationTypes.UPDATE_SOCKET_CONNECTION](state, status) {
+  [GeneralMutations.UPDATE_SOCKET_CONNECTION](state, status) {
     state.socketConnectionStatus = status;
   },
-  [MutationTypes.ADD_DEVICE](state, device) {
+  [GeneralMutations.ADD_DEVICE](state, device) {
     state.deviceList.push(device);
   },
-  [MutationTypes.UPDATE_DEVICE_LIST](state, deviceList) {
+  [GeneralMutations.UPDATE_DEVICE_LIST](state, deviceList) {
     state.deviceList = deviceList;
   },
-  [MutationTypes.UPDATE_DEVICE](state, item) {
+  [GeneralMutations.UPDATE_DEVICE](state, item) {
     state.deviceList[item.index] = item.device;
   },
 };
@@ -111,10 +111,10 @@ export interface Actions {
 
 export const actions: ActionTree<State, RootState> & Actions = {
   [GeneralSettingsActionTypes.changeCurrentView]({ commit }, view: RouterNames) {
-    commit(MutationTypes.CHANGE_VISIBILE_VIEW, view);
+    commit(GeneralMutations.CHANGE_VISIBILE_VIEW, view);
   },
   [GeneralSettingsActionTypes.updateSocketConnectionStatus]({ commit }, status: boolean) {
-    commit(MutationTypes.UPDATE_SOCKET_CONNECTION, status);
+    commit(GeneralMutations.UPDATE_SOCKET_CONNECTION, status);
   },
   [GeneralSettingsActionTypes.addNewDevice]({ commit }, newDevice: VibrotactileDevice) {
     console.log("newDevice")
@@ -122,7 +122,7 @@ export const actions: ActionTree<State, RootState> & Actions = {
     if (state.deviceList.some(device => device.id == newDevice.id))
       return;
 
-    commit(MutationTypes.ADD_DEVICE, newDevice);
+    commit(GeneralMutations.ADD_DEVICE, newDevice);
   },
   [GeneralSettingsActionTypes.updateDeviceStatus]({ commit }, modifiedDevice: VibrotactileDevice) {
     console.log("updateDeviceStatus")
@@ -134,7 +134,7 @@ export const actions: ActionTree<State, RootState> & Actions = {
     if (index == -1)
       return;
 
-    commit(MutationTypes.UPDATE_DEVICE, { index: index, device: modifiedDevice });
+    commit(GeneralMutations.UPDATE_DEVICE, { index: index, device: modifiedDevice });
   },
 };
 

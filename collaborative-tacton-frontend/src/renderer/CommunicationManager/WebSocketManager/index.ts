@@ -1,4 +1,4 @@
-import { GeneralSettingsActionTypes, MutationTypes } from "../../store/modules/generalSettings/generalSettings";
+import { GeneralSettingsActionTypes, GeneralMutations } from "../../store/modules/generalSettings/generalSettings";
 import { useStore } from "../../store/store";
 import { handleMessage, SocketMessage } from "./messageHandler";
 import { WS_MSG_TYPE } from "./ws_types";
@@ -11,15 +11,15 @@ export const initWebsocket = () => {
     console.log("tests")
     if (clientWs !== null) {
         clientWs.onopen = function (event: Event) {
-            store.commit(MutationTypes.UPDATE_SOCKET_CONNECTION, true);
+            store.commit(GeneralMutations.UPDATE_SOCKET_CONNECTION, true);
             console.log("Opened websocket  connection " + event);
         };
         clientWs.onclose = function (event: Event) {
-            store.commit(MutationTypes.UPDATE_SOCKET_CONNECTION, false);
+            store.commit(GeneralMutations.UPDATE_SOCKET_CONNECTION, false);
             console.log("Closed websocket  connection " + event);
         };
         clientWs.onerror = function (event: Event) {
-            store.commit(MutationTypes.UPDATE_SOCKET_CONNECTION, false);
+            store.commit(GeneralMutations.UPDATE_SOCKET_CONNECTION, false);
             console.log("Error websocket  connection " + event);
         };
         clientWs.onmessage = function (event: MessageEvent<any>) {

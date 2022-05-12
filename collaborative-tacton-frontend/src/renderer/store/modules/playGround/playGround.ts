@@ -11,48 +11,48 @@ import { KeyBoardAttributes, KeyBoardButton } from '@/types/GeneralType';
 
 export type State = {
     gridLayout: KeyBoardButton[],
-    globalIntensity: number
+    globalIntensity: number,
 };
 
 export const state: State = {
     gridLayout: [],
-    globalIntensity: 1
+    globalIntensity: 1,
 };
 /**
  * mutations
  * 
  */
-export enum MutationTypes {
+export enum PlayGroundMutations {
     BULK_GRID_UPDATE = "BULK_GRID_UPDATE",
     UPDATE_GRID_ITEM = "UPDATE_GRID_ITEM",
     ADD_ITEM_TO_GRID = "UPDATE_ITEM_TO_GRID",
-    UPDATE_GLOBAL_INTENSITY = "UPDATE_GLOBAL_INTENSITY"
+    UPDATE_GLOBAL_INTENSITY = "UPDATE_GLOBAL_INTENSITY",
 }
 
 export type Mutations<S = State> = {
-    [MutationTypes.BULK_GRID_UPDATE](state: S, buttons: KeyBoardButton[]): void
-    [MutationTypes.UPDATE_GRID_ITEM](state: S, button: KeyBoardButton): void
-    [MutationTypes.ADD_ITEM_TO_GRID](state: S, button: KeyBoardButton): void
-    [MutationTypes.UPDATE_GLOBAL_INTENSITY](state: S, intensity: number): void
+    [PlayGroundMutations.BULK_GRID_UPDATE](state: S, buttons: KeyBoardButton[]): void
+    [PlayGroundMutations.UPDATE_GRID_ITEM](state: S, button: KeyBoardButton): void
+    [PlayGroundMutations.ADD_ITEM_TO_GRID](state: S, button: KeyBoardButton): void
+    [PlayGroundMutations.UPDATE_GLOBAL_INTENSITY](state: S, intensity: number): void
 }
 
 export const mutations: MutationTree<State> & Mutations = {
-    [MutationTypes.BULK_GRID_UPDATE](state, buttons) {
+    [PlayGroundMutations.BULK_GRID_UPDATE](state, buttons) {
         console.log("getButtons")
         console.log(buttons)
         state.gridLayout = buttons;
     },
-    [MutationTypes.UPDATE_GRID_ITEM](state, button) {
+    [PlayGroundMutations.UPDATE_GRID_ITEM](state, button) {
         const index = state.gridLayout.findIndex(keyBoardButton => keyBoardButton.i == button.i)
         if (index != -1)
             state.gridLayout[index] = button;
     },
-    [MutationTypes.ADD_ITEM_TO_GRID](state, button) {
+    [PlayGroundMutations.ADD_ITEM_TO_GRID](state, button) {
         const index = state.gridLayout.findIndex(keyBoardButton => keyBoardButton.i == button.i)
         if (index != -1)
             state.gridLayout[index] = button;
     },
-    [MutationTypes.UPDATE_GLOBAL_INTENSITY](state, intensity) {
+    [PlayGroundMutations.UPDATE_GLOBAL_INTENSITY](state, intensity) {
         state.globalIntensity = intensity;
     },
 };
@@ -90,7 +90,7 @@ export const actions: ActionTree<State, RootState> & Actions = {
     },
     [PlayGroundActionTypes.addButtonToGrid]({ commit }, button: KeyBoardAttributes) {
         const uid = uuidv4();
-        commit(MutationTypes.ADD_ITEM_TO_GRID, { i: uid, ...button });
+        commit(PlayGroundMutations.ADD_ITEM_TO_GRID, { i: uid, ...button });
     },
 };
 
@@ -99,7 +99,8 @@ export const actions: ActionTree<State, RootState> & Actions = {
  */
 export type Getters = {
     getKeyButton(state: State): (id: string) => KeyBoardButton | undefined,
-    isActiveKey(state: State): (id: string) => boolean
+    isActiveKey(state: State): (id: string) => boolean,
+    isKeyAlreadyTaken(state: State): (originalId:string|undefined, key: string) => boolean,
 }
 
 export const getters: GetterTree<State, RootState> & Getters = {
@@ -115,5 +116,17 @@ export const getters: GetterTree<State, RootState> & Getters = {
             return false;
 
         return state.gridLayout[index].isActive;
+    },
+    isKeyAlreadyTaken: (state) => (originalId, key) => {
+        const index = state.gridLayout.findIndex((keyBoardButton) => keyBoardButton.key === key);
+        if (index == -1)
+            return false;
+
+        if(originalId !== undefined){
+            //find the same button as updated, its valid to change
+            return state.gridLayout[index].i !== originalId
+        }
+
+        return true;
     }
 };

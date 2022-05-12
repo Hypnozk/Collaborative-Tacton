@@ -61,7 +61,7 @@ import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 import DeviceRow from "../components/deviceComponents/deviceRow.vue";
 import { useStore } from "../store/store";
 import { VibrotactileDevice } from "../store/modules/generalSettings/generalSettings";
-import { MutationTypes } from "../store/modules/generalSettings/generalSettings";
+import { GeneralMutations } from "../store/modules/generalSettings/generalSettings";
 
 export default defineComponent({
   components: { DeviceRow },
@@ -86,7 +86,7 @@ export default defineComponent({
     },
     startScanning() {
       this.isScanning = !this.isScanning;
-      this.store.commit(MutationTypes.UPDATE_DEVICE_LIST, []);
+      this.store.commit(GeneralMutations.UPDATE_DEVICE_LIST, []);
       window.api.send(IPC_CHANNELS.main.changeScan, this.isScanning);
     },
   },

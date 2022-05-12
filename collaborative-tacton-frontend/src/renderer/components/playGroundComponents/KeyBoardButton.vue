@@ -1,22 +1,26 @@
 <template>
   <v-card
     class="mx-auto pa-1 keyButton"
-    max-width="200"
+    max-width="100"
+    min-width="100"
     min-height="100"
     @click="keyButtonClicked"
+    v-bind:style="{ backgroundColor: colorActuator }"
   >
     <v-card-text style="padding: 1px" class="keyButton">
       <v-row no-gutters>
-        name
+        {{ button.name }}
         <v-spacer />
-        <div>20%</div>
+        <div>{{ button.intensity * 100 }}%</div>
       </v-row>
       <v-row no-gutters class="cardMainRow">
-        <div>Key</div>
+        <div>{{ button.key }}</div>
       </v-row>
     </v-card-text>
     <v-card-actions style="padding: 2px; min-height: 0">
-      <v-row align="center" justify="end" no-gutters>
+      <v-row align="center" no-gutters>
+        <div>{{ listChannels() }}</div>
+        <v-spacer />
         <v-icon class="mr-1" small @click.stop @click="edit">
           mdi-pencil
         </v-icon>
@@ -36,6 +40,8 @@
   margin: 0;
   justify-content: center;
   align-items: center;
+  font-size: 2em;
+  font-weight: bold;
 }
 </style>
 
@@ -43,6 +49,8 @@
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 import { KeyBoardButton } from "@/types/GeneralType";
+import { lightenDarkenColor } from "../../lib/colors";
+
 export default defineComponent({
   name: "KeyBoardButton",
   data() {
@@ -60,19 +68,38 @@ export default defineComponent({
       required: true,
     },
   },
-  emits: ["updateIsMoved"],
+  emits: ["updateIsMoved", "editButton"],
+  computed: {
+    colorActuator() {
+      if (this.button.isActive)
+        return lightenDarkenColor(this.button.color, -100);
+      return this.button.color;
+    },
+  },
   methods: {
     keyButtonClicked() {
       if (this.isMoved) {
-        ("the item get just moved");
+        //"the item get just moved, dont make anything";
         this.$emit("updateIsMoved", false);
       } else {
+        //the button is pressed
         console.log("keyButtonClicked");
       }
     },
-    edit(message: any, events: any) {
-      //events.prevent()
-      console.log("edit my face");
+    edit() {
+        //the button wanted to be edit
+      this.$emit("updateIsMoved", false);
+      this.$emit("editButton", this.button.i);
+    },
+
+    listChannels(): string {
+      let channelList = "[";
+      this.button.channels.forEach((channel: number, index: number) => {
+        channelList += channel;
+        if (index !== this.button.channels.length - 1) channelList += ",";
+      });
+      channelList += "]";
+      return channelList;
     },
   },
 });

@@ -51,7 +51,7 @@ import { WS_MSG_TYPE } from "../../CommunicationManager/WebSocketManager/ws_type
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "../../store/store";
 import { sendSocketMessage } from "../../CommunicationManager/WebSocketManager";
-import { MutationTypes } from "../../store/modules/roomSettings/roomSettings";
+import { RoomMutations } from "../../store/modules/roomSettings/roomSettings";
 
 export default defineComponent({
   name: "RoomLayout",
@@ -67,7 +67,7 @@ export default defineComponent({
         return this.store.state.roomSettings.name;
       },
       set(value: string) {
-        this.store.commit(MutationTypes.UPDATE_ROOM_NAME, value);
+        this.store.commit(RoomMutations.UPDATE_ROOM_NAME, value);
       },
     },
   },

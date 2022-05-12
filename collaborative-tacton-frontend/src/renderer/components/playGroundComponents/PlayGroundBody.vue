@@ -1,18 +1,25 @@
 <template>
-  <v-container class="playGroundView">
-    <v-dialog v-model="playGroundDialog" max-width="40%" class="tesing">
-      <template v-slot:activator="{ props }">
-        <v-row no-gutters>
-          <v-col cols="4">
-            <TactonScreen />
-          </v-col>
-          <v-col cols="8">
-            <GridHeader :activator="props" />
-            <GridArea />
-          </v-col>
-        </v-row>
-      </template>
-      <PlayGroundDialog @cancelDialog="closeDialog" :keyButtonId="idOfEditableButton"/>
+  <v-container class="playGroundView" ref="container" tabindex="-1">
+    <v-row no-gutters>
+      <v-col cols="4">
+        <TactonScreen />
+      </v-col>
+      <v-col cols="8">
+        <GridHeader @openDialog="startDialog" />
+        <GridArea @editButton="startDialog" />
+      </v-col>
+    </v-row>
+
+    <v-dialog
+      v-model="playGroundDialog"
+      max-width="40%"
+      class="tesing"
+      @click:outside="closeDialog"
+    >
+      <PlayGroundDialog
+        @cancelDialog="closeDialog"
+        :keyButtonId="idOfEditableButton"
+      />
     </v-dialog>
   </v-container>
 </template>
@@ -25,6 +32,10 @@
   max-width: 100%;
   padding: 1px;
 }
+
+.playGroundView:focus {
+  outline: none;
+}
 .v-overlay__content {
   width: 100%;
 }
@@ -36,7 +47,9 @@ import GridArea from "./GridArea.vue";
 import GridHeader from "./GridHeader.vue";
 import TactonScreen from "./TactonScreen.vue";
 import PlayGroundDialog from "./PlayGroundDialog.vue";
-import RoomDialog from "../roomComponents/RoomDialog.vue";
+import { GeneralMutations } from "../../store/modules/generalSettings/generalSettings";
+import { RouterNames } from "@/types/Routernames";
+import { useStore } from "../../store/store";
 
 export default defineComponent({
   name: "PlayGroundBody",
@@ -48,14 +61,31 @@ export default defineComponent({
   },
   data() {
     return {
+      store: useStore(),
       playGroundDialog: false,
-      idOfEditableButton: "0"
+      idOfEditableButton: "",
     };
   },
   methods: {
     closeDialog() {
-      console.log("closeDialog")
+      console.log("closeDialog");
       this.playGroundDialog = false;
+      /**this.store.commit(
+        GeneralMutations.CHANGE_VISIBILE_VIEW,
+        RouterNames.PLAY_GROUND
+      );*/
+      // set the focus again, so key down and up is working
+      const container: any = this.$refs.container;
+      this.$nextTick(() => container.$el.focus());
+    },
+    startDialog(id: string) {
+      //console.log("startDialog: " + id);
+      this.store.commit(
+        GeneralMutations.CHANGE_VISIBILE_VIEW,
+        RouterNames.PLAY_GROUND_DIALOG
+      );
+      this.idOfEditableButton = id;
+      this.playGroundDialog = true;
     },
   },
 });

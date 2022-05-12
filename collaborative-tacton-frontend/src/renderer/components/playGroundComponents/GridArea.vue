@@ -23,6 +23,7 @@
         :button="item"
         :isMoved="isMoved"
         @updateIsMoved="updateIsMoved"
+        @editButton="(id) => $emit('editButton',id)"
       />
     </grid-item>
   </grid-layout>
@@ -51,6 +52,7 @@ export default defineComponent({
     GridItem,
     KeyBoardButton,
   },
+  emits:["editButton"],
   data: () => ({
     store: useStore(),
     isMoved: false,

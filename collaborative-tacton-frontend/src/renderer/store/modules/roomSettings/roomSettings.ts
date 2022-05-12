@@ -2,7 +2,7 @@
 import { RouterNames } from '@/types/Routernames';
 import { MutationTree, GetterTree, ActionTree, ActionContext } from 'vuex'
 import { RootState, useStore } from '../../store';
-import { MutationTypes as GeneralMutations } from "../generalSettings/generalSettings"
+import { GeneralMutations } from "../generalSettings/generalSettings"
 /**
  * Tyopes
  * 
@@ -39,23 +39,23 @@ export const state: State = {
  * mutations
  * 
  */
-export enum MutationTypes {
+export enum RoomMutations{
   CHANGE_ROOM = "CHANGE_ROOM",
   UPDATE_ROOM_NAME = "CHANGE_ROOM_NAME",
 }
 
 export type Mutations<S = State> = {
-  [MutationTypes.CHANGE_ROOM](state: S, room: Room): void
-  [MutationTypes.UPDATE_ROOM_NAME](state: S, name: string): void
+  [RoomMutations.CHANGE_ROOM](state: S, room: Room): void
+  [RoomMutations.UPDATE_ROOM_NAME](state: S, name: string): void
 }
 
 export const mutations: MutationTree<State> & Mutations = {
-  [MutationTypes.CHANGE_ROOM](state, room) {
+  [RoomMutations.CHANGE_ROOM](state, room) {
     state.id = room.id;
     state.name = room.name;
     state.participants = room.participants;
   },
-  [MutationTypes.UPDATE_ROOM_NAME](state, name) {
+  [RoomMutations.UPDATE_ROOM_NAME](state, name) {
     console.log("is updating")
     state.name = name;
   },
@@ -88,7 +88,7 @@ export const actions: ActionTree<State, RootState> & Actions = {
     //commit(MutationTypes.CHANGE_VISIBILE_VIEW, view);
     console.log(room)
     const store = useStore();
-    store.commit(MutationTypes.CHANGE_ROOM, room);
+    store.commit(RoomMutations.CHANGE_ROOM, room);
     store.commit(GeneralMutations.CHANGE_VISIBILE_VIEW, RouterNames.ROOM_DIALOG)
   },
 };

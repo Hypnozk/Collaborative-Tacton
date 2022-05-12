@@ -1,6 +1,6 @@
 <template>
   <v-row no-gutters style="padding: 20px">
-    <v-btn elevation="2" color="primary" v-bind="activator">
+    <v-btn elevation="2" color="primary" @click="openDialog">
       Add Button
     </v-btn>
     <v-spacer />
@@ -29,30 +29,30 @@
 </style>
 
 <script>
-import { MutationTypes } from "@/renderer/store/modules/playGround/playGround";
+import { PlayGroundMutations } from "@/renderer/store/modules/playGround/playGround";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 
 export default defineComponent({
   name: "GridHeader",
+  emits:["openDialog"],
   data: () => ({
     store: useStore(),
   }),
-  props: {
-    activator: {
-      type: Object,
-      required: true,
-    },
-  },
   computed: {
     intensity: {
       get() {
         return this.store.state.playGround.globalIntensity;
       },
       set(value) {
-        this.store.commit(MutationTypes.UPDATE_GLOBAL_INTENSITY, value);
+        this.store.commit(PlayGroundMutations.UPDATE_GLOBAL_INTENSITY, value);
       },
     },
   },
+  methods:{
+    openDialog(){
+      this.$emit("openDialog")
+    }
+  }
 });
 </script>

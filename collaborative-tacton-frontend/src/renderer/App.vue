@@ -1,5 +1,5 @@
 <template>
-  <div tabindex="0" class="main" @keyup="buttonUp" @keydown="buttonDown">
+  <div tabindex="0" class="main" @keyup="buttonUp" @keydown="buttonDown" >
     <div class="root">
       <v-app>
         <v-main>
@@ -80,6 +80,7 @@
 import { computed, defineComponent } from "@vue/runtime-core";
 import { RouterNames } from "../types/Routernames";
 import { GeneralSettingsActionTypes } from "./store/modules/generalSettings/generalSettings";
+import { PlayGroundMutations } from "./store/modules/playGround/playGround";
 import { useStore, store } from "./store/store";
 import { initWebsocket } from "./CommunicationManager/WebSocketManager";
 export default defineComponent({
@@ -112,17 +113,17 @@ export default defineComponent({
       setTimeout(() => (this.isReconnecting = false), 5000);
     },
     correctFrameForInput(): boolean {
-      return this.store.getters.currentView !== RouterNames.PLAY_GROUND;
+      return this.store.getters.currentView == RouterNames.PLAY_GROUND;
     },
     buttonDown(e: any) {
-      if (this.correctFrameForInput()) return;
-
+      console.log("buttonDown");
+      if (!this.correctFrameForInput()) return;
       const key: string = e.key.toUpperCase();
-      console.log("buttondd");
+    
       // this.store.dispatch(ActionTypes.addActiveKey, key);
     },
     buttonUp(e: any) {
-      if (this.correctFrameForInput()) return;
+      if (!this.correctFrameForInput()) return;
       const key = e.key.toUpperCase();
       console.log("buttonUp");
       //this.store.dispatch(ActionTypes.removeActiveKey, key);

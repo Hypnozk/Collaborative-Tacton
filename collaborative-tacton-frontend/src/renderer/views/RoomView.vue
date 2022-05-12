@@ -10,7 +10,7 @@
 <script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "../store/store";
-import { MutationTypes } from "../store/modules/roomSettings/roomSettings";
+import { RoomMutations } from "../store/modules/roomSettings/roomSettings";
 import { GeneralSettingsActionTypes } from "../store/modules/generalSettings/generalSettings";
 import { RouterNames } from "@/types/Routernames";
 import RoomLayout from "../components/roomComponents/RoomLayout.vue";
@@ -46,7 +46,7 @@ export default defineComponent({
         return this.store.state.roomSettings.name;
       },
       set(value: string) {
-        this.store.commit(MutationTypes.UPDATE_ROOM_NAME, value);
+        this.store.commit(RoomMutations.UPDATE_ROOM_NAME, value);
       },
     },
   }
