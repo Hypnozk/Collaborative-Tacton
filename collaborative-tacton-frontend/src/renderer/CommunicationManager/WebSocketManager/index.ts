@@ -8,7 +8,6 @@ let clientWs = null as WebSocket | null;
 export const initWebsocket = () => {
     //store.dispatch(GeneralSettingsActionTypes.addSocketClient, new WebSocket("ws://localhost:8080/patth?token=secure"));
     clientWs = new WebSocket("ws://localhost:8080/patth?token=secure")
-    console.log("tests")
     if (clientWs !== null) {
         clientWs.onopen = function (event: Event) {
             store.commit(GeneralMutations.UPDATE_SOCKET_CONNECTION, true);

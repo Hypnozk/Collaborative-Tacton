@@ -17,10 +17,19 @@ export const initConfig = () => {
         x: 1,
         y: 1,
         isActive: false
-    }]
+    },{
+        channels: [1],
+        color: "#65FF00",
+        h: 1,
+        i: uuidv4(),
+        intensity: 1,
+        key: "B",
+        w: 1,
+        x: 1,
+        y: 1,
+        isActive: false}]
 
 
 
-    console.log(buttons)
     store.commit(PlayGroundMutations.BULK_GRID_UPDATE, buttons)
 }

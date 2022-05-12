@@ -17,7 +17,7 @@
       @click:outside="closeDialog"
     >
       <PlayGroundDialog
-        @cancelDialog="closeDialog"
+        @closeDialog="closeDialog"
         :keyButtonId="idOfEditableButton"
       />
     </v-dialog>

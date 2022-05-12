@@ -1,5 +1,5 @@
 <template>
-  <v-container class="playDialog" @keydown="enterNewKey">
+  <v-container class="playDialog" @keydown="enterNewKey" tabindex="-1">
     <v-row justify="center">
       <v-col cols="2" align-self="center" style="margin-top: 10px">
         Name
@@ -22,6 +22,9 @@
             </div>
             <div class="errorField" v-if="keyIsTaken.oneTime">
               The Key is already taken.
+            </div>
+            <div class="errorField" v-if="!keyIsTaken.oneTime && keyIsRequired">
+              You have to enter a key.
             </div>
           </v-col>
           <v-col cols="5" style="display: flex; justify-content: flex-end">
@@ -82,14 +85,22 @@
       </div>
     </v-row>
     <v-row no-gutters class="pa-3">
-      <v-btn elevation="2" color="primary" @click="cancelDialog">
+      <v-btn elevation="2" color="primary" @click="$emit('closeDialog')">
         Cancel
       </v-btn>
       <v-spacer />
-      <v-btn elevation="2" color="primary" style="margin-right: 20px">
+      <v-btn
+        elevation="2"
+        color="primary"
+        style="margin-right: 20px"
+        v-if="keyButtonId !== undefined"
+        @click="deleteButton"
+      >
         Delete
       </v-btn>
-      <v-btn elevation="2" color="primary"> Confirm </v-btn>
+      <v-btn elevation="2" color="primary" @click="modifyButton">
+        Confirm
+      </v-btn>
     </v-row>
   </v-container>
 </template>
@@ -132,14 +143,19 @@
 
 <script lang="ts">
 import { GeneralMutations } from "@/renderer/store/modules/generalSettings/generalSettings";
+import {
+  PlayGroundActionTypes,
+  PlayGroundMutations,
+} from "@/renderer/store/modules/playGround/playGround";
 import { useStore } from "@/renderer/store/store";
+import { KeyBoardAttributes } from "@/types/GeneralType";
 import { RouterNames } from "@/types/Routernames";
 import { defineComponent } from "@vue/runtime-core";
 import { lightenDarkenColor } from "../../lib/colors";
 
 export default defineComponent({
   name: "PlayGroundDialog",
-  emits: ["cancelDialog"],
+  emits: ["closeDialog"],
   props: {
     keyButtonId: {
       type: String,
@@ -150,6 +166,7 @@ export default defineComponent({
       store: useStore(),
       isKeyDetecting: false,
       keyIsTaken: { oneTime: false, always: false },
+      keyIsRequired: false,
       name: "",
       key: "",
       intensity: 1,
@@ -187,9 +204,6 @@ export default defineComponent({
     },
   },
   methods: {
-    cancelDialog() {
-      this.$emit("cancelDialog");
-    },
     updateChannel(currentState: boolean, index: number) {
       this.channelActive[index] = !currentState;
     },
@@ -198,7 +212,7 @@ export default defineComponent({
       if (this.keyIsTaken.oneTime) {
         //start the timer again if user selected taken key
         if (!this.keyIsTaken.always) {
-          this.keyIsTaken = { oneTime: false, always: true };
+          this.keyIsTaken = { oneTime: true, always: true };
           const refStopKeyDetection = this.stopKeyDetection;
           setTimeout(refStopKeyDetection, 5000);
         }
@@ -207,16 +221,18 @@ export default defineComponent({
     },
     startKeyDetection() {
       if (this.isKeyDetecting) return;
-      this.keyIsTaken = { oneTime: false, always: false };
+      this.keyIsTaken = { oneTime: this.keyIsTaken.oneTime, always: false };
       this.isKeyDetecting = true;
       const refStopKeyDetection = this.stopKeyDetection;
       setTimeout(refStopKeyDetection, 5000);
     },
     enterNewKey(e: any) {
       //check if user want to enter key
+      console.log("enterNewKey");
       if (!this.isKeyDetecting) return;
 
       const newKey = e.key.toUpperCase();
+      this.keyIsRequired = false;
 
       this.key = newKey;
       //key is already taken
@@ -225,7 +241,47 @@ export default defineComponent({
         return;
       }
 
+      this.keyIsTaken = { oneTime: false, always: false };
       this.isKeyDetecting = false;
+    },
+    deleteButton() {
+      this.store.commit(
+        PlayGroundMutations.DELETE_ITEM_FROM_GRID,
+        this.keyButtonId!
+      );
+      this.$emit("closeDialog");
+    },
+    modifyButton() {
+      if (this.key.length == 0) {
+        this.keyIsRequired = true;
+        return;
+      }
+
+      if(this.keyIsTaken.oneTime) return;
+
+      const channels: number[] = [];
+      this.channelActive.forEach((isActive, index) => {
+        if (isActive) channels.push(index);
+      });
+      const button = {
+        channels: channels,
+        color: this.color,
+        intensity: this.intensity * this.store.state.playGround.globalIntensity,
+        name: this.name,
+        key: this.key,
+        isActive: false,
+      };
+
+      if (this.keyButtonId == undefined) {
+        this.store.dispatch(PlayGroundActionTypes.addButtonToGrid, button);
+        this.$emit("closeDialog");
+      } else {
+        this.store.dispatch(PlayGroundActionTypes.updateKeyButton, {
+          id: this.keyButtonId,
+          props: button,
+        });
+        this.$emit("closeDialog");
+      }
     },
   },
 });

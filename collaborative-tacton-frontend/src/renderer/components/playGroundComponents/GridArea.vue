@@ -1,15 +1,16 @@
 <template>
   <grid-layout
-    :layout="store.state.playGround.gridLayout"
-    :col-num="10"
+    :layout="store.state.playGround.gridItems"
+    :col-num="store.state.playGround.gridLayout.x"
     :row-height="100"
+    :maxRows="store.state.playGround.gridLayout.y"
     :is-draggable="true"
     :is-resizable="false"
     :vertical-compact="false"
     :prevent-collision="true"
   >
     <grid-item
-      v-for="item in store.state.playGround.gridLayout"
+      v-for="item in store.state.playGround.gridItems"
       :key="item.i"
       :static="false"
       :x="item.x"
@@ -23,7 +24,7 @@
         :button="item"
         :isMoved="isMoved"
         @updateIsMoved="updateIsMoved"
-        @editButton="(id) => $emit('editButton',id)"
+        @editButton="(id) => $emit('editButton', id)"
       />
     </grid-item>
   </grid-layout>
@@ -40,6 +41,10 @@
 </style>
 
 <script>
+import {
+  PlayGroundActionTypes,
+  PlayGroundMutations,
+} from "@/renderer/store/modules/playGround/playGround";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 import { GridLayout, GridItem } from "vue-grid-layout";
@@ -52,14 +57,24 @@ export default defineComponent({
     GridItem,
     KeyBoardButton,
   },
-  emits:["editButton"],
+  emits: ["editButton"],
   data: () => ({
     store: useStore(),
     isMoved: false,
   }),
   methods: {
     movedEvent: function (i, newX, newY) {
-      console.log("MOVED i=" + i + ", X=" + newX + ", Y=" + newY);
+      //console.log("MOVED i=" + i + ", X=" + newX + ", Y=" + newY);
+       this.store.dispatch(PlayGroundActionTypes.updateKeyButton, 
+       {
+          id: i,
+          props: {
+            x: newX,
+            y: newY,
+          },
+
+      });
+
       this.isMoved = true;
     },
     updateIsMoved: function (newValue) {

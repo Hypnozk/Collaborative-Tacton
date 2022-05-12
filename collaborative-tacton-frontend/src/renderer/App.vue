@@ -32,13 +32,20 @@
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .main {
   height: 100%;
   outline: none;
   justify-content: center;
   display: flex;
 }
+
+.v-main__wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .root {
   display: block;
   width: 100%;

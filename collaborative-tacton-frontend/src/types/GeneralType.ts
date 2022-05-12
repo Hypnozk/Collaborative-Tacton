@@ -9,15 +9,15 @@ export interface KeyBoardAttributes {
   intensity: number,
   name?: string,
   key: string,
-  h: number,
-  w: number,
-  x: number,
-  y: number,
   isActive: boolean
 }
 
 export interface KeyBoardButton extends KeyBoardAttributes {
   i: string,
+  x: number,
+  y: number,
+  h: number,
+  w: number,
 }
 export interface TactileTask {
   channel:number[],
