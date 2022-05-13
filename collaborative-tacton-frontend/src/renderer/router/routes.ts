@@ -1,5 +1,4 @@
 import RoomView from "../views/RoomView.vue";
-import DeviceView from "../components/deviceComponents/DeviceView.vue"
 import PlayGroundView from "../views/PlayGroundView.vue"
 import SetupView from "../views/SetupView.vue"
 import { RouteRecordRaw } from "vue-router";
