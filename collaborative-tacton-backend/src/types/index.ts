@@ -6,5 +6,6 @@ export interface User {
 export interface Room {
     id: string,
     name: string,
+    description:string,
     participants: User[]
 }

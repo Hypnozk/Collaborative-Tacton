@@ -1,10 +1,10 @@
 <template>
   <v-container class="roomDialog">
     <v-row class="title">
-      {{ roomName }}
+      {{ store.state.roomSettings.roomName }}
     </v-row>
     <v-row>
-      <v-col cols="6"> Description </v-col>
+      <v-col cols="2"> Description </v-col>
       <v-col cols="6">
         im a filler kflhalkvblakdvbapd hjbvalvönaövdbjadövlhnabjvlösdv
         sdlfhnklasfb
@@ -71,7 +71,7 @@ export default defineComponent({
   computed: {
     roomName: {
       get(): string {
-        return this.store.state.roomSettings.name;
+        return this.store.state.roomSettings.roomName;
       },
       set(value: string) {
         this.store.commit(RoomMutations.UPDATE_ROOM_NAME, value);

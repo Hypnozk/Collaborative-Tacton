@@ -143,14 +143,13 @@ export const actions: ActionTree<State, RootState> & Actions = {
  */
 export type Getters = {
   currentView(state: State): RouterNames,
-  showRoomDialog(state: State): boolean,
   isConnectedToSocket(state: State): boolean,
-  getDeviceStatus(state: State): (id: string) => DeviceStatus
+  getDeviceStatus(state: State): (id: string) => DeviceStatus,
+  getConnectedDevice(state: State): VibrotactileDevice |undefined
 }
 
 export const getters: GetterTree<State, RootState> & Getters = {
   currentView: (state) => state.currentView,
-  showRoomDialog: (state) => state.currentView == RouterNames.ROOM_DIALOG,
   isConnectedToSocket: (state) => state.socketConnectionStatus,
   getDeviceStatus: (state) => (id) => {
     console.log("deviceId + ")
@@ -163,5 +162,8 @@ export const getters: GetterTree<State, RootState> & Getters = {
       return DeviceStatus.loading;
 
     return state.deviceList[index].state;
+  },
+  getConnectedDevice: (state) => {
+    return state.deviceList.find(device => device.state == "connected");
   }
 };

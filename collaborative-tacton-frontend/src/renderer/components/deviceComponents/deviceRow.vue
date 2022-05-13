@@ -1,25 +1,28 @@
 <template>
-  <v-col >{{ `Name: ${device.name}` }}</v-col>
-  <v-col >{{ `Rssi: ${device.rssi}` }}</v-col>
-  <v-col >{{ `Status: ${device.state}` }}</v-col>
-  <v-col
-    style="display: flex; justify-content: flex-end"
-    v-if="device.state == 'connected' ? true : false"
-    ><v-btn @click="vibrateDevice" elevation="2" color="primary">
-      <v-progress-circular
-        v-if="isVibrating"
-        indeterminate
-        color="red"
-        :size="20"
-      ></v-progress-circular>
-      Retry</v-btn
-    >
-  </v-col>
-  <v-col style="display: flex; justify-content: flex-end"
-    ><v-btn @click="changeConnectionStatus" elevation="2" color="primary">
-      {{ device.state == "connected" ? "Disconnect" : "Connect" }}</v-btn
-    >
-  </v-col>
+  <v-row no-gutters>
+    <v-col cols="4">{{ `Name: ${device.name}` }}</v-col>
+    <v-col cols="2">{{ `Rssi: ${device.rssi}` }}</v-col>
+    <v-col cols="3">{{ `Status: ${device.state}` }}</v-col>
+    <v-col
+      style="display: flex; justify-content: flex-end"
+      v-if="device.state == 'connected' ? true : false"
+      ><v-btn @click="vibrateDevice" elevation="2" color="primary">
+        <v-progress-circular
+          v-if="isVibrating"
+          indeterminate
+          color="red"
+          :size="20"
+        ></v-progress-circular>
+        Retry</v-btn
+      >
+    </v-col>
+    <v-spacer />
+    <v-col style="display: flex; justify-content: flex-end"
+      ><v-btn @click="changeConnectionStatus" elevation="2" color="primary">
+        {{ device.state == "connected" ? "Disconnect" : "Connect" }}</v-btn
+      >
+    </v-col>
+  </v-row>
 </template>
 
 <style lang="scss" scoped>
@@ -62,7 +65,7 @@ export default defineComponent({
       console.log("vibrateDevice");
       this.isVibrating = true;
       window.api.send(IPC_CHANNELS.main.executeTask, {
-        channel: [0,1],
+        channel: [0, 1],
         intensity: 1,
       });
       await new Promise((r) => setTimeout(r, 2000));

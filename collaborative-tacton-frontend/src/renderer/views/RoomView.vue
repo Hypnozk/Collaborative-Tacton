@@ -1,27 +1,46 @@
 <template>
-  <v-dialog v-model="showRoomDialog" max-width="70%">
-    <template v-slot:activator>
-      <RoomLayout />
-    </template>
-    <RoomDialog />
-  </v-dialog>
+  <v-container fill-height class="roomView">
+    <v-container fill-height>
+      <v-row justify="center">
+        <v-col cols="2" align-self="center" style="margin-top: 10px">
+          Room
+        </v-col>
+        <v-col cols="6">
+          <v-text-field
+            variant="underlined"
+            hide-details="auto"
+            v-model="roomName"
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row align="center" justify="center" style="margin-top: 40px">
+        <v-btn elevation="2" color="primary" @click="enterRoom"
+          >Enter Room</v-btn
+        >
+      </v-row>
+    </v-container>
+  </v-container>
 </template>
+
+<style lang="scss" scoped>
+.roomView {
+  align-items: center;
+  display: flex;
+  height: 100%;
+}
+</style>
 
 <script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "../store/store";
 import { RoomMutations } from "../store/modules/roomSettings/roomSettings";
-import { GeneralSettingsActionTypes } from "../store/modules/generalSettings/generalSettings";
-import { RouterNames } from "@/types/Routernames";
+import { sendSocketMessage } from "../CommunicationManager/WebSocketManager";
+import { WS_MSG_TYPE } from "../CommunicationManager/WebSocketManager/ws_types";
 import RoomLayout from "../components/roomComponents/RoomLayout.vue";
 import RoomDialog from "../components/roomComponents/RoomDialog.vue";
 
 export default defineComponent({
   name: "RoomView",
-  components: {
-    RoomLayout,
-    RoomDialog,
-  },
   data() {
     return {
       userName: "",
@@ -29,26 +48,20 @@ export default defineComponent({
     };
   },
   computed: {
-    showRoomDialog: {
-      get(): boolean {
-        return this.store.getters.showRoomDialog;
-      },
-      set() {
-          console.log(this.store.state.roomSettings.name)
-        this.store.dispatch(
-          GeneralSettingsActionTypes.changeCurrentView,
-          RouterNames.ROOM
-        );
-      },
-    },
     roomName: {
       get(): string {
-        return this.store.state.roomSettings.name;
+        return this.store.state.roomSettings.roomName;
       },
       set(value: string) {
         this.store.commit(RoomMutations.UPDATE_ROOM_NAME, value);
       },
     },
-  }
+  },
+  methods: {
+    enterRoom() {
+      console.log("send");
+      sendSocketMessage(WS_MSG_TYPE.GET_ROOM_INFO, this.roomName);
+    },
+  },
 });
 </script>

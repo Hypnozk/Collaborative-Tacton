@@ -15,6 +15,7 @@ export interface User {
 export interface Room {
   id: string,
   name: string,
+  description: string,
   participants: User[]
 }
 
@@ -25,39 +26,56 @@ export interface Room {
  */
 
 export type State = {
+  existRoom: boolean
   id: string,
-  name: string,
-  participants: User[]
+  roomName: string,
+  description: string,
+  participants: User[],
+  userName: string,
 };
 
 export const state: State = {
+  existRoom: false,
   id: "",
-  name: "",
-  participants: []
+  roomName: "",
+  description: "",
+  participants: [],
+  userName: "",
 };
 /**
  * mutations
  * 
  */
-export enum RoomMutations{
+export enum RoomMutations {
   CHANGE_ROOM = "CHANGE_ROOM",
   UPDATE_ROOM_NAME = "CHANGE_ROOM_NAME",
+  UPDATE_ROOM_DESCRIPTION = "UPDATE_ROOM_DESCRIPTION",
+  UPDATE_USER_NAME = "UPDATE_USER_NAME",
 }
 
 export type Mutations<S = State> = {
-  [RoomMutations.CHANGE_ROOM](state: S, room: Room): void
-  [RoomMutations.UPDATE_ROOM_NAME](state: S, name: string): void
+  [RoomMutations.CHANGE_ROOM](state: S, props: { existRoom: boolean, roomInfo: Room }): void
+  [RoomMutations.UPDATE_ROOM_NAME](state: S, roomName: string): void
+  [RoomMutations.UPDATE_ROOM_DESCRIPTION](state: S, description: string): void
+  [RoomMutations.UPDATE_USER_NAME](state: S, userName: string): void
 }
 
 export const mutations: MutationTree<State> & Mutations = {
-  [RoomMutations.CHANGE_ROOM](state, room) {
-    state.id = room.id;
-    state.name = room.name;
-    state.participants = room.participants;
+  [RoomMutations.CHANGE_ROOM](state, props) {
+    state.existRoom = props.existRoom;
+    state.id = props.roomInfo.id;
+    state.roomName = props.roomInfo.name;
+    state.description = props.roomInfo.description;
+    state.participants = props.roomInfo.participants;
   },
-  [RoomMutations.UPDATE_ROOM_NAME](state, name) {
-    console.log("is updating")
-    state.name = name;
+  [RoomMutations.UPDATE_ROOM_NAME](state, roomName) {
+    state.roomName = roomName;
+  },
+  [RoomMutations.UPDATE_ROOM_DESCRIPTION](state, description) {
+    state.description = description;
+  },
+  [RoomMutations.UPDATE_USER_NAME](state, userName) {
+    state.userName = userName;
   },
 };
 
@@ -79,17 +97,14 @@ type AugmentedActionContext = {
 export interface Actions {
   [RoomSettingsActionTypes.addRoomInformations](
     { commit }: AugmentedActionContext,
-    payload: Room, // Obsolete in here but left as an example
+    payload: { existRoom: boolean, roomInfo: Room }, // Obsolete in here but left as an example
   ): void;
 }
 
 export const actions: ActionTree<State, RootState> & Actions = {
-  [RoomSettingsActionTypes.addRoomInformations]({ commit }, room: Room) {
-    //commit(MutationTypes.CHANGE_VISIBILE_VIEW, view);
-    console.log(room)
-    const store = useStore();
-    store.commit(RoomMutations.CHANGE_ROOM, room);
-    store.commit(GeneralMutations.CHANGE_VISIBILE_VIEW, RouterNames.ROOM_DIALOG)
+  [RoomSettingsActionTypes.addRoomInformations]({ commit }, props: { existRoom: boolean, roomInfo: Room }) {
+    console.log(props)
+    commit(RoomMutations.CHANGE_ROOM, props);
   },
 };
 
@@ -101,5 +116,5 @@ export type Getters = {
 }
 
 export const getters: GetterTree<State, RootState> & Getters = {
-  roomTitle: (state) => state.name + "#" + state.id,
+  roomTitle: (state) => state.roomName + "#" + state.id,
 };

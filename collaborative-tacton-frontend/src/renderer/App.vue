@@ -1,5 +1,5 @@
 <template>
-  <div tabindex="0" class="main" @keyup="buttonUp" @keydown="buttonDown" >
+  <div tabindex="0" class="main" @keyup="buttonUp" @keydown="buttonDown">
     <div class="root">
       <v-app>
         <v-main>
@@ -123,10 +123,10 @@ export default defineComponent({
       return this.store.getters.currentView == RouterNames.PLAY_GROUND;
     },
     buttonDown(e: any) {
-      console.log("buttonDown");
       if (!this.correctFrameForInput()) return;
+      console.log("buttonDown");
       const key: string = e.key.toUpperCase();
-    
+
       // this.store.dispatch(ActionTypes.addActiveKey, key);
     },
     buttonUp(e: any) {

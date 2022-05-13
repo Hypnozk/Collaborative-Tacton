@@ -16,17 +16,25 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 break;
             }
             case WS_MSG_TYPE.GET_ROOM_INFO: {
+                /**
+                 * recieve roomName:string as payload
+                 * return {existRoom:boolean, roomInfo:Room}
+                 */
                 let roomInfo = StorageManager.getRoomInfo(msg.payload);
+                let existRoom = true;
                 console.log(msg.payload)
-                if (roomInfo == undefined)
+                if (roomInfo == undefined) {
+                    existRoom = false;
                     roomInfo = {
                         id: "",
+                        description: "",
                         name: msg.payload ? msg.payload : StorageManager.getNewRoomName(),
                         participants: []
                     }
+                }
                 ws.send(JSON.stringify({
                     type: WS_MSG_TYPE.SEND_ROOM_INFO,
-                    payload: roomInfo,
+                    payload: { existRoom: existRoom, roomInfo: roomInfo },
                 }))
                 break;
             }

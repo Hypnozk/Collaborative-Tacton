@@ -12,18 +12,6 @@
         </v-list-item>
       </v-container>
     </v-row>
-    <v-row class="subRow" style="justify-content: center">
-      <v-col cols="6" class="pa-2">
-        <v-btn elevation="2" color="primary" @click="cancelDevice">
-          Cancel
-        </v-btn>
-      </v-col>
-      <v-col cols="6" class="pa-2">
-        <v-btn elevation="2" color="primary" @click="finishConfiguration">
-          Finish Configuration
-        </v-btn>
-      </v-col>
-    </v-row>
   </v-container>
 </template>
 
@@ -34,7 +22,7 @@
   max-width: 100% !important;
   min-width: 100% !important;
   height: 100%;
-  font-size: 1.5em;
+  font-size: 0.8em;
   flex-shrink: 0;
 }
 
@@ -56,16 +44,15 @@
 
 <script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
-import router from "../router";
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
-import DeviceRow from "../components/deviceComponents/deviceRow.vue";
-import { useStore } from "../store/store";
-import { VibrotactileDevice } from "../store/modules/generalSettings/generalSettings";
-import { GeneralMutations } from "../store/modules/generalSettings/generalSettings";
+import DeviceRow from "./deviceRow.vue";
+import { useStore } from "../../store/store";
+import { VibrotactileDevice } from "../../store/modules/generalSettings/generalSettings";
+import { GeneralMutations } from "../../store/modules/generalSettings/generalSettings";
 
 export default defineComponent({
   components: { DeviceRow },
-  name: "DeviceView",
+  name: "DeviceSection",
   data() {
     return {
       isScanning: false,
@@ -78,12 +65,6 @@ export default defineComponent({
     },
   },
   methods: {
-    cancelDevice() {
-      router.push("/");
-    },
-    finishConfiguration() {
-      router.push("/playGround");
-    },
     startScanning() {
       this.isScanning = !this.isScanning;
       this.store.commit(GeneralMutations.UPDATE_DEVICE_LIST, []);
