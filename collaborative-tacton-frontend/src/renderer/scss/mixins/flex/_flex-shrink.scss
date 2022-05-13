@@ -1,6 +1,0 @@
-@mixin flex-shrink($int: 0) {
-  -webkit-flex-shrink: $int;
-  -moz-flex-shrink: $int;
-  -ms-flex: $int;
-  flex-shrink: $int;
-}

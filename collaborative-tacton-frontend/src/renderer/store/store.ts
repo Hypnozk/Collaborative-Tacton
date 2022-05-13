@@ -3,54 +3,52 @@ import {
 } from 'vuex'
 
 import {
-  BreakPointModule,
-  Store as BreakPointStore,
-} from './modules/breakPoint'
+  store as generalSettings,
+  GeneralSettingsStore,
+} from './modules/generalSettings'
 
 import {
-  State as BreakPointState,
-} from './modules/breakPoint/breakpoint'
+  State as GeneralSettingsState,
+} from './modules/generalSettings/generalSettings'
 
 import {
-  DirectInputModule,
-  Store as DirectInputStore,
-} from './modules/directInput'
+  store as roomSettings,
+  RoomSettingsStore,
+} from './modules/roomSettings'
 
 import {
-  State as DirectInputState,
-} from './modules/directInput/state'
+  State as RoomSettingsState,
+} from './modules/roomSettings/roomSettings'
+
 
 import {
-  DevicesModule,
-  Store as DevicesStore,
-} from './modules/devices'
+  store as playGround,
+  PlayGroundStore,
+} from './modules/playGround'
 
 import {
-  State as DevicesState,
-} from './modules/devices/devices'
+  State as PlayGroundState,
+} from './modules/playGround/playGround'
 
-import {
-  ViewPortModule,
-  Store as ViewPortStore,
-} from './modules/viewPort'
-
-import {
-  State as ViewPortState,
-} from './modules/viewPort/viewPort'
-
-export type State = {
-  breakPoint: BreakPointState,
-  directInput: DirectInputState,
-  devices: DevicesState,
-  viewPort: ViewPortState
+export type RootState = {
+  generalSettings: GeneralSettingsState,
+  roomSettings: RoomSettingsState,
+  playGround:PlayGroundState
 }
+
+/**
+ * interface State extends StateDirectInput,StateBreakPoint {}
+interface Mutations extends MutationsDirectInput,MutationsBreakPoint {}
+interface Actions extends ActionsDirectInput,ActionsBreakPoint {}
+interface Getters extends GettersDirectInput,GettersBreakPoint {}
+*/
+export type Store = GeneralSettingsStore<Pick<RootState, 'generalSettings'>> & RoomSettingsStore<Pick<RootState, 'roomSettings'>> & PlayGroundStore<Pick<RootState, 'playGround'>>
 
 export const store = createStore({
   modules: {
-    BreakPointModule,
-    DirectInputModule,
-    DevicesModule,
-    ViewPortModule
+    generalSettings,
+    roomSettings,
+    playGround
   },
 })
 
@@ -60,14 +58,7 @@ declare global {
   }
 }
 
-/**
- * interface State extends StateDirectInput,StateBreakPoint {}
-interface Mutations extends MutationsDirectInput,MutationsBreakPoint {}
-interface Actions extends ActionsDirectInput,ActionsBreakPoint {}
-interface Getters extends GettersDirectInput,GettersBreakPoint {}
-*/
-export type Store = BreakPointStore<Pick<State, 'breakPoint'>> & DirectInputStore<Pick<State, 'directInput'>>
-  & DevicesStore<Pick<State, 'devices'>> & ViewPortStore<Pick<State, 'viewPort'>>
+
 
 /**
  * use following to get the store in every file of the renderer 
@@ -75,5 +66,5 @@ export type Store = BreakPointStore<Pick<State, 'breakPoint'>> & DirectInputStor
  * const store = useStore()
  */
 export function useStore(): Store {
-  return store as Store
+  return store as Store;
 }

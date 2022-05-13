@@ -1,5 +1,5 @@
 "use strict";
-import { setBrowserWindow } from './electron/IPCManager/IPCController';
+import { setBrowserWindow } from './electron/IPCMainManager/IPCController';
 import { app, protocol, BrowserWindow } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
@@ -93,8 +93,9 @@ if (isDevelopment) {
     });
   }
 }
-/**
+
 process.on('uncaughtException', function (err) {
+  console.log(err)
    console.log("Unexpected Exception");
 });
 
@@ -102,4 +103,3 @@ process.on('unhandledRejection', function (err) {
   console.log("Unexpected error occured");
   app.quit();
 });
- */

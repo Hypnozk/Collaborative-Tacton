@@ -1,7 +1,0 @@
-@mixin standard-hover {
-  &:hover {
-    color: $accent;
-    cursor: pointer;
-    @content
-  }
-}

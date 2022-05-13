@@ -1,100 +1,139 @@
 <template>
-  <div tabindex="0" class="main" @keyup="buttonUp" @keydown="buttonDown">
-    <nav>
-      <router-link to="/devices">Devices</router-link> |
-      <router-link to="/">Play Ground</router-link>
-    </nav>
-    <router-view />
+  <div tabindex="0" class="main" @keyup="buttonUp" @keydown="buttonDown" >
+    <div class="root">
+      <v-app>
+        <v-main>
+          <router-view />
+          <transition name="fade">
+            <div class="snackbar" v-show="!isConnected">
+              <div class="label">
+                It seems you are offline pleasy try to reconnect
+              </div>
+              <v-btn
+                text
+                color="transparent"
+                @click="reconnectSocket"
+                loading="isReconnecting"
+              >
+                <v-progress-circular
+                  v-if="isReconnecting"
+                  indeterminate
+                  color="red"
+                  :size="20"
+                ></v-progress-circular>
+                <v-icon v-else left> mdi-reload </v-icon>
+                <div class="customIcon">Retry</div>
+              </v-btn>
+            </div>
+          </transition>
+        </v-main>
+      </v-app>
+    </div>
   </div>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  height: 100%;
-}
+<style lang="scss">
 .main {
   height: 100%;
   outline: none;
-}
-
-nav {
+  justify-content: center;
   display: flex;
-  padding-top: 10px;
 }
 
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-  padding-right: 10px;
-  padding-left: 10px;
+.v-main__wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-nav a.router-link-exact-active {
-  color: #42b983;
+.root {
+  display: block;
+  width: 100%;
+}
+.customIcon {
+  padding-left: 5px;
+}
+.snackbar {
+  display: flex;
+  justify-content: space-between;
+  width: 90%; /* Set a default minimum width */
+  box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) !important;
+  border-radius: 5px !important;
+  // box-shadow: #333;
+  background-color: #333; /* Black background color */
+  color: #fff; /* White text color */
+  text-align: center; /* Centered text */
+  border-radius: 2px; /* Rounded borders */
+  padding: 16px; /* Padding */
+  margin: 16px; /* Padding */
+  position: fixed; /* Sit on top of the screen */
+  z-index: 1; /* Add a z-index if needed */
+  bottom: 30px; /* 30px from the bottom */
+}
+
+.label {
+  display: flex;
+  align-items: center;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.9s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>
 <script lang="ts">
-import { defineComponent } from "@vue/runtime-core";
-import { RouteNames } from "./router/routes";
-import { ActionTypes } from "./store/modules/directInput/actionTypes";
-import { ActionTypes as ActionTypesViewPort } from "./store/modules/viewPort/viewPort";
-import {useStore} from "./store/store"
+import { computed, defineComponent } from "@vue/runtime-core";
+import { RouterNames } from "../types/Routernames";
+import { GeneralSettingsActionTypes } from "./store/modules/generalSettings/generalSettings";
+import { PlayGroundMutations } from "./store/modules/playGround/playGround";
+import { useStore, store } from "./store/store";
+import { initWebsocket } from "./CommunicationManager/WebSocketManager";
 export default defineComponent({
   name: "App",
-    data() {
+  setup() {
+    const store = useStore();
+    return {
+      isConnected: computed(() => store.getters.isConnectedToSocket),
+    };
+  },
+  data() {
     return {
       store: useStore(),
-    }
+      isReconnecting: false,
+    };
   },
   watch: {
     $route(to) {
       //this.show = false;
       this.store.dispatch(
-        ActionTypesViewPort.changePlayGroundVisible,
-        to.name == RouteNames.PLAY_GROUND
+        GeneralSettingsActionTypes.changeCurrentView,
+        to.name
       );
     },
   },
   methods: {
+    reconnectSocket() {
+      this.isReconnecting = true;
+      initWebsocket();
+      setTimeout(() => (this.isReconnecting = false), 5000);
+    },
     correctFrameForInput(): boolean {
-      return (
-        this.store.getters.playGroundVisible ||
-        !this.store.getters.editModeActive
-      );
+      return this.store.getters.currentView == RouterNames.PLAY_GROUND;
     },
     buttonDown(e: any) {
+      console.log("buttonDown");
+      if (!this.correctFrameForInput()) return;
       const key: string = e.key.toUpperCase();
-      /**
-      if (
-        !this.correctFrameForInput ||
-        this.store.getters.keyAlreadyActive(key)
-      )
-        return;
-
-       */
-        // activateChannels(item.channels, item.intensity);
-        this.store.dispatch(ActionTypes.addActiveKey, key);
-      
+    
+      // this.store.dispatch(ActionTypes.addActiveKey, key);
     },
     buttonUp(e: any) {
+      if (!this.correctFrameForInput()) return;
       const key = e.key.toUpperCase();
-      if (
-        !this.correctFrameForInput ||
-        !this.store.getters.keyAlreadyActive(key)
-      )
-        return;
-      const item = this.store.getters.gridLayout.find(
-        (item: any) => item.key.toUpperCase() === key
-      );
-      if (item) {
-        //deactivateChannels(item.channels, item.intensity);
-        this.store.dispatch(ActionTypes.removeActiveKey, key);
-      }
+      console.log("buttonUp");
+      //this.store.dispatch(ActionTypes.removeActiveKey, key);
     },
   },
 });

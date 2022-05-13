@@ -2,20 +2,24 @@
  * Types
  * 
  */
-export type Channel = {
-  id: string[],
-  intensities: number[]
-};
 
-export type InputButton = {
-  channels: string[],
+export interface KeyBoardAttributes {
+  channels: number[],
   color: string,
   intensity: number,
-  name: string,
+  name?: string,
   key: string,
-  i: number,
-  h: number,
-  w: number,
+  isActive: boolean
+}
+
+export interface KeyBoardButton extends KeyBoardAttributes {
+  i: string,
   x: number,
   y: number,
+  h: number,
+  w: number,
+}
+export interface TactileTask {
+  channel:number[],
+  intensity:number
 }
