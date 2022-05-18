@@ -139,7 +139,7 @@ export default defineComponent({
     },
     userName: {
       get(): string {
-        return this.store.state.roomSettings.user.userName;
+        return this.store.state.roomSettings.user.name;
       },
       set(value: string) {
         this.store.commit(RoomMutations.UPDATE_USER_NAME, value);

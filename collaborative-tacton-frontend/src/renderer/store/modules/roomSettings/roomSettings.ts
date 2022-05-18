@@ -10,7 +10,7 @@ import { GeneralMutations } from "../generalSettings/generalSettings"
  */
 export interface User {
   id: string,
-  userName: string,
+  name: string,
 }
 
 export interface Room {
@@ -41,7 +41,7 @@ export const state: State = {
   roomName: "",
   description: "",
   participants: [],
-  user: { id: "", userName: "" },
+  user: { id: "", name: "" },
 };
 /**
  * mutations
@@ -83,7 +83,7 @@ export const mutations: MutationTree<State> & Mutations = {
     state.user = user;
   },
   [RoomMutations.UPDATE_USER_NAME](state, userName) {
-    state.user.userName = userName;
+    state.user.name = userName;
   },
   [RoomMutations.UPDATE_PARTICIPANTS](state, participants) {
     state.participants = participants;
@@ -123,7 +123,7 @@ export const actions: ActionTree<State, RootState> & Actions = {
   },
   [RoomSettingsActionTypes.enterRoom]({ commit }, props: { room: Room, userId: string, participants: User[] }) {
     const user = props.participants.find(participant => participant.id == props.userId);
-    commit(RoomMutations.UPDATE_USER, { id: user!.id, userName: user!.userName });
+    commit(RoomMutations.UPDATE_USER, { id: user!.id, name: user!.name });
     commit(RoomMutations.CHANGE_ROOM, {
       existRoom: true,
       roomInfo: {
@@ -150,6 +150,9 @@ export const getters: GetterTree<State, RootState> & Getters = {
     const serverItem = state.participants.find(participant => participant.id == state.user.id)
     if (serverItem == undefined) return false;
 
-    return serverItem.userName !== state.user.userName;
+    console.log("userNameUpdated")
+    console.log(serverItem)
+    console.log(state.user.name)
+    return serverItem.name !== state.user.name;
   }
 };

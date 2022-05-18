@@ -19,7 +19,7 @@
     </v-card-text>
     <v-card-actions style="padding: 2px; min-height: 0">
       <v-row align="center" no-gutters justify="center">
-       {{ listChannels() }}
+        {{ listChannels() }}
         <v-spacer />
         <v-icon class="mr-1" small @click.stop @click="edit">
           mdi-pencil
@@ -87,7 +87,7 @@ export default defineComponent({
       }
     },
     edit() {
-        //the button wanted to be edit
+      //the button wanted to be edit
       this.$emit("updateIsMoved", false);
       this.$emit("editButton", this.button.i);
     },
@@ -95,7 +95,7 @@ export default defineComponent({
     listChannels(): string {
       let channelList = "[";
       this.button.channels.forEach((channel: number, index: number) => {
-        channelList += channel;
+        channelList += channel + 1;
         if (index !== this.button.channels.length - 1) channelList += ", ";
       });
       channelList += "]";

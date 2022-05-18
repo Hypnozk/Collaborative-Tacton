@@ -36,8 +36,6 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
 
 
                 const participants = StorageManager.enterRoom(ws, client, msg.payload.userName, roomInfo.id);
-                console.log("participants")
-                console.log(participants)
                 if (participants !== undefined)
                     ws.send(JSON.stringify({
                         type: WS_MSG_TYPE.ENTER_ROOM_FINISHED,

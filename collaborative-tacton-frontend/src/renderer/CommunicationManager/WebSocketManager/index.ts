@@ -23,7 +23,7 @@ export const initWebsocket = () => {
         };
         clientWs.onmessage = function (event: MessageEvent<any>) {
             console.log("Message websocket  connection ");
-            console.log(event.data);
+            console.log(JSON.parse(event.data));
             try{
                 handleMessage(JSON.parse(event.data));
             }catch(err){

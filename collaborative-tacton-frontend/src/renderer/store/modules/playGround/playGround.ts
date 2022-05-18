@@ -20,7 +20,7 @@ export type State = {
 };
 
 export const state: State = {
-    gridLayout: { x: 10, y: 8 },
+    gridLayout: { x: 11, y: 8 },
     gridItems: [],
     globalIntensity: 1,
 };

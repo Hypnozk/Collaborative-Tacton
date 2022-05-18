@@ -64,7 +64,7 @@
       <v-col cols="2" align-self="center"> Color </v-col>
       <v-col cols="6">
         <v-color-picker
-          v-model="color"
+          v-model="colorModell"
           mode="hex"
           hide-canvas
           style="margin-bottom: 500px !important"
@@ -175,11 +175,11 @@ export default defineComponent({
   },
   mounted() {
     //console.log("this.keyButtonId: " +this.keyButtonId);
-
     this.store.commit(
       GeneralMutations.CHANGE_VISIBILE_VIEW,
       RouterNames.PLAY_GROUND_DIALOG
     );
+
     if (this.keyButtonId == undefined) return;
     const keyButton = this.store.getters.getKeyButton(this.keyButtonId);
     if (keyButton == undefined) return;
@@ -194,11 +194,19 @@ export default defineComponent({
     });
   },
   computed: {
+    colorModell: {
+      get(): string {
+        return this.color;
+      },
+      set(value: string) {
+        this.color = value.substring(0, 7);
+      },
+    },
     colorActuator() {
       return (index: number) => {
         if (this.channelActive[index])
-          return lightenDarkenColor(this.color, -100);
-        return this.color;
+          return lightenDarkenColor(this.colorModell, -100);
+        return this.colorModell;
       };
     },
   },
@@ -256,7 +264,7 @@ export default defineComponent({
         return;
       }
 
-      if(this.keyIsTaken.oneTime) return;
+      if (this.keyIsTaken.oneTime) return;
 
       const channels: number[] = [];
       this.channelActive.forEach((isActive, index) => {
@@ -264,7 +272,7 @@ export default defineComponent({
       });
       const button = {
         channels: channels,
-        color: this.color,
+        color: this.colorModell,
         intensity: this.intensity * this.store.state.playGround.globalIntensity,
         name: this.name,
         key: this.key,

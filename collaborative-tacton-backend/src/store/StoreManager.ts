@@ -4,15 +4,14 @@ import { WS_MSG_TYPE } from "../webSocket/ws_types";
 
 let roomList: Map<string, Room> = new Map<string, Room>();
 let participantList: Map<string, User[]> = new Map<string, User[]>();
-let wsList: Map<string, WebSocket> = new Map<string, WebSocket>();
 
 
 const getRoomInfo = (id: string): Room | undefined => {
     return roomList.get(id);
 }
 
-const hasRoom = (id: string): boolean => {
-    return roomList.has(id);
+const hasRoom = (): Map<string, User[]> => {
+    return participantList;
 }
 
 const getNewRoomName = () => {
@@ -41,11 +40,10 @@ const enterRoom = (ws: WebSocket, userID: string, userName: string, roomId: stri
     if (rommInfo == undefined)
         return;
 
-    wsList.set(userID, ws);
-    const user = { id: userID, name: userName };
-    participantList.set(rommInfo.participantId, [...participantList.get(rommInfo.participantId)!, user])
+    const participants = [...participantList.get(rommInfo.participantId)!, { id: userID, name: userName, ws: ws }];
+    participantList.set(rommInfo.participantId, participants)
 
-    return { userId: userID, userList: participantList.get(rommInfo.participantId)! };
+    return { userId: userID, userList: Array.from(participants, item => { return { id: item.id, name: item.name } }) };
 }
 
 const updateParticipants = (roomId: string, user: User): string | undefined => {
@@ -58,7 +56,7 @@ const updateParticipants = (roomId: string, user: User): string | undefined => {
 
     for (let i = 0; i < participants.length; i++) {
         if (participants[i].id == user.id) {
-            participants[i] = user;
+            participants[i] = { ...participants[i], name: user.name };
             break;
         }
     }
@@ -68,18 +66,18 @@ const updateParticipants = (roomId: string, user: User): string | undefined => {
 
 const sendUpdatedParticipants = (participantId: string) => {
     const participants = participantList.get(participantId)!;
+    const list = Array.from(participants, item => { return { id: item.id, name: item.name } })
     console.log("sendUpdatedParticipants: ");
-    console.log(participants);
+    console.log(list);
     for (let i = 0; i < participants.length; i++) {
-        wsList.get(participants[i].id)?.send(JSON.stringify({
+        participants[i].ws?.send(JSON.stringify({
             type: WS_MSG_TYPE.UPDATE_USER_ACCOUNT_CLI,
-            payload: participants,
+            payload: list,
         }))
     };
 }
 
 const removeParticipant = (roomId: string, userId: string): { userInRoom: number, partId: string } | undefined => {
-    wsList.delete(userId);
     console.log("removeParticipant")
     console.log(roomList)
     console.log(roomList.get(roomId))
@@ -104,12 +102,8 @@ const removeRoom = (roomId: string) => {
     const participantId = roomList.get(roomId)?.participantId;
     if (participantId == undefined)
         return;
-    const participants = participantList.get(participantId);
-    if (participants !== undefined) {
-        for (let i = 0; i < participants.length; i++) {
-            wsList.delete(participants[i].id);
-        }
-    }
+
+    participantList.delete(participantId);
     roomList.delete(roomId);
     console.log("Delete Room: " + roomList.size)
 }

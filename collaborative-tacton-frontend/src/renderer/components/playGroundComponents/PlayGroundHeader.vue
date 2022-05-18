@@ -103,7 +103,6 @@ import { GeneralSettingsActionTypes } from "@/renderer/store/modules/generalSett
 import { RoomMutations } from "@/renderer/store/modules/roomSettings/roomSettings";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
-import router from "../../router";
 import { sendSocketMessage } from "../../CommunicationManager/WebSocketManager";
 import { WS_MSG_TYPE } from "../../CommunicationManager/WebSocketManager/ws_types";
 
@@ -116,7 +115,7 @@ export default defineComponent({
   computed: {
     userName: {
       get(): string {
-        return this.store.state.roomSettings.user.userName;
+        return this.store.state.roomSettings.user.name;
       },
       set(value: string) {
         this.store.commit(RoomMutations.UPDATE_USER_NAME, value);
@@ -136,11 +135,15 @@ export default defineComponent({
   },
   methods: {
     logOut() {
+      console.log("this.store.state.playGround.gridItems");
+      console.log(this.store.state.playGround.gridItems);
+      /**
       sendSocketMessage(WS_MSG_TYPE.LOG_OUT, {
         roomId: this.store.state.roomSettings.id,
         user: this.store.state.roomSettings.user,
       });
       router.push("/");
+       */
     },
     copyAdress() {
       window.api.send(

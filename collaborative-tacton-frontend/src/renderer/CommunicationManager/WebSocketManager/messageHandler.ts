@@ -29,6 +29,8 @@ export const handleMessage = (msg: SocketMessage) => {
             break;
         }
         case WS_MSG_TYPE.UPDATE_USER_ACCOUNT_CLI: {
+            console.log("UPDATE_USER_ACCOUNT_CLI")
+            console.log(msg.payload)
             store.commit(RoomMutations.UPDATE_PARTICIPANTS, msg.payload)
             break;
         }
