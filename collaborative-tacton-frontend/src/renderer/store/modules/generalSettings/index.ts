@@ -19,7 +19,7 @@ export type GeneralSettingsStore<S = State> = Omit<VuexStore<S>, 'getters' | 'co
 } & {
   dispatch<K extends keyof Actions>(
     key: K,
-    payload: Parameters<Actions[K]>[1],
+    payload?: Parameters<Actions[K]>[1],
     options?: DispatchOptions
   ): ReturnType<Actions[K]>;
 } & {

@@ -2,6 +2,13 @@
   <v-container fill-height class="deviceView">
     <v-row class="subRow">
       <v-btn elevation="2" color="primary" @click="startScanning">
+        <v-progress-circular
+          v-if="isScanning"
+          indeterminate
+          color="red"
+          :size="20"
+          style="margin-right: 10px"
+        ></v-progress-circular>
         {{ isScanning ? "Stop" : "Start" }} Scanning
       </v-btn>
     </v-row>

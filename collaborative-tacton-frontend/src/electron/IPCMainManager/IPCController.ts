@@ -1,4 +1,4 @@
-const { ipcMain } = require('electron');
+const { ipcMain, clipboard } = require('electron');
 import { BrowserWindow } from "electron";
 import { IPC_CHANNELS } from "./IPCChannels";
 import DeviceManager from "../DeviceManager/DeviceManager"
@@ -48,8 +48,13 @@ ipcMain.on(IPC_CHANNELS.main.disconnectDevice, () => {
 });
 
 ipcMain.on(IPC_CHANNELS.main.executeTask, (event, task: TactileTask) => {
-    console.log("Starting Discconnect");
+    console.log("executeTask");
     DeviceManager.executeTask(task)
+});
+
+ipcMain.on(IPC_CHANNELS.main.copyToClipBoard, (event, adress: string) => {
+    console.log("copyToClipBoard");
+    clipboard.writeText(adress);
 });
 
 

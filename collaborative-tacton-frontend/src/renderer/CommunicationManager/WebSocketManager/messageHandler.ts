@@ -1,5 +1,5 @@
 import { useStore } from "../../store/store";
-import { RoomSettingsActionTypes } from "../../store/modules/roomSettings/roomSettings";
+import { RoomMutations, RoomSettingsActionTypes } from "../../store/modules/roomSettings/roomSettings";
 import { WS_MSG_TYPE } from "./ws_types";
 import { RouterNames } from "@/types/Routernames";
 import { GeneralMutations } from "@/renderer/store/modules/generalSettings/generalSettings";
@@ -15,8 +15,21 @@ export const handleMessage = (msg: SocketMessage) => {
     switch (msg.type) {
         case WS_MSG_TYPE.SEND_ROOM_INFO: {
             store.dispatch(RoomSettingsActionTypes.addRoomInformations, msg.payload)
+            console.log("SEND_ROOM_INFO")
+            console.log(msg.payload)
             if (store.state.generalSettings.currentView == RouterNames.ROOM)
                 router.push("/setup");
+            break;
+        }
+        case WS_MSG_TYPE.ENTER_ROOM_FINISHED: {
+            store.dispatch(RoomSettingsActionTypes.enterRoom, msg.payload)
+            console.log(store.state.generalSettings.currentView) 
+            if (store.state.generalSettings.currentView == RouterNames.SETUP)
+                router.push("/playGround");
+            break;
+        }
+        case WS_MSG_TYPE.UPDATE_USER_ACCOUNT_CLI: {
+            store.commit(RoomMutations.UPDATE_PARTICIPANTS, msg.payload)
             break;
         }
     }

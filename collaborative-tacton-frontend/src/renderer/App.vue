@@ -5,7 +5,7 @@
         <v-main>
           <router-view />
           <transition name="fade">
-            <div class="snackbar" v-show="!isConnected">
+            <div class="snackbar" v-show="!store.getters.isConnectedToSocket">
               <div class="label">
                 It seems you are offline pleasy try to reconnect
               </div>
@@ -24,6 +24,17 @@
                 <v-icon v-else left> mdi-reload </v-icon>
                 <div class="customIcon">Retry</div>
               </v-btn>
+            </div>
+          </transition>
+          <transition name="fade">
+            <div
+              class="snackbarSucess"
+              v-show="
+                store.getters.isConnectedToSocket &&
+                store.state.generalSettings.userNameChanged
+              "
+            >
+              <div class="label">Username get succesfully updated.</div>
             </div>
           </transition>
         </v-main>
@@ -66,6 +77,24 @@
   border-radius: 2px; /* Rounded borders */
   padding: 16px; /* Padding */
   margin: 16px; /* Padding */
+  position: fixed; /* Sit on top of the screen */
+  z-index: 1; /* Add a z-index if needed */
+  bottom: 30px; /* 30px from the bottom */
+}
+
+.snackbarSucess {
+  display: flex;
+  justify-content: center;
+  width: 50%; /* Set a default minimum width */
+  box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) !important;
+  border-radius: 5px !important;
+  // box-shadow: #333;
+  background-color: rgb(49, 146, 62); /* Black background color */
+  color: #fff; /* White text color */
+  text-align: center; /* Centered text */
+  border-radius: 2px; /* Rounded borders */
+  padding: 16px; /* Padding */
+  margin: auto; /* Padding */
   position: fixed; /* Sit on top of the screen */
   z-index: 1; /* Add a z-index if needed */
   bottom: 30px; /* 30px from the bottom */

@@ -83,7 +83,8 @@ export const executeInstruction = (device: Peripheral, task: TactileTask) => {
                 const buffer = buildWriter(messages, instructionDef);
                 characteristic.write(buffer, true, (error) => {
                     //go always in this callback if error is null;all is fine
-                    console.log("error " + error);
+                    if (error !== null)
+                        throw error;
                 });
             }
         }

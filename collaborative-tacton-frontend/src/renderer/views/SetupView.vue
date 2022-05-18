@@ -11,20 +11,22 @@
       <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px"
         >Description</v-col
       >
-      <v-col cols="3">
-        <v-text-field
+      <v-col cols="5">
+        <v-textarea
           variant="underlined"
           hide-details="auto"
+          no-resize
+          rows="4"
           v-model="description"
-          readonly=store.state.roomSettings.existRoom
-        ></v-text-field>
+          :readonly="store.state.roomSettings.existRoom"
+        ></v-textarea>
       </v-col>
     </v-row>
     <v-row class="subRow">
       <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px"
         >Username</v-col
       >
-      <v-col cols="3">
+      <v-col cols="5">
         <v-text-field
           variant="underlined"
           hide-details="auto"
@@ -36,35 +38,15 @@
       <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px"
         >Connected Device</v-col
       >
-      <v-col cols="3">
-        {{ store.getters.getConnectedDevice }}
+      <v-col cols="5">
+        {{ store.getters.getConnectedDevice?.name }}
       </v-col>
     </v-row>
     <v-divider />
     <v-row class="expandRow">
       <v-col cols="4">
         <v-row no-gutters class="subheader"> Participants section </v-row>
-        <v-row no-gutters>
-          <v-col cols="1">
-            {{ store.state.roomSettings.participants.length }}
-          </v-col>
-          <v-col cols="3"> Participants </v-col>
-        </v-row>
-        <v-row>
-          <v-list>
-            <v-list-item
-              v-for="(item, i) in store.state.roomSettings.participants"
-              :key="i"
-              :value="item"
-              active-color="primary"
-            >
-              <v-list-item-avatar start>
-                <v-icon>mdi-account-circle</v-icon>
-              </v-list-item-avatar>
-              <v-list-item-title v-text="item.userName"></v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-row>
+        <ParticipantSection />
       </v-col>
       <v-divider vertical />
       <v-col cols="8">
@@ -75,7 +57,7 @@
       </v-col>
     </v-row>
     <v-divider />
-    <v-row class="subRow" style="margin:20px">
+    <v-row class="subRow" style="margin: 20px">
       <v-col cols="6">
         <v-row>
           <v-btn elevation="2" color="primary" @click="cancelRoomEnter">
@@ -131,11 +113,15 @@ import { useStore } from "../store/store";
 import router from "../router";
 import { RoomMutations } from "../store/modules/roomSettings/roomSettings";
 import DeviceSection from "../components/deviceComponents/DeviceSection.vue";
+import ParticipantSection from "../components/deviceComponents/ParticipantSection.vue";
+import { sendSocketMessage } from "../CommunicationManager/WebSocketManager";
+import { WS_MSG_TYPE } from "../CommunicationManager/WebSocketManager/ws_types";
 
 export default defineComponent({
   name: "SetupView",
   components: {
     DeviceSection,
+    ParticipantSection,
   },
   data() {
     return {
@@ -153,7 +139,7 @@ export default defineComponent({
     },
     userName: {
       get(): string {
-        return this.store.state.roomSettings.userName;
+        return this.store.state.roomSettings.user.userName;
       },
       set(value: string) {
         this.store.commit(RoomMutations.UPDATE_USER_NAME, value);
@@ -166,6 +152,14 @@ export default defineComponent({
     },
     enterRoom() {
       console.log(this.store.state.roomSettings.roomName);
+      sendSocketMessage(WS_MSG_TYPE.ENTER_ROOM, {
+        room: {
+          id: this.store.state.roomSettings.id,
+          name: this.store.state.roomSettings.roomName,
+          description: this.description,
+        },
+        userName: this.userName,
+      });
     },
   },
 });

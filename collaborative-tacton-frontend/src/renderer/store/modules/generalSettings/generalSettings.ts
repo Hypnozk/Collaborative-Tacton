@@ -26,12 +26,14 @@ export interface VibrotactileDevice {
 export type State = {
   currentView: RouterNames,
   socketConnectionStatus: boolean,
+  userNameChanged: boolean,
   deviceList: VibrotactileDevice[]
 };
 
 export const state: State = {
   currentView: RouterNames.ROOM,
   socketConnectionStatus: false,
+  userNameChanged: false,
   deviceList: []
 };
 /**
@@ -41,6 +43,7 @@ export const state: State = {
 export enum GeneralMutations {
   CHANGE_VISIBILE_VIEW = "CHANGE_VISIBILE_VIEW",
   UPDATE_SOCKET_CONNECTION = "UPDATE_SOCKET_CONNECTION",
+  USER_NAME_CHANGED = "USER_NAME_CHANGED",
   ADD_DEVICE = "ADD_DEVICE",
   UPDATE_DEVICE_LIST = "UPDATE_DEVICE_LIST",
   UPDATE_DEVICE = "UPDATE_DEVICE",
@@ -49,6 +52,7 @@ export enum GeneralMutations {
 export type Mutations<S = State> = {
   [GeneralMutations.CHANGE_VISIBILE_VIEW](state: S, view: RouterNames): void
   [GeneralMutations.UPDATE_SOCKET_CONNECTION](state: S, status: boolean): void
+  [GeneralMutations.USER_NAME_CHANGED](state: S, isChanged: boolean): void
   [GeneralMutations.ADD_DEVICE](state: S, device: VibrotactileDevice): void
   [GeneralMutations.UPDATE_DEVICE_LIST](state: S, deviceList: VibrotactileDevice[]): void
   [GeneralMutations.UPDATE_DEVICE](state: S, item: { index: number, device: VibrotactileDevice }): void
@@ -60,6 +64,9 @@ export const mutations: MutationTree<State> & Mutations = {
   },
   [GeneralMutations.UPDATE_SOCKET_CONNECTION](state, status) {
     state.socketConnectionStatus = status;
+  },
+  [GeneralMutations.USER_NAME_CHANGED](state, isChanged) {
+    state.userNameChanged = isChanged;
   },
   [GeneralMutations.ADD_DEVICE](state, device) {
     state.deviceList.push(device);
@@ -80,7 +87,8 @@ export enum GeneralSettingsActionTypes {
   changeCurrentView = 'changeCurrentView',
   updateSocketConnectionStatus = 'updateSocketConnectionStatus',
   addNewDevice = 'addNewDevice',
-  updateDeviceStatus = 'updateDeviceStatus'
+  updateDeviceStatus = 'updateDeviceStatus',
+  userNameGetSaved = "userNameGetSaved"
 }
 
 type AugmentedActionContext = {
@@ -99,6 +107,9 @@ export interface Actions {
     { commit }: AugmentedActionContext,
     payload: boolean, // Obsolete in here but left as an example
   ): void;
+  [GeneralSettingsActionTypes.userNameGetSaved](
+    { commit }: AugmentedActionContext, // Obsolete in here but left as an example
+  ): void;
   [GeneralSettingsActionTypes.addNewDevice](
     { commit }: AugmentedActionContext,
     payload: VibrotactileDevice, // Obsolete in here but left as an example
@@ -115,6 +126,10 @@ export const actions: ActionTree<State, RootState> & Actions = {
   },
   [GeneralSettingsActionTypes.updateSocketConnectionStatus]({ commit }, status: boolean) {
     commit(GeneralMutations.UPDATE_SOCKET_CONNECTION, status);
+  },
+  [GeneralSettingsActionTypes.userNameGetSaved]({ commit }) {
+    //commit(GeneralMutations.USER_NAME_CHANGED, true);
+    //setTimeout(() => (commit(GeneralMutations.USER_NAME_CHANGED, false)), 3000);
   },
   [GeneralSettingsActionTypes.addNewDevice]({ commit }, newDevice: VibrotactileDevice) {
     console.log("newDevice")
@@ -145,7 +160,7 @@ export type Getters = {
   currentView(state: State): RouterNames,
   isConnectedToSocket(state: State): boolean,
   getDeviceStatus(state: State): (id: string) => DeviceStatus,
-  getConnectedDevice(state: State): VibrotactileDevice |undefined
+  getConnectedDevice(state: State): VibrotactileDevice | undefined
 }
 
 export const getters: GetterTree<State, RootState> & Getters = {
