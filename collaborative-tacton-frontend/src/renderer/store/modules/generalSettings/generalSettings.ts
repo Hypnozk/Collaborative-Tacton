@@ -128,24 +128,18 @@ export const actions: ActionTree<State, RootState> & Actions = {
     commit(GeneralMutations.UPDATE_SOCKET_CONNECTION, status);
   },
   [GeneralSettingsActionTypes.userNameGetSaved]({ commit }) {
-    //commit(GeneralMutations.USER_NAME_CHANGED, true);
-    //setTimeout(() => (commit(GeneralMutations.USER_NAME_CHANGED, false)), 3000);
+    commit(GeneralMutations.USER_NAME_CHANGED, true);
+    setTimeout(() => (commit(GeneralMutations.USER_NAME_CHANGED, false)), 3000);
   },
   [GeneralSettingsActionTypes.addNewDevice]({ commit }, newDevice: VibrotactileDevice) {
-    console.log("newDevice")
-    console.log(newDevice)
     if (state.deviceList.some(device => device.id == newDevice.id))
       return;
 
     commit(GeneralMutations.ADD_DEVICE, newDevice);
   },
   [GeneralSettingsActionTypes.updateDeviceStatus]({ commit }, modifiedDevice: VibrotactileDevice) {
-    console.log("updateDeviceStatus")
-    console.log(state.deviceList)
-    console.log(modifiedDevice.id)
     const index = state.deviceList.findIndex(device => device.id === modifiedDevice.id);
     //no device found
-    console.log(index == -1)
     if (index == -1)
       return;
 
@@ -167,9 +161,6 @@ export const getters: GetterTree<State, RootState> & Getters = {
   currentView: (state) => state.currentView,
   isConnectedToSocket: (state) => state.socketConnectionStatus,
   getDeviceStatus: (state) => (id) => {
-    console.log("deviceId + ")
-    console.log(id)
-
     const index = state.deviceList.findIndex(
       (deviceStore) => deviceStore.id === id
     );

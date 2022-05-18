@@ -151,7 +151,6 @@ export default defineComponent({
       router.push("/");
     },
     enterRoom() {
-      console.log(this.store.state.roomSettings.roomName);
       sendSocketMessage(WS_MSG_TYPE.ENTER_ROOM, {
         room: {
           id: this.store.state.roomSettings.id,

@@ -1,11 +1,11 @@
 export interface User {
     id: string,
-    userName: string,
+    name: string,
 }
 
 export interface Room {
     id: string,
     name: string,
     description:string,
-    participants: User[]
+    participantId: string
 }

@@ -57,7 +57,6 @@ export default defineComponent({
   },
   methods: {
     enterRoom() {
-      console.log("send");
       sendSocketMessage(WS_MSG_TYPE.GET_ROOM_INFO, this.roomName);
     },
   },

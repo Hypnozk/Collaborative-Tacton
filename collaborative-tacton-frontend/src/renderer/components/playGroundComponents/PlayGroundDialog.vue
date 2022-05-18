@@ -148,7 +148,6 @@ import {
   PlayGroundMutations,
 } from "@/renderer/store/modules/playGround/playGround";
 import { useStore } from "@/renderer/store/store";
-import { KeyBoardAttributes } from "@/types/GeneralType";
 import { RouterNames } from "@/types/Routernames";
 import { defineComponent } from "@vue/runtime-core";
 import { lightenDarkenColor } from "../../lib/colors";

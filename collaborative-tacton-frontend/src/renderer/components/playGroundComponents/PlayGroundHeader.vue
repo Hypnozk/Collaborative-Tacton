@@ -36,17 +36,17 @@
             </div>
           </div>
           <v-list-item
-            v-for="(item, index) in items"
+            v-for="(item, index) in store.state.roomSettings.participants"
             :key="index"
             :value="index"
             class="customMenu"
           >
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
+            <v-list-item-title>{{ item.userName }}</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
 
-      <v-btn variant="text" style="margin-right: 20px">
+      <v-btn variant="text" style="margin-right: 20px" @click="logOut">
         Log out <v-icon right> mdi-logout </v-icon></v-btn
       >
     </v-row>
@@ -103,6 +103,7 @@ import { GeneralSettingsActionTypes } from "@/renderer/store/modules/generalSett
 import { RoomMutations } from "@/renderer/store/modules/roomSettings/roomSettings";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
+import router from "../../router";
 import { sendSocketMessage } from "../../CommunicationManager/WebSocketManager";
 import { WS_MSG_TYPE } from "../../CommunicationManager/WebSocketManager/ws_types";
 
@@ -111,12 +112,6 @@ export default defineComponent({
   data: () => ({
     store: useStore(),
     participantMenu: false,
-    items: [
-      { title: "Click Me" },
-      { title: "Click Me" },
-      { title: "Click Me" },
-      { title: "Click Me 2" },
-    ],
   }),
   computed: {
     userName: {
@@ -130,19 +125,22 @@ export default defineComponent({
   },
   watch: {
     participantMenu(newValue) {
-      if (newValue == false && this.store.getters.userNameUpdated){
+      if (newValue == false && this.store.getters.userNameUpdated) {
         this.store.dispatch(GeneralSettingsActionTypes.userNameGetSaved);
-        /**sendSocketMessage(WS_MSG_TYPE.UPDATE_USER_ACCOUNT_SERV, {
+        sendSocketMessage(WS_MSG_TYPE.UPDATE_USER_ACCOUNT_SERV, {
           roomId: this.store.state.roomSettings.id,
           user: this.store.state.roomSettings.user,
         });
-        */
-        }
+      }
     },
   },
   methods: {
     logOut() {
-      this.store.state.roomSettings.roomName;
+      sendSocketMessage(WS_MSG_TYPE.LOG_OUT, {
+        roomId: this.store.state.roomSettings.id,
+        user: this.store.state.roomSettings.user,
+      });
+      router.push("/");
     },
     copyAdress() {
       window.api.send(

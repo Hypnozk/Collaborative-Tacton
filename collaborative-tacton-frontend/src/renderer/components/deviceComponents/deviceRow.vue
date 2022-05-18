@@ -54,7 +54,6 @@ export default defineComponent({
   },
   methods: {
     changeConnectionStatus() {
-      console.log("changeConnectionStatus");
       if (this.device.state == DeviceStatus.connected) {
         window.api.send(IPC_CHANNELS.main.disconnectDevice);
       } else {
@@ -62,7 +61,6 @@ export default defineComponent({
       }
     },
     async vibrateDevice() {
-      console.log("vibrateDevice");
       this.isVibrating = true;
       window.api.send(IPC_CHANNELS.main.executeTask, {
         channel: [0, 1],

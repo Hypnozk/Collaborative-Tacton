@@ -5,7 +5,6 @@ import DeviceManager from "./DeviceManager";
 let blueToothState = "";
 
 noble.on("stateChange", (state: any) => {
-    console.log("stateChange: " + state)
     blueToothState = state;
 });
 

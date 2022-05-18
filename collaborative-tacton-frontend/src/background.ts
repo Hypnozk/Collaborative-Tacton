@@ -95,11 +95,10 @@ if (isDevelopment) {
 }
 
 process.on('uncaughtException', function (err) {
-  console.log(err)
-   console.log("Unexpected Exception");
+  console.log("Unexpected Exception: " + err);
 });
 
 process.on('unhandledRejection', function (err) {
-  console.log("Unexpected error occured");
+  console.log("Unexpected error occured: " + err);
   app.quit();
 });

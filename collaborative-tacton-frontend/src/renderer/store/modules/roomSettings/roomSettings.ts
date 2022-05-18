@@ -67,7 +67,6 @@ export type Mutations<S = State> = {
 
 export const mutations: MutationTree<State> & Mutations = {
   [RoomMutations.CHANGE_ROOM](state, props) {
-    console.log("CHANGE_ROOM")
     state.existRoom = props.existRoom;
     state.id = props.roomInfo.id;
     state.roomName = props.roomInfo.name;
@@ -75,24 +74,18 @@ export const mutations: MutationTree<State> & Mutations = {
     state.participants = props.roomInfo.participants;
   },
   [RoomMutations.UPDATE_ROOM_NAME](state, roomName) {
-    console.log("UPDATE_ROOM_NAME")
     state.roomName = roomName;
   },
   [RoomMutations.UPDATE_ROOM_DESCRIPTION](state, description) {
-    console.log("UPDATE_ROOM_DESCRIPTION")
     state.description = description;
   },
   [RoomMutations.UPDATE_USER](state, user) {
-    console.log("UPDATE_USER")
     state.user = user;
   },
   [RoomMutations.UPDATE_USER_NAME](state, userName) {
-    console.log("UPDATE_USER_NAME")
-    console.log(state.participants[0])
     state.user.userName = userName;
   },
   [RoomMutations.UPDATE_PARTICIPANTS](state, participants) {
-    console.log("UPDATE_PARTICIPANTS")
     state.participants = participants;
   },
 };
@@ -126,14 +119,11 @@ export interface Actions {
 
 export const actions: ActionTree<State, RootState> & Actions = {
   [RoomSettingsActionTypes.addRoomInformations]({ commit }, props: { existRoom: boolean, roomInfo: Room }) {
-    console.log("addRoomInformations")
-    console.log(props.existRoom)
     commit(RoomMutations.CHANGE_ROOM, props);
   },
   [RoomSettingsActionTypes.enterRoom]({ commit }, props: { room: Room, userId: string, participants: User[] }) {
-    console.log(props)
     const user = props.participants.find(participant => participant.id == props.userId);
-    commit(RoomMutations.UPDATE_USER, user!);
+    commit(RoomMutations.UPDATE_USER, { id: user!.id, userName: user!.userName });
     commit(RoomMutations.CHANGE_ROOM, {
       existRoom: true,
       roomInfo: {
@@ -157,16 +147,9 @@ export type Getters = {
 export const getters: GetterTree<State, RootState> & Getters = {
   roomTitle: (state) => state.roomName + "#" + state.id,
   userNameUpdated: (state) => {
-    //const serverItem = state.participants.find(participant => participant.id == state.user.id)
-    //console.log(serverItem)
+    const serverItem = state.participants.find(participant => participant.id == state.user.id)
+    if (serverItem == undefined) return false;
 
-    console.log(state.user)
-    //if (serverItem == undefined) return false;
-    console.log("output")
-    console.log(state.participants[0].userName)
-    console.log(state.user.userName)
-    console.log("output")
-    console.log(state.participants[0].userName !== state.user.userName)
-    return false;
+    return serverItem.userName !== state.user.userName;
   }
 };

@@ -70,10 +70,10 @@ export default defineComponent({
     closeDialog() {
       console.log("closeDialog");
       this.playGroundDialog = false;
-      /**this.store.commit(
+      this.store.commit(
         GeneralMutations.CHANGE_VISIBILE_VIEW,
         RouterNames.PLAY_GROUND
-      );*/
+      );
       // set the focus again, so key down and up is working
       const container: any = this.$refs.container;
       this.$nextTick(() => container.$el.focus());
