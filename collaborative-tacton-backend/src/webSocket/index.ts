@@ -95,7 +95,16 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                         StorageManager.sendUpdatedParticipants(props.partId);
                     }
                 }
-
+                break;
+            }
+            case WS_MSG_TYPE.SEND_INSTRUCTION_SERV: {
+                /**
+                 * recieve "{roomId:string, user:{id:string,userName:string}}" as payload
+                 * remove Room if there are no participants anymore
+                 * update all clients with new username
+                 */
+                console.log("recieve Instruction");
+                console.log(msg.payload);
                 break;
             }
         }

@@ -9,13 +9,13 @@ import { initIPCListener } from "./renderer/CommunicationManager/IPCListener";
 import { initConfig } from "./renderer/CommunicationManager/FileManager";
 
 loadFonts()
-
+const store = useStore();
 createApp(App)
   .use(vuetify)
-  .use(useStore())
+  .use(store)
   .use(router)
   .mount('#app')
 
 initIPCListener();
-initWebsocket();
+initWebsocket(store);
 initConfig();

@@ -1,11 +1,11 @@
+
 import { GeneralSettingsActionTypes, GeneralMutations } from "../../store/modules/generalSettings/generalSettings";
-import { useStore } from "../../store/store";
+import { Store } from "../../store/store";
 import { handleMessage, SocketMessage } from "./messageHandler";
 import { WS_MSG_TYPE } from "./ws_types";
 
-const store = useStore()
 let clientWs = null as WebSocket | null;
-export const initWebsocket = () => {
+export const initWebsocket = (store: Store) => {
     //store.dispatch(GeneralSettingsActionTypes.addSocketClient, new WebSocket("ws://localhost:8080/patth?token=secure"));
     clientWs = new WebSocket("ws://localhost:8080/patth?token=secure")
     if (clientWs !== null) {
@@ -24,9 +24,9 @@ export const initWebsocket = () => {
         clientWs.onmessage = function (event: MessageEvent<any>) {
             console.log("Message websocket  connection ");
             console.log(JSON.parse(event.data));
-            try{
-                handleMessage(JSON.parse(event.data));
-            }catch(err){
+            try {
+                handleMessage(store, JSON.parse(event.data));
+            } catch (err) {
                 console.log("error Past");
                 console.log(`Error occured ${err}`)
             }

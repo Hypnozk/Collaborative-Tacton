@@ -1,4 +1,4 @@
-import { useStore } from "../../store/store";
+import { Store, useStore } from "../../store/store";
 import { RoomMutations, RoomSettingsActionTypes } from "../../store/modules/roomSettings/roomSettings";
 import { WS_MSG_TYPE } from "./ws_types";
 import { RouterNames } from "@/types/Routernames";
@@ -10,8 +10,7 @@ export interface SocketMessage {
     payload: any;
 }
 
-const store = useStore();
-export const handleMessage = (msg: SocketMessage) => {
+export const handleMessage = (store:Store,msg: SocketMessage) => {
     switch (msg.type) {
         case WS_MSG_TYPE.SEND_ROOM_INFO: {
             store.dispatch(RoomSettingsActionTypes.addRoomInformations, msg.payload)

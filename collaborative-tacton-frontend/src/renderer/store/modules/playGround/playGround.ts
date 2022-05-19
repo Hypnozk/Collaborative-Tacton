@@ -3,6 +3,8 @@ import { MutationTree, GetterTree, ActionTree, ActionContext } from 'vuex'
 import { RootState } from '../../store';
 import { v4 as uuidv4 } from 'uuid';
 import { KeyBoardAttributes, KeyBoardButton } from '@/types/GeneralType';
+import { sendSocketMessage } from '@/renderer/CommunicationManager/WebSocketManager';
+import { WS_MSG_TYPE } from '@/renderer/CommunicationManager/WebSocketManager/ws_types';
 
 export interface Layout {
     x: number,
@@ -69,7 +71,8 @@ export const mutations: MutationTree<State> & Mutations = {
  * 
  */
 export enum PlayGroundActionTypes {
-    addActiveKey = 'addActiveKey',
+    activateKey = 'activateKey',
+    deactivateKey = "deactivateKey",
     addButtonToGrid = 'addButtonToGrid',
     updateKeyButton = "updateKeyButton"
 }
@@ -82,7 +85,11 @@ type AugmentedActionContext = {
 } & Omit<ActionContext<State, RootState>, 'commit'>
 
 export interface Actions {
-    [PlayGroundActionTypes.addActiveKey](
+    [PlayGroundActionTypes.activateKey](
+        { commit }: AugmentedActionContext,
+        payload: string, // Obsolete in here but left as an example
+    ): void;
+    [PlayGroundActionTypes.deactivateKey](
         { commit }: AugmentedActionContext,
         payload: string, // Obsolete in here but left as an example
     ): void;
@@ -97,8 +104,26 @@ export interface Actions {
 }
 
 export const actions: ActionTree<State, RootState> & Actions = {
-    [PlayGroundActionTypes.addActiveKey]({ commit }, key: string) {
-        console.log(key)
+    [PlayGroundActionTypes.activateKey]({ commit }, buttonKey: string) {
+        const index = state.gridItems.findIndex((keyBoardButton) => keyBoardButton.key === buttonKey);
+        if (state.gridItems[index].isActive) return;
+
+        commit(PlayGroundMutations.UPDATE_GRID_ITEM, { index: index, button: { ...state.gridItems[index], isActive: true } });
+        sendSocketMessage(WS_MSG_TYPE.SEND_INSTRUCTION_SERV, {
+            channel: state.gridItems[index].channels,
+            intensity: state.gridItems[index].intensity * state.globalIntensity,
+        });
+    },
+    [PlayGroundActionTypes.deactivateKey]({ commit }, buttonKey: string) {
+        const index = state.gridItems.findIndex((keyBoardButton) => keyBoardButton.key === buttonKey);
+        if (!state.gridItems[index].isActive) return;
+
+        commit(PlayGroundMutations.UPDATE_GRID_ITEM, { index: index, button: { ...state.gridItems[index], isActive: false } });
+        sendSocketMessage(WS_MSG_TYPE.SEND_INSTRUCTION_SERV, {
+            channel: state.gridItems[index].channels,
+            intensity: 0,
+        });
+        
     },
     [PlayGroundActionTypes.addButtonToGrid]({ commit }, button: KeyBoardAttributes) {
         const uid = uuidv4();

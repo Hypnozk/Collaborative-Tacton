@@ -4,7 +4,8 @@
     max-width="100"
     min-width="100"
     min-height="100"
-    @click="keyButtonClicked"
+    @click="mouseUp()"
+    @mousedown="mouseDown()"
     v-bind:style="{ backgroundColor: colorActuator }"
   >
     <v-card-text style="padding: 1px" class="keyButton">
@@ -21,7 +22,7 @@
       <v-row align="center" no-gutters justify="center">
         {{ listChannels() }}
         <v-spacer />
-        <v-icon class="mr-1" small @click.stop @click="edit">
+        <v-icon class="mr-1" small @click.stop @mouseup.stop @click="edit">
           mdi-pencil
         </v-icon>
       </v-row>
@@ -50,12 +51,15 @@ import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 import { KeyBoardButton } from "@/types/GeneralType";
 import { lightenDarkenColor } from "../../lib/colors";
+import { sendSocketMessage } from "../../CommunicationManager/WebSocketManager";
+import { WS_MSG_TYPE } from "../../CommunicationManager/WebSocketManager/ws_types";
+import { PlayGroundActionTypes } from "@/renderer/store/modules/playGround/playGround";
 
 export default defineComponent({
   name: "KeyBoardButton",
   data() {
     return {
-      enabled: true,
+      store: useStore(),
     };
   },
   props: {
@@ -68,30 +72,45 @@ export default defineComponent({
       required: true,
     },
   },
-  emits: ["updateIsMoved", "editButton"],
+  emits: ["updateisMoved", "editButton"],
   computed: {
     colorActuator() {
+      console.log("colorActuator: " + this.button.isActive);
       if (this.button.isActive)
         return lightenDarkenColor(this.button.color, -100);
       return this.button.color;
     },
   },
   methods: {
-    keyButtonClicked() {
-      if (this.isMoved) {
-        //"the item get just moved, dont make anything";
-        this.$emit("updateIsMoved", false);
-      } else {
-        //the button is pressed
-        console.log("keyButtonClicked");
+    handleMouse(mouseDown: true) {
+      //console.log("isMoved: " + this.isMoved);
+      //console.log("mousedown " + mouseDown);
+      if (!mouseDown && this.isMoved) {
+        //moving card is finished, just reset variable
+        this.$emit("updateisMoved", false);
+        return;
       }
+      if (mouseDown) {
+        //button clicked
+        this.store.dispatch(PlayGroundActionTypes.activateKey, this.button.key);
+      } else {
+        this.store.dispatch(PlayGroundActionTypes.deactivateKey, this.button.key);
+      }
+    },
+    mouseUp() {
+      const refhandleMouse = this.handleMouse;
+      setTimeout(refhandleMouse, 150, false);
+    },
+    mouseDown() {
+      console.log("colorActuator: " + this.button.isActive);
+      const refHandleMouse = this.handleMouse;
+      setTimeout(refHandleMouse, 150, true);
     },
     edit() {
       //the button wanted to be edit
-      this.$emit("updateIsMoved", false);
+      this.$emit("updateisMoved", false);
       this.$emit("editButton", this.button.i);
     },
-
     listChannels(): string {
       let channelList = "[";
       this.button.channels.forEach((channel: number, index: number) => {

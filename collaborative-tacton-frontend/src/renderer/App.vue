@@ -145,7 +145,7 @@ export default defineComponent({
   methods: {
     reconnectSocket() {
       this.isReconnecting = true;
-      initWebsocket();
+      initWebsocket(this.store);
       setTimeout(() => (this.isReconnecting = false), 5000);
     },
     correctFrameForInput(): boolean {
