@@ -27,6 +27,7 @@ export type State = {
   currentView: RouterNames,
   socketConnectionStatus: boolean,
   userNameChanged: boolean,
+  copiedToClipboard: boolean,
   deviceList: VibrotactileDevice[]
 };
 
@@ -34,6 +35,7 @@ export const state: State = {
   currentView: RouterNames.ROOM,
   socketConnectionStatus: false,
   userNameChanged: false,
+  copiedToClipboard: false,
   deviceList: []
 };
 /**
@@ -47,12 +49,14 @@ export enum GeneralMutations {
   ADD_DEVICE = "ADD_DEVICE",
   UPDATE_DEVICE_LIST = "UPDATE_DEVICE_LIST",
   UPDATE_DEVICE = "UPDATE_DEVICE",
+  COPIED_TO_CLIPBOARD = "COPIED_TO_CLIPBOARD"
 }
 
 export type Mutations<S = State> = {
   [GeneralMutations.CHANGE_VISIBILE_VIEW](state: S, view: RouterNames): void
   [GeneralMutations.UPDATE_SOCKET_CONNECTION](state: S, status: boolean): void
   [GeneralMutations.USER_NAME_CHANGED](state: S, isChanged: boolean): void
+  [GeneralMutations.COPIED_TO_CLIPBOARD](state: S, copiedToClipboard: boolean): void
   [GeneralMutations.ADD_DEVICE](state: S, device: VibrotactileDevice): void
   [GeneralMutations.UPDATE_DEVICE_LIST](state: S, deviceList: VibrotactileDevice[]): void
   [GeneralMutations.UPDATE_DEVICE](state: S, item: { index: number, device: VibrotactileDevice }): void
@@ -77,6 +81,9 @@ export const mutations: MutationTree<State> & Mutations = {
   [GeneralMutations.UPDATE_DEVICE](state, item) {
     state.deviceList[item.index] = item.device;
   },
+  [GeneralMutations.COPIED_TO_CLIPBOARD](state, copiedToClipboard) {
+    state.copiedToClipboard = copiedToClipboard;
+  },
 };
 
 /**
@@ -88,7 +95,8 @@ export enum GeneralSettingsActionTypes {
   updateSocketConnectionStatus = 'updateSocketConnectionStatus',
   addNewDevice = 'addNewDevice',
   updateDeviceStatus = 'updateDeviceStatus',
-  userNameGetSaved = "userNameGetSaved"
+  userNameGetSaved = "userNameGetSaved",
+  copyAdressToClipboard = "copyAdressToClipboard"
 }
 
 type AugmentedActionContext = {
@@ -118,6 +126,9 @@ export interface Actions {
     { commit }: AugmentedActionContext,
     payload: VibrotactileDevice, // Obsolete in here but left as an example
   ): void;
+  [GeneralSettingsActionTypes.copyAdressToClipboard](
+    { commit }: AugmentedActionContext
+  ): void;
 }
 
 export const actions: ActionTree<State, RootState> & Actions = {
@@ -128,6 +139,10 @@ export const actions: ActionTree<State, RootState> & Actions = {
     commit(GeneralMutations.UPDATE_SOCKET_CONNECTION, status);
   },
   [GeneralSettingsActionTypes.userNameGetSaved]({ commit }) {
+    commit(GeneralMutations.USER_NAME_CHANGED, true);
+    setTimeout(() => (commit(GeneralMutations.USER_NAME_CHANGED, false)), 3000);
+  },
+  [GeneralSettingsActionTypes.copyAdressToClipboard]({ commit }) {
     commit(GeneralMutations.USER_NAME_CHANGED, true);
     setTimeout(() => (commit(GeneralMutations.USER_NAME_CHANGED, false)), 3000);
   },

@@ -92,12 +92,11 @@ if (isDevelopment) {
       app.quit();
     });
   }
-}
-
+}/**
 process.on('uncaughtException', function (err) {
   console.log("Unexpected Exception: " + err);
 });
-
+ */
 process.on('unhandledRejection', function (err) {
   console.log("Unexpected error occured: " + err);
   app.quit();

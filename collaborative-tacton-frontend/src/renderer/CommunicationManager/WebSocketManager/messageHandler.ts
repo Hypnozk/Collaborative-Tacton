@@ -1,8 +1,7 @@
-import { Store, useStore } from "../../store/store";
+import { Store } from "../../store/store";
 import { RoomMutations, RoomSettingsActionTypes } from "../../store/modules/roomSettings/roomSettings";
 import { WS_MSG_TYPE } from "./ws_types";
 import { RouterNames } from "@/types/Routernames";
-import { GeneralMutations } from "@/renderer/store/modules/generalSettings/generalSettings";
 import router from "@/renderer/router";
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 

@@ -105,7 +105,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 console.log("recieve Instruction");
                 console.log(msg.payload);
                 const newInstructions = StorageManager.updateIntensities(client, msg.payload.roomId, msg.payload.keyId, msg.payload.channels, msg.payload.intensity)
-                if (newInstructions == undefined) return;
+                if (newInstructions == undefined || newInstructions.length == 0) return;
                 StorageManager.sendInstruction(msg.payload.roomId, newInstructions)
                 break;
             }

@@ -1,7 +1,7 @@
 
-import { GeneralSettingsActionTypes, GeneralMutations } from "../../store/modules/generalSettings/generalSettings";
+import { GeneralMutations } from "../../store/modules/generalSettings/generalSettings";
 import { Store } from "../../store/store";
-import { handleMessage, SocketMessage } from "./messageHandler";
+import { handleMessage } from "./messageHandler";
 import { WS_MSG_TYPE } from "./ws_types";
 
 let clientWs = null as WebSocket | null;

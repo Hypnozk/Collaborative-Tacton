@@ -146,6 +146,7 @@ export default defineComponent({
       router.push("/");
     },
     copyAdress() {
+      this.store.dispatch(GeneralSettingsActionTypes.copyAdressToClipboard);
       window.api.send(
         IPC_CHANNELS.main.copyToClipBoard,
         `${this.store.state.roomSettings.roomName}#${this.store.state.roomSettings.id}`

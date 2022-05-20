@@ -35,7 +35,7 @@
                 color="red"
                 :size="20"
               ></v-progress-circular>
-              <div style="padding:5px">Detect</div>
+              <div style="padding: 5px">Detect</div>
             </v-btn>
           </v-col>
         </v-row>
@@ -145,7 +145,7 @@ import { GeneralMutations } from "@/renderer/store/modules/generalSettings/gener
 import {
   PlayGroundActionTypes,
   PlayGroundMutations,
-} from "@/renderer/store/modules/playGround/playGround";
+} from "@/renderer/store/modules/playGround/types";
 import { useStore } from "@/renderer/store/store";
 import { RouterNames } from "@/types/Routernames";
 import { defineComponent } from "@vue/runtime-core";
@@ -251,9 +251,10 @@ export default defineComponent({
       this.isKeyDetecting = false;
     },
     deleteButton() {
+      if(this.keyButtonId == undefined) return;
       this.store.commit(
         PlayGroundMutations.DELETE_ITEM_FROM_GRID,
-        this.keyButtonId!
+        this.keyButtonId
       );
       this.$emit("closeDialog");
     },
@@ -272,7 +273,7 @@ export default defineComponent({
       const button = {
         channels: channels,
         color: this.colorModell,
-        intensity: this.intensity * this.store.state.playGround.globalIntensity,
+        intensity: this.intensity,
         name: this.name,
         key: this.key,
         isActive: false,

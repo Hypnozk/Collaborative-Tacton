@@ -51,9 +51,7 @@ import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 import { KeyBoardButton } from "@/types/GeneralType";
 import { lightenDarkenColor } from "../../lib/colors";
-import { sendSocketMessage } from "../../CommunicationManager/WebSocketManager";
-import { WS_MSG_TYPE } from "../../CommunicationManager/WebSocketManager/ws_types";
-import { PlayGroundActionTypes } from "@/renderer/store/modules/playGround/playGround";
+import { PlayGroundActionTypes } from "@/renderer/store/modules/playGround/types";
 
 export default defineComponent({
   name: "KeyBoardButton",
@@ -100,11 +98,11 @@ export default defineComponent({
     },
     mouseUp() {
       const refhandleMouse = this.handleMouse;
-      setTimeout(refhandleMouse, 120, false);
+      setTimeout(refhandleMouse, 200, false);
     },
     mouseDown() {
       const refHandleMouse = this.handleMouse;
-      setTimeout(refHandleMouse, 120, true);
+      setTimeout(refHandleMouse, 200, true);
     },
     edit() {
       //the button wanted to be edit

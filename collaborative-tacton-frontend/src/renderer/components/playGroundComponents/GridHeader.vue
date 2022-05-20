@@ -29,7 +29,7 @@
 </style>
 
 <script>
-import { PlayGroundMutations } from "@/renderer/store/modules/playGround/playGround";
+import { PlayGroundMutations } from "@/renderer/store/modules/playGround/types";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 

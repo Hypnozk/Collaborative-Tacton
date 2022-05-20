@@ -23,7 +23,6 @@ const buildMessages = (instructions: Instruction[], definition: protobuf.Type) =
     instructions.forEach((instruction: Instruction) => {
         const errMsg = definition.verify(instruction);
         if (errMsg) {
-            console.log(errMsg);
             throw Error(errMsg);
         }
         messages.push(definition.create(instruction));

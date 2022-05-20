@@ -112,7 +112,10 @@ const findRoomIdOfUser = (userId: string) => {
 const updateIntensities = (clientId: string, roomId: string, keyId: string, channelsModified: string[], intensityValue: number): Array<{ channelId: string, intensity: number }> | undefined => {
     const roomChannels = channelList.get(roomId);
     const clientInstruction: Array<{ channelId: string, intensity: number }> = [];
-
+    console.log("roomId: " + roomId)
+    console.log("clientId: " + clientId)
+    console.log("keyId: " + keyId)
+    console.log("channelsModified: " + channelsModified)
     if (roomChannels == undefined) return;
 
     for (let i = 0; i < channelsModified.length; i++) {
@@ -144,7 +147,7 @@ const updateIntensities = (clientId: string, roomId: string, keyId: string, chan
                     clientInstruction.push({ channelId: channelsModified[i], intensity: 0 });
                 } else {
                     //there are still some entries --> tell client to execute latest vibration now again
-                    clientInstruction.push({ channelId: channelsModified[i], intensity:roomChannel.intensityList[roomChannel.intensityList.length - 1].intensity });
+                    clientInstruction.push({ channelId: channelsModified[i], intensity: roomChannel.intensityList[roomChannel.intensityList.length - 1].intensity });
                 }
             }
         } else {

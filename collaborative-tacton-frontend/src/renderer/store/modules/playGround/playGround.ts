@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { KeyBoardAttributes, KeyBoardButton } from '@/types/GeneralType';
 import { sendSocketMessage } from '@/renderer/CommunicationManager/WebSocketManager';
 import { WS_MSG_TYPE } from '@/renderer/CommunicationManager/WebSocketManager/ws_types';
+import { PlayGroundActionTypes, PlayGroundMutations } from './types';
 
 export interface Layout {
     x: number,
@@ -30,14 +31,6 @@ export const state: State = {
  * mutations
  * 
  */
-export enum PlayGroundMutations {
-    BULK_GRID_UPDATE = "BULK_GRID_UPDATE",
-    UPDATE_GRID_ITEM = "UPDATE_GRID_ITEM",
-    ADD_ITEM_TO_GRID = "UPDATE_ITEM_TO_GRID",
-    UPDATE_GLOBAL_INTENSITY = "UPDATE_GLOBAL_INTENSITY",
-    DELETE_ITEM_FROM_GRID = "DELETE_ITEM_FROM_GRID"
-}
-
 export type Mutations<S = State> = {
     [PlayGroundMutations.BULK_GRID_UPDATE](state: S, buttons: KeyBoardButton[]): void
     [PlayGroundMutations.UPDATE_GRID_ITEM](state: S, payload: { index: number, button: KeyBoardButton }): void
@@ -70,12 +63,6 @@ export const mutations: MutationTree<State> & Mutations = {
  * actions
  * 
  */
-export enum PlayGroundActionTypes {
-    activateKey = 'activateKey',
-    deactivateKey = "deactivateKey",
-    addButtonToGrid = 'addButtonToGrid',
-    updateKeyButton = "updateKeyButton"
-}
 
 type AugmentedActionContext = {
     commit<K extends keyof Mutations>(
@@ -106,27 +93,27 @@ export interface Actions {
 export const actions: ActionTree<State, RootState> & Actions = {
     [PlayGroundActionTypes.activateKey]({ commit }, buttonKey: string) {
         const index = state.gridItems.findIndex((keyBoardButton) => keyBoardButton.key === buttonKey);
-        if (state.gridItems[index].isActive) return;
+        if (index == -1 || state.gridItems[index].isActive) return;
 
         commit(PlayGroundMutations.UPDATE_GRID_ITEM, { index: index, button: { ...state.gridItems[index], isActive: true } });
         const store = useStore();
         sendSocketMessage(WS_MSG_TYPE.SEND_INSTRUCTION_SERV, {
-           // roomId: store.state.roomSettings.id,
+            roomId: store.state.roomSettings.id,
             keyId: state.gridItems[index].i,
-            channel: state.gridItems[index].channels,
+            channels: state.gridItems[index].channels,
             intensity: state.gridItems[index].intensity * state.globalIntensity
         });
     },
     [PlayGroundActionTypes.deactivateKey]({ commit }, buttonKey: string) {
         const index = state.gridItems.findIndex((keyBoardButton) => keyBoardButton.key === buttonKey);
-        if (!state.gridItems[index].isActive) return;
+        if (index == -1 || !state.gridItems[index].isActive) return;
 
         commit(PlayGroundMutations.UPDATE_GRID_ITEM, { index: index, button: { ...state.gridItems[index], isActive: false } });
         const store = useStore();
         sendSocketMessage(WS_MSG_TYPE.SEND_INSTRUCTION_SERV, {
             roomId: store.state.roomSettings.id,
             keyId: state.gridItems[index].i,
-            channel: state.gridItems[index].channels,
+            channels: state.gridItems[index].channels,
             intensity: 0
         });
 

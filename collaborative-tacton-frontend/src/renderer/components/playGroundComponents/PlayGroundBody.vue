@@ -66,6 +66,10 @@ export default defineComponent({
       idOfEditableButton: "",
     };
   },
+  mounted() {
+    const container: any = this.$refs.container;
+    this.$nextTick(() => container.$el.focus());
+  },
   methods: {
     closeDialog() {
       this.playGroundDialog = false;

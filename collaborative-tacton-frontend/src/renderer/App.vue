@@ -31,10 +31,17 @@
               class="snackbarSucess"
               v-show="
                 store.getters.isConnectedToSocket &&
-                store.state.generalSettings.userNameChanged
+                (store.state.generalSettings.userNameChanged ||
+                  store.state.generalSettings.copiedToClipboard)
               "
             >
-              <div class="label">Username get succesfully updated.</div>
+              <div class="label">
+                {{
+                  store.state.generalSettings.copiedToClipboard
+                    ? "Copied adress to clipboard"
+                    : "Username get succesfully updated."
+                }}
+              </div>
             </div>
           </transition>
         </v-main>
@@ -116,11 +123,9 @@
 import { computed, defineComponent } from "@vue/runtime-core";
 import { RouterNames } from "../types/Routernames";
 import { GeneralSettingsActionTypes } from "./store/modules/generalSettings/generalSettings";
-import {
-  PlayGroundActionTypes,
-} from "./store/modules/playGround/playGround";
-import { useStore, store } from "./store/store";
+import { useStore } from "./store/store";
 import { initWebsocket } from "./CommunicationManager/WebSocketManager";
+import { PlayGroundActionTypes } from "./store/modules/playGround/types";
 export default defineComponent({
   name: "App",
   setup() {
@@ -157,13 +162,13 @@ export default defineComponent({
       if (!this.correctFrameForInput()) return;
       const key: string = e.key.toUpperCase();
       console.log("buttonDown");
-      //this.store.dispatch(PlayGroundActionTypes.activateKey, key);
+      this.store.dispatch(PlayGroundActionTypes.activateKey, key);
     },
     buttonUp(e: any) {
       if (!this.correctFrameForInput()) return;
       const key = e.key.toUpperCase();
       console.log("buttonUp");
-      //this.store.dispatch(PlayGroundActionTypes.deactivateKey, key);
+      this.store.dispatch(PlayGroundActionTypes.deactivateKey, key);
     },
   },
 });

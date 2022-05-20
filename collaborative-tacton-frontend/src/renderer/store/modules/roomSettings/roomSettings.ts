@@ -1,9 +1,5 @@
-
-import { RouterNames } from '@/types/Routernames';
 import { MutationTree, GetterTree, ActionTree, ActionContext } from 'vuex'
-import { store } from '.';
-import { RootState, useStore } from '../../store';
-import { GeneralMutations } from "../generalSettings/generalSettings"
+import { RootState } from '../../store';
 /**
  * Tyopes
  * 
@@ -123,7 +119,9 @@ export const actions: ActionTree<State, RootState> & Actions = {
   },
   [RoomSettingsActionTypes.enterRoom]({ commit }, props: { room: Room, userId: string, participants: User[] }) {
     const user = props.participants.find(participant => participant.id == props.userId);
-    commit(RoomMutations.UPDATE_USER, { id: user!.id, name: user!.name });
+    if (user !== undefined)
+      commit(RoomMutations.UPDATE_USER, { id: user.id, name: user.name });
+      
     commit(RoomMutations.CHANGE_ROOM, {
       existRoom: true,
       roomInfo: {
@@ -150,9 +148,6 @@ export const getters: GetterTree<State, RootState> & Getters = {
     const serverItem = state.participants.find(participant => participant.id == state.user.id)
     if (serverItem == undefined) return false;
 
-    console.log("userNameUpdated")
-    console.log(serverItem)
-    console.log(state.user.name)
     return serverItem.name !== state.user.name;
   }
 };

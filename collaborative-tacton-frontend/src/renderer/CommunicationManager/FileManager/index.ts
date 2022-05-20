@@ -1,4 +1,4 @@
-import { mutations, PlayGroundMutations, PlayGroundActionTypes } from "@/renderer/store/modules/playGround/playGround";
+import { PlayGroundMutations } from "@/renderer/store/modules/playGround/types";
 import { KeyBoardButton } from "@/types/GeneralType";
 import { useStore } from "../../store/store";
 import { v4 as uuidv4 } from 'uuid';
