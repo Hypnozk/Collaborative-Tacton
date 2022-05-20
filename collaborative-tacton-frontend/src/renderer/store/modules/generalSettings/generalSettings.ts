@@ -143,8 +143,8 @@ export const actions: ActionTree<State, RootState> & Actions = {
     setTimeout(() => (commit(GeneralMutations.USER_NAME_CHANGED, false)), 3000);
   },
   [GeneralSettingsActionTypes.copyAdressToClipboard]({ commit }) {
-    commit(GeneralMutations.USER_NAME_CHANGED, true);
-    setTimeout(() => (commit(GeneralMutations.USER_NAME_CHANGED, false)), 3000);
+    commit(GeneralMutations.COPIED_TO_CLIPBOARD, true);
+    setTimeout(() => (commit(GeneralMutations.COPIED_TO_CLIPBOARD, false)), 3000);
   },
   [GeneralSettingsActionTypes.addNewDevice]({ commit }, newDevice: VibrotactileDevice) {
     if (state.deviceList.some(device => device.id == newDevice.id))
