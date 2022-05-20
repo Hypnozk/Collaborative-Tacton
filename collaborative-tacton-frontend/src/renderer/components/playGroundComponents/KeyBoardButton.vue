@@ -22,7 +22,7 @@
       <v-row align="center" no-gutters justify="center">
         {{ listChannels() }}
         <v-spacer />
-        <v-icon class="mr-1" small @click.stop @mouseup.stop @click="edit">
+        <v-icon class="mr-1" small @click.stop @mousedown.stop @click="edit">
           mdi-pencil
         </v-icon>
       </v-row>
@@ -75,7 +75,7 @@ export default defineComponent({
   emits: ["updateisMoved", "editButton"],
   computed: {
     colorActuator() {
-      console.log("colorActuator: " + this.button.isActive);
+      //console.log("colorActuator: " + this.button.isActive);
       if (this.button.isActive)
         return lightenDarkenColor(this.button.color, -100);
       return this.button.color;
@@ -83,10 +83,11 @@ export default defineComponent({
   },
   methods: {
     handleMouse(mouseDown: true) {
-      //console.log("isMoved: " + this.isMoved);
-      //console.log("mousedown " + mouseDown);
-      if (!mouseDown && this.isMoved) {
-        //moving card is finished, just reset variable
+      //console.log("isMoved: " + this.isMoved + ":: mousedown " + mouseDown);
+      if (this.isMoved) {
+        //moving card is finished, reset variable
+        //if user was too slow deactivate wrong activated key
+        this.store.dispatch(PlayGroundActionTypes.deactivateKey, this.button.key);
         this.$emit("updateisMoved", false);
         return;
       }
@@ -99,12 +100,11 @@ export default defineComponent({
     },
     mouseUp() {
       const refhandleMouse = this.handleMouse;
-      setTimeout(refhandleMouse, 150, false);
+      setTimeout(refhandleMouse, 120, false);
     },
     mouseDown() {
-      console.log("colorActuator: " + this.button.isActive);
       const refHandleMouse = this.handleMouse;
-      setTimeout(refHandleMouse, 150, true);
+      setTimeout(refHandleMouse, 120, true);
     },
     edit() {
       //the button wanted to be edit

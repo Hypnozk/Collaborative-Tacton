@@ -50,11 +50,11 @@ const disconnectDevice = () => {
     disconnectBlutetoothDevice(connectedDevice)
 }
 
-const executeTask = (task: TactileTask) => {
+const executeTask = (taskList: TactileTask[]) => {
     if (connectedDevice == null)
         return;
 
-    executeInstruction(connectedDevice, task)
+    executeInstruction(connectedDevice, taskList)
 }
 
 export default {

@@ -8,5 +8,24 @@ export interface Room {
     id: string,
     name: string,
     description: string,
-    participantId: string
+}
+
+export interface TactileTask {
+    channel: number[],
+    intensity: number
+}
+
+export interface ServerInstruction extends TactileTask {
+    keyId: string
+}
+
+export interface Intensity {
+    keyId: string,
+    clientId: string,
+    intensity: number
+}
+
+export interface Channel {
+    id: string,
+    intensityList: Intensity[]
 }

@@ -29,7 +29,7 @@ ipcMain.on(IPC_CHANNELS.main.actuator, (event, actuator) => {
 });
 
 ipcMain.on(IPC_CHANNELS.main.changeScan, (event, scanStatus: boolean) => {
-    console.log("recieved meesage to make Scan: " + scanStatus)
+    //console.log("recieved meesage to make Scan: " + scanStatus)
     if (scanStatus) {
         DeviceManager.startScan()
     } else {
@@ -38,22 +38,22 @@ ipcMain.on(IPC_CHANNELS.main.changeScan, (event, scanStatus: boolean) => {
 });
 
 ipcMain.on(IPC_CHANNELS.main.connectDevice, (event, deviceID: string) => {
-    console.log("Starting Connection");
+    //console.log("Starting Connection");
     DeviceManager.connectDevice(deviceID);
 });
 
 ipcMain.on(IPC_CHANNELS.main.disconnectDevice, () => {
-    console.log("Starting Discconnect");
+    //console.log("Starting Discconnect");
     DeviceManager.disconnectDevice();
 });
 
-ipcMain.on(IPC_CHANNELS.main.executeTask, (event, task: TactileTask) => {
-    console.log("executeTask");
-    DeviceManager.executeTask(task)
+ipcMain.on(IPC_CHANNELS.main.executeTask, (event, taskList: TactileTask[]) => {
+    //console.log("executeTask");
+    DeviceManager.executeTask(taskList)
 });
 
 ipcMain.on(IPC_CHANNELS.main.copyToClipBoard, (event, adress: string) => {
-    console.log("copyToClipBoard");
+    //console.log("copyToClipBoard");
     clipboard.writeText(adress);
 });
 

@@ -68,7 +68,6 @@ export default defineComponent({
   },
   methods: {
     closeDialog() {
-      console.log("closeDialog");
       this.playGroundDialog = false;
       this.store.commit(
         GeneralMutations.CHANGE_VISIBILE_VIEW,

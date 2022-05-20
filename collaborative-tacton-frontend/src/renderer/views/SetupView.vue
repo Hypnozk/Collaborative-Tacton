@@ -116,6 +116,7 @@ import DeviceSection from "../components/deviceComponents/DeviceSection.vue";
 import ParticipantSection from "../components/deviceComponents/ParticipantSection.vue";
 import { sendSocketMessage } from "../CommunicationManager/WebSocketManager";
 import { WS_MSG_TYPE } from "../CommunicationManager/WebSocketManager/ws_types";
+import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 
 export default defineComponent({
   name: "SetupView",
@@ -148,9 +149,11 @@ export default defineComponent({
   },
   methods: {
     cancelRoomEnter() {
+      window.api.send(IPC_CHANNELS.main.changeScan, false);
       router.push("/");
     },
     enterRoom() {
+      window.api.send(IPC_CHANNELS.main.changeScan, false);
       sendSocketMessage(WS_MSG_TYPE.ENTER_ROOM, {
         room: {
           id: this.store.state.roomSettings.id,

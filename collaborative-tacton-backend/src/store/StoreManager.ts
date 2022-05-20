@@ -1,10 +1,10 @@
 const uuid = require('uuid');
-import { Room, User } from "../types";
+import { Channel, Intensity, Room, User } from "../types";
 import { WS_MSG_TYPE } from "../webSocket/ws_types";
 
 let roomList: Map<string, Room> = new Map<string, Room>();
 let participantList: Map<string, User[]> = new Map<string, User[]>();
-
+let channelList: Map<string, Channel[]> = new Map<string, Channel[]>();
 
 const getRoomInfo = (id: string): Room | undefined => {
     return roomList.get(id);
@@ -16,41 +16,33 @@ const hasRoom = (): Map<string, User[]> => {
 
 const getNewRoomName = () => {
     const today = new Date();
-
     return `room${roomList.size}--${today.getHours()}:${today.getMinutes()}`;
 }
 
 const createRoom = (room: Room): Room => {
     console.log("createRoom")
     const roomId: string = uuid.v1();
-    const partId: string = uuid.v1();
-    participantList.set(partId, []);
+    participantList.set(roomId, []);
+    channelList.set(roomId, []);
     roomList.set(roomId, {
         id: roomId,
         name: room.name,
-        description: room.description,
-        participantId: partId
+        description: room.description
     });
 
     return roomList.get(roomId)!;
 }
 
 const enterRoom = (ws: WebSocket, userID: string, userName: string, roomId: string): { userId: string, userList: User[] } | undefined => {
-    const rommInfo = roomList.get(roomId)
-    if (rommInfo == undefined)
-        return;
+    const participants = participantList.get(roomId);
+    if (participants == undefined) return;
+    participantList.set(roomId, [...participants, { id: userID, name: userName, ws: ws }])
 
-    const participants = [...participantList.get(rommInfo.participantId)!, { id: userID, name: userName, ws: ws }];
-    participantList.set(rommInfo.participantId, participants)
-
-    return { userId: userID, userList: Array.from(participants, item => { return { id: item.id, name: item.name } }) };
+    return { userId: userID, userList: Array.from(participantList.get(roomId)!, item => { return { id: item.id, name: item.name } }) };
 }
 
 const updateParticipants = (roomId: string, user: User): string | undefined => {
-    const participantId = roomList.get(roomId)?.participantId
-    if (participantId == undefined)
-        return;
-    const participants = participantList.get(participantId);
+    const participants = participantList.get(roomId);
     if (participants == undefined)
         return;
 
@@ -61,11 +53,11 @@ const updateParticipants = (roomId: string, user: User): string | undefined => {
         }
     }
 
-    return participantId
+    return roomId
 }
 
-const sendUpdatedParticipants = (participantId: string) => {
-    const participants = participantList.get(participantId)!;
+const sendUpdatedParticipants = (roomId: string) => {
+    const participants = participantList.get(roomId)!;
     const list = Array.from(participants, item => { return { id: item.id, name: item.name } })
     console.log("sendUpdatedParticipants: ");
     console.log(list);
@@ -77,14 +69,11 @@ const sendUpdatedParticipants = (participantId: string) => {
     };
 }
 
-const removeParticipant = (roomId: string, userId: string): { userInRoom: number, partId: string } | undefined => {
+const removeParticipant = (roomId: string, userId: string): number | undefined => {
     console.log("removeParticipant")
     console.log(roomList)
     console.log(roomList.get(roomId))
-    const participantId = roomList.get(roomId)?.participantId
-    if (participantId == undefined)
-        return;
-    const participants = participantList.get(participantId);
+    const participants = participantList.get(roomId);
     if (participants == undefined)
         return;
 
@@ -95,40 +84,96 @@ const removeParticipant = (roomId: string, userId: string): { userInRoom: number
         }
     }
 
-    return { userInRoom: participants.length, partId: participantId };
+    return participants.length;
 }
 
 const removeRoom = (roomId: string) => {
-    const participantId = roomList.get(roomId)?.participantId;
-    if (participantId == undefined)
-        return;
-
-    participantList.delete(participantId);
+    participantList.delete(roomId);
+    channelList.delete(roomId);
     roomList.delete(roomId);
     console.log("Delete Room: " + roomList.size)
 }
 
 const findRoomIdOfUser = (userId: string) => {
-    let partId: string | undefined = undefined;
+    let roomId: string | undefined = undefined;
     loop1: for (let [key, user] of participantList) {
         for (let i = 0; i < user.length; i++) {
             if (user[i].id == userId) {
-                partId = key;
+                roomId = key;
                 break loop1;
             }
         }
     }
 
-    if (partId == undefined) return;
-    let roomId: string | undefined = undefined;
-    for (let [key, room] of roomList) {
-        if (room.participantId == partId) {
-            roomId = key;
-            break;
+    if (roomId == undefined) return;
+    return roomId;
+}
+
+const updateIntensities = (clientId: string, roomId: string, keyId: string, channelsModified: string[], intensityValue: number): Array<{ channelId: string, intensity: number }> | undefined => {
+    const roomChannels = channelList.get(roomId);
+    const clientInstruction: Array<{ channelId: string, intensity: number }> = [];
+
+    if (roomChannels == undefined) return;
+
+    for (let i = 0; i < channelsModified.length; i++) {
+        let roomChannel = roomChannels.find(roomChannel => roomChannel.id == channelsModified[i]);
+        let intensityIndex = -1;
+        let lastEntry = false;
+        if (roomChannel == undefined) {
+            //channel doesn't exist create new one
+            console.log("createRoomChannel");
+            const length = roomChannels.push({ id: channelsModified[i], intensityList: [] });
+            roomChannel = roomChannels[length - 1];
+        } else {
+            //channel exist, check if one intensity value could be deleted
+            intensityIndex = roomChannel.intensityList.findIndex(intensity => intensity.clientId == clientId && intensity.keyId == keyId);
+            if (intensityIndex !== -1) {
+                lastEntry = intensityIndex == roomChannel.intensityList.length - 1;
+                roomChannel.intensityList.splice(intensityIndex, 1);
+            }
+
+        }
+
+        if (intensityIndex !== -1 && intensityValue == 0) {
+            //instruction was key up event,
+            console.log("instruction was key up");
+            if (lastEntry) {
+                //the entry at the end was deleted, calculate new instruction for cli
+                if (roomChannel.intensityList.length == 0) {
+                    // there are now no entries anymore in the list  --> tell client to stop vibrate
+                    clientInstruction.push({ channelId: channelsModified[i], intensity: 0 });
+                } else {
+                    //there are still some entries --> tell client to execute latest vibration now again
+                    clientInstruction.push({ channelId: channelsModified[i], intensity:roomChannel.intensityList[roomChannel.intensityList.length - 1].intensity });
+                }
+            }
+        } else {
+            //instruction was key down event
+            console.log("instruction was key down event");
+            console.log(roomChannel)
+            roomChannel.intensityList.push({
+                clientId: clientId,
+                keyId: keyId,
+                intensity: intensityValue
+            });
+            clientInstruction.push({ channelId: channelsModified[i], intensity: intensityValue });
         }
     }
+    return clientInstruction;
+}
 
-    return roomId;
+const sendInstruction = (roomId: string, instruction: Array<{ channelId: string, intensity: number }>) => {
+    console.log("sended Instruction")
+    console.log(instruction)
+    const participants = participantList.get(roomId);
+    if (participants == undefined) return;
+
+    for (let i = 0; i < participants.length; i++) {
+        participants[i].ws?.send(JSON.stringify({
+            type: WS_MSG_TYPE.SEND_INSTRUCTION_CLI,
+            payload: instruction,
+        }))
+    };
 }
 
 export default {
@@ -141,5 +186,7 @@ export default {
     sendUpdatedParticipants,
     removeParticipant,
     removeRoom,
-    findRoomIdOfUser
+    findRoomIdOfUser,
+    updateIntensities,
+    sendInstruction
 }

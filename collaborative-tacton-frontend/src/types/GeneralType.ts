@@ -20,6 +20,6 @@ export interface KeyBoardButton extends KeyBoardAttributes {
   w: number,
 }
 export interface TactileTask {
-  channel:number[],
-  intensity:number
+  channelId: number,
+  intensity: number,
 }

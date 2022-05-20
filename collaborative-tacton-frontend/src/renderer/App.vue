@@ -116,7 +116,9 @@
 import { computed, defineComponent } from "@vue/runtime-core";
 import { RouterNames } from "../types/Routernames";
 import { GeneralSettingsActionTypes } from "./store/modules/generalSettings/generalSettings";
-import { PlayGroundMutations } from "./store/modules/playGround/playGround";
+import {
+  PlayGroundActionTypes,
+} from "./store/modules/playGround/playGround";
 import { useStore, store } from "./store/store";
 import { initWebsocket } from "./CommunicationManager/WebSocketManager";
 export default defineComponent({
@@ -153,16 +155,15 @@ export default defineComponent({
     },
     buttonDown(e: any) {
       if (!this.correctFrameForInput()) return;
-      console.log("buttonDown");
       const key: string = e.key.toUpperCase();
-
-      // this.store.dispatch(ActionTypes.addActiveKey, key);
+      console.log("buttonDown");
+      //this.store.dispatch(PlayGroundActionTypes.activateKey, key);
     },
     buttonUp(e: any) {
       if (!this.correctFrameForInput()) return;
       const key = e.key.toUpperCase();
       console.log("buttonUp");
-      //this.store.dispatch(ActionTypes.removeActiveKey, key);
+      //this.store.dispatch(PlayGroundActionTypes.deactivateKey, key);
     },
   },
 });

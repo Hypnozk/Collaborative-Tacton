@@ -74,7 +74,9 @@ export default defineComponent({
   methods: {
     startScanning() {
       this.isScanning = !this.isScanning;
-      this.store.commit(GeneralMutations.UPDATE_DEVICE_LIST, []);
+      if (this.isScanning)
+        this.store.commit(GeneralMutations.UPDATE_DEVICE_LIST, []);
+        
       window.api.send(IPC_CHANNELS.main.changeScan, this.isScanning);
     },
   },

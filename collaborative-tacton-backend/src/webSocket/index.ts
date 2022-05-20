@@ -86,13 +86,12 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                  * remove Room if there are no participants anymore
                  * update all clients with new username
                  */
-                const props = StorageManager.removeParticipant(msg.payload.roomId, msg.payload.user.id);
-                console.log(props)
-                if (props !== undefined) {
-                    if (props.userInRoom == 0) {
+                const userInRoom = StorageManager.removeParticipant(msg.payload.roomId, msg.payload.user.id);
+                if (userInRoom !== undefined) {
+                    if (userInRoom == 0) {
                         StorageManager.removeRoom(msg.payload.roomId);
                     } else {
-                        StorageManager.sendUpdatedParticipants(props.partId);
+                        StorageManager.sendUpdatedParticipants(msg.payload.roomId);
                     }
                 }
                 break;
@@ -105,6 +104,9 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                  */
                 console.log("recieve Instruction");
                 console.log(msg.payload);
+                const newInstructions = StorageManager.updateIntensities(client, msg.payload.roomId, msg.payload.keyId, msg.payload.channels, msg.payload.intensity)
+                if (newInstructions == undefined) return;
+                StorageManager.sendInstruction(msg.payload.roomId, newInstructions)
                 break;
             }
         }
@@ -118,13 +120,13 @@ export const onClose = (client: string) => {
     console.log(`Received close message  from user ${client}`);
     const roomId = StorageManager.findRoomIdOfUser(client);
     if (roomId !== undefined) {
-        const props = StorageManager.removeParticipant(roomId, client);
-        console.log(props)
-        if (props !== undefined) {
-            if (props.userInRoom == 0) {
+        const userInRoom = StorageManager.removeParticipant(roomId, client);
+        console.log(userInRoom)
+        if (userInRoom !== undefined) {
+            if (userInRoom == 0) {
                 StorageManager.removeRoom(roomId);
             } else {
-                StorageManager.sendUpdatedParticipants(props.partId);
+                StorageManager.sendUpdatedParticipants(roomId);
             }
         }
     }

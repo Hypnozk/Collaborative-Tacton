@@ -1,6 +1,6 @@
 
 import { MutationTree, GetterTree, ActionTree, ActionContext } from 'vuex'
-import { RootState } from '../../store';
+import { RootState, useStore } from '../../store';
 import { v4 as uuidv4 } from 'uuid';
 import { KeyBoardAttributes, KeyBoardButton } from '@/types/GeneralType';
 import { sendSocketMessage } from '@/renderer/CommunicationManager/WebSocketManager';
@@ -109,9 +109,12 @@ export const actions: ActionTree<State, RootState> & Actions = {
         if (state.gridItems[index].isActive) return;
 
         commit(PlayGroundMutations.UPDATE_GRID_ITEM, { index: index, button: { ...state.gridItems[index], isActive: true } });
+        const store = useStore();
         sendSocketMessage(WS_MSG_TYPE.SEND_INSTRUCTION_SERV, {
+           // roomId: store.state.roomSettings.id,
+            keyId: state.gridItems[index].i,
             channel: state.gridItems[index].channels,
-            intensity: state.gridItems[index].intensity * state.globalIntensity,
+            intensity: state.gridItems[index].intensity * state.globalIntensity
         });
     },
     [PlayGroundActionTypes.deactivateKey]({ commit }, buttonKey: string) {
@@ -119,11 +122,14 @@ export const actions: ActionTree<State, RootState> & Actions = {
         if (!state.gridItems[index].isActive) return;
 
         commit(PlayGroundMutations.UPDATE_GRID_ITEM, { index: index, button: { ...state.gridItems[index], isActive: false } });
+        const store = useStore();
         sendSocketMessage(WS_MSG_TYPE.SEND_INSTRUCTION_SERV, {
+            roomId: store.state.roomSettings.id,
+            keyId: state.gridItems[index].i,
             channel: state.gridItems[index].channels,
-            intensity: 0,
+            intensity: 0
         });
-        
+
     },
     [PlayGroundActionTypes.addButtonToGrid]({ commit }, button: KeyBoardAttributes) {
         const uid = uuidv4();

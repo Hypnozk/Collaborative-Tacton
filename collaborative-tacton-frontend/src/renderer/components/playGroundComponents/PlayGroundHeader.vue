@@ -99,6 +99,7 @@
 </style>
 <script lang="ts">
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
+import router from "@/renderer/router";
 import { GeneralSettingsActionTypes } from "@/renderer/store/modules/generalSettings/generalSettings";
 import { RoomMutations } from "@/renderer/store/modules/roomSettings/roomSettings";
 import { useStore } from "@/renderer/store/store";
@@ -137,13 +138,12 @@ export default defineComponent({
     logOut() {
       console.log("this.store.state.playGround.gridItems");
       console.log(this.store.state.playGround.gridItems);
-      /**
+
       sendSocketMessage(WS_MSG_TYPE.LOG_OUT, {
         roomId: this.store.state.roomSettings.id,
         user: this.store.state.roomSettings.user,
       });
       router.push("/");
-       */
     },
     copyAdress() {
       window.api.send(

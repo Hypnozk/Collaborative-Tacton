@@ -33,10 +33,9 @@
                 v-if="isKeyDetecting"
                 indeterminate
                 color="red"
-                :size="30"
-                style="margin-right: 10px"
+                :size="20"
               ></v-progress-circular>
-              <div>Detect</div>
+              <div style="padding:5px">Detect</div>
             </v-btn>
           </v-col>
         </v-row>
@@ -235,10 +234,10 @@ export default defineComponent({
     },
     enterNewKey(e: any) {
       //check if user want to enter key
-      console.log("enterNewKey");
       if (!this.isKeyDetecting) return;
 
       const newKey = e.key.toUpperCase();
+      console.log("enterNewKey");
       this.keyIsRequired = false;
 
       this.key = newKey;

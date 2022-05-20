@@ -39,12 +39,12 @@ const buildWriter = (messages: protobuf.Message[], instructionDef: protobuf.Type
     return writer.finish();
 }
 
-const convertTaskToInstruction = (task: TactileTask, InstSetParamDef: protobuf.Type): Instruction[] => {
+const convertTaskToInstruction = (taskList: TactileTask[], InstSetParamDef: protobuf.Type): Instruction[] => {
     const instructionList: Instruction[] = [];
-    task.channel.forEach(channelId => {
+    taskList.forEach(task => {
         const instruction = {
             setParameter: {
-                channelId: channelId,
+                channelId: task.channelId,
                 intensity: task.intensity
             }
         }
@@ -54,12 +54,11 @@ const convertTaskToInstruction = (task: TactileTask, InstSetParamDef: protobuf.T
         }
 
         instructionList.push(instruction)
-    })
-
+    });
     return instructionList
 }
 
-export const executeInstruction = (device: Peripheral, task: TactileTask) => {
+export const executeInstruction = (device: Peripheral, taskList: TactileTask[]) => {
     protobuf.load("src/protobuf/vtproto.proto", function (err, root) {
         if (err) {
             console.log(err);
@@ -77,7 +76,7 @@ export const executeInstruction = (device: Peripheral, task: TactileTask) => {
         if (service !== undefined) {
             const characteristic = service.characteristics.find((characteristic) => characteristic.uuid === tactileDisplayService.characteristics.vtprotoBuffer.uuid);
             if (characteristic !== undefined) {
-                const instructions: Instruction[] = convertTaskToInstruction(task, InstSetParamDef)
+                const instructions: Instruction[] = convertTaskToInstruction(taskList, InstSetParamDef)
                 const messages = buildMessages(instructions, instructionDef);
                 //
                 const buffer = buildWriter(messages, instructionDef);

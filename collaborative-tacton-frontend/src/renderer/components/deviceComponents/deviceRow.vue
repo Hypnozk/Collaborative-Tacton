@@ -62,16 +62,20 @@ export default defineComponent({
     },
     async vibrateDevice() {
       this.isVibrating = true;
-      window.api.send(IPC_CHANNELS.main.executeTask, {
-        channel: [0, 1],
-        intensity: 1,
-      });
+      window.api.send(IPC_CHANNELS.main.executeTask, [
+        {
+          channelId: 0,
+          intensity: 1,
+        },
+      ]);
       await new Promise((r) => setTimeout(r, 2000));
 
-      window.api.send(IPC_CHANNELS.main.executeTask, {
-        channel: [0, 1],
-        intensity: 0,
-      });
+      window.api.send(IPC_CHANNELS.main.executeTask, [
+        {
+          channelId: 0,
+          intensity: 0,
+        },
+      ]);
       this.isVibrating = false;
     },
   },
