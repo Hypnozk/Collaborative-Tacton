@@ -5,7 +5,7 @@
         <v-main>
           <router-view />
           <transition name="fade">
-            <div class="snackbar" v-show="!store.getters.isConnectedToSocket">
+            <div class="snackbar" v-show="false">
               <div class="label">
                 It seems you are offline pleasy try to reconnect
               </div>

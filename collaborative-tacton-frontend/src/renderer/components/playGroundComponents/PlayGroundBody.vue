@@ -1,9 +1,10 @@
 <template>
   <v-container class="playGroundView" ref="container" tabindex="-1">
     <v-row no-gutters>
-      <v-col cols="4">
+      <v-col cols="4" id="tactonScreen">
         <TactonScreen />
       </v-col>
+      <v-divider vertical />
       <v-col cols="8">
         <GridHeader @openDialog="startDialog" />
         <GridArea @editButton="startDialog" />
