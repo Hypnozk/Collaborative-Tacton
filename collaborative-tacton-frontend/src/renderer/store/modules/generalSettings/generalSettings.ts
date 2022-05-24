@@ -169,7 +169,8 @@ export type Getters = {
   currentView(state: State): RouterNames,
   isConnectedToSocket(state: State): boolean,
   getDeviceStatus(state: State): (id: string) => DeviceStatus,
-  getConnectedDevice(state: State): VibrotactileDevice | undefined
+  getConnectedDevice(state: State): VibrotactileDevice | undefined,
+  getNumberOfOutputs(state:State):number
 }
 
 export const getters: GetterTree<State, RootState> & Getters = {
@@ -186,5 +187,11 @@ export const getters: GetterTree<State, RootState> & Getters = {
   },
   getConnectedDevice: (state) => {
     return state.deviceList.find(device => device.state == "connected");
+  },
+  getNumberOfOutputs: (state) => {
+    const device = getters.getConnectedDevice(state);
+    //if(device==undefined) return 0;
+    //todo calculate the number
+    return 12;
   }
 };
