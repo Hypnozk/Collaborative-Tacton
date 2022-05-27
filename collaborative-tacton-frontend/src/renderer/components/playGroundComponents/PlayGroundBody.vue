@@ -27,7 +27,7 @@
 
 <style lang="scss">
 .playGroundView {
-  display: flex;
+   display: flex;
   height: 100%;
   min-width: 100%;
   max-width: 100%;

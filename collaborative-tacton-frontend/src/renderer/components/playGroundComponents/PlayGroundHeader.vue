@@ -1,5 +1,5 @@
 <template>
-  <v-container class="headerPlayGround">
+  <v-container id="headerPlayGround" class="headerPlayGround">
     <v-row class="align-center">
       <v-col style="padding: 0px 0px 0px 10px">
         {{
@@ -58,12 +58,6 @@
   min-width: 100% !important;
   max-width: 100% !important;
   border-bottom: 1px solid rgb(48, 41, 41);
-}
-.playGroundView {
-  display: flex;
-  height: 100%;
-  min-width: 100% !important;
-  max-width: 100% !important;
 }
 
 .customField {
