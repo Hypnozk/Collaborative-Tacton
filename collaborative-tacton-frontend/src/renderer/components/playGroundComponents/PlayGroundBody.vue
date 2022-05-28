@@ -13,7 +13,7 @@
 
     <v-dialog
       v-model="playGroundDialog"
-      max-width="40%"
+      max-width="50%"
       class="tesing"
       @click:outside="closeDialog"
     >
@@ -36,9 +36,6 @@
 
 .playGroundView:focus {
   outline: none;
-}
-.v-overlay__content {
-  width: 100%;
 }
 </style>
 

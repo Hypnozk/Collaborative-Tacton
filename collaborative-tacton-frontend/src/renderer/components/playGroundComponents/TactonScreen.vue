@@ -1,12 +1,62 @@
 <template>
-  <v-row no-gutters style="margin-bottom: 5px" id="tactonHeader">
-    <v-btn @click="changeRecordMode"> Start Record </v-btn>
+  <v-row
+    no-gutters
+    align="center"
+    style="justify-content: space-evenly; margin: 5px 0"
+    id="tactonHeader"
+  >
+    <v-col style="max-width: fit-content">
+      <v-btn @click="changeRecordMode" color="primary"> Start Record </v-btn>
+    </v-col>
+    <v-col style="max-width: fit-content">
+      <v-row align="center">
+        Duration:
+        <v-select
+          class="durationBox"
+          :items="items"
+          v-model="duration"
+        ></v-select>
+      </v-row>
+    </v-col>
+  </v-row>
+  <v-row no-gutters v-if="false">
     <v-btn @click="startChannelActivity"> Start Try </v-btn>
     <v-btn @click="stopChannelActivity"> Stop Try </v-btn>
   </v-row>
   <div id="tactonDisplay"></div>
 </template>
 
+<style lang="scss">
+.durationBox {
+  padding-left: 10px;
+  max-width: 100px;
+  .v-input__control {
+    height: 40px !important;
+    max-height: 40px !important;
+    display: flex;
+    .v-field {
+      .v-label {
+        display: none;
+      }
+      .v-field__append-inner {
+        display: flex;
+        height: 40px !important;
+        align-items: center;
+        padding-top: 0;
+      }
+      .v-field__field {
+        height: 40px !important;
+        max-height: 40px !important;
+        display: flex;
+        padding-top: 0;
+      }
+    }
+  }
+  .v-input__details {
+    display: none;
+  }
+}
+</style>
 <script lang="ts">
 import * as PIXI from "pixi.js";
 import { defineComponent } from "@vue/runtime-core";
@@ -42,7 +92,20 @@ export default defineComponent({
       growRatio: 0,
       currentTime: 0,
       numberOfOutputs: 12,
+      dropdownDisabled: false,
+      items: ["5s", "10s", "15s"],
     };
+  },
+  computed: {
+    duration: {
+      get(): string {
+        return (this.maxDuration/1000).toString() + "s";
+      },
+      set(newValue) {
+        this.calcDistribution()
+        this.maxDuration = Number(newValue.substring(0,newValue.length-1))*1000;
+      },
+    },
   },
   mounted() {
     console.log("mounted TactonScdren");
@@ -97,7 +160,7 @@ export default defineComponent({
       label.x = xPosition - xOffset;
       label.y = yPosition + 15;
       this.pixiApp.stage.addChild(label);
-
+      label.text = "hello"
       duration -= timeInterval;
       xPosition -= distLinesX;
     }
@@ -143,8 +206,8 @@ export default defineComponent({
     resizeScreen() {
       /**
        * be aware that changing the width will apply a scaling factor in the background
-       * this means you have never to update the width or height for your calculation 
-       * you will calculate the original position, width still and the scaling will position it relative  
+       * this means you have never to update the width or height for your calculation
+       * you will calculate the original position, width still and the scaling will position it relative
        */
       this.pixiApp!.renderer.view.style.width =
         document.getElementById("tactonScreen")!.clientWidth + "px";
@@ -154,17 +217,26 @@ export default defineComponent({
         document.getElementById("headerPlayGround")!.clientHeight +
         "px";
     },
+    calcDistribution(){
+      console.log("dsd")
+    },
     drawRectangle(
       idGraph: number,
       additionalWidth: number,
       intensity: number,
-      container: PIXI.Container
+      container: PIXI.Container,
+      xPosition?: number,
+      yPosition?: number
     ) {
-      const xPosition =
-        ((this.width - 2 * this.paddingRL) * this.currentTime) /
-          this.maxDuration +
-        this.paddingRL;
-      const yPosition = (idGraph + 1) * this.distLinesY - 20;
+      const height = 40 * intensity;
+      if (xPosition == undefined)
+        xPosition =
+          ((this.width - 2 * this.paddingRL) * this.currentTime) /
+            this.maxDuration +
+          this.paddingRL;
+
+      if (yPosition == undefined)
+        yPosition = (idGraph + 1) * this.distLinesY - height * 0.5;
       /**
           console.log(
             "draw Rectangle at x: " +
@@ -174,9 +246,9 @@ export default defineComponent({
 
       // draw the rectangle
       const rect = new PIXI.Graphics();
-      rect.beginFill(0xffff00);
+      rect.beginFill(0xff0000);
       rect.lineStyle(5, 0xff0000);
-      rect.drawRect(0, 0, additionalWidth, 40);
+      rect.drawRect(0, 0, additionalWidth, height);
       rect.position.set(xPosition, yPosition);
 
       container.addChild(rect);
@@ -189,7 +261,6 @@ export default defineComponent({
       };
     },
     loop(delta: any) {
-      //console.log("startTime: " + delta);
       const additionalWidth = this.growRatio * this.ticker!.elapsedMS;
       const channels = this.store.state.tactonSettings.deviceChannel;
       console.log(
@@ -225,7 +296,7 @@ export default defineComponent({
         } else {
           console.log("channel is defined");
           //push the container to left, to have more place for new values
-          if (this.currentTime > 10000) {
+          if (this.currentTime >= 10000) {
             graph.container.x -= additionalWidth;
           }
           //general item
@@ -241,27 +312,20 @@ export default defineComponent({
 
           if (lastIntensityObject.intensity == channels[i].intensity) {
             //delete old rectangle and draw a new at same position with more width
-            const xPosition = lastIntensityObject.object?.x;
-            const yPosition = lastIntensityObject.object?.y;
-            const width = lastIntensityObject.width! + additionalWidth;
-
-            const rect = new PIXI.Graphics();
-            rect.beginFill(0xff0000);
-            rect.lineStyle(5, 0xff0000);
-            rect.drawRect(0, 0, width, 40);
-            rect.position.set(xPosition, yPosition);
-
             graph.container.removeChildAt(lastIntensityObject.index!);
-            graph.container.addChild(rect);
-            graph.intensities[index] = {
-              index: graph.container.children.length - 1,
-              intensity: lastIntensityObject.intensity,
-              width: width,
-              object: rect,
-            };
+
+            const intensityObject = this.drawRectangle(
+              i,
+              lastIntensityObject.width! + additionalWidth,
+              channels[i].intensity,
+              graph.container as PIXI.Container,
+              lastIntensityObject.object?.x,
+              lastIntensityObject.object?.y
+            );
+
+            graph.intensities[index] = intensityObject;
           } else {
             //intensity changed, draw new rectangle
-            //calculate properties of rectangle
             const intensityObject = this.drawRectangle(
               i,
               additionalWidth,
@@ -274,6 +338,10 @@ export default defineComponent({
         }
       }
 
+      if (this.currentTime >= this.maxDuration) {
+        this.currentTime = this.maxDuration;
+        return;
+      }
       this.currentTime += this.ticker!.elapsedMS;
       //this.ticker!.stop();
     },
@@ -301,12 +369,20 @@ export default defineComponent({
         id: 5,
         intensity: 1,
       });
+      this.store.dispatch(TactonSettingsActionTypes.modifySpecificChannel, {
+        id: 6,
+        intensity: 0.5,
+      });
     },
     stopChannelActivity() {
       console.log("stopChannelActivity");
       this.store.dispatch(TactonSettingsActionTypes.modifySpecificChannel, {
         id: 5,
         intensity: 0,
+      });
+      this.store.dispatch(TactonSettingsActionTypes.modifySpecificChannel, {
+        id: 6,
+        intensity: 0.1,
       });
     },
   },
