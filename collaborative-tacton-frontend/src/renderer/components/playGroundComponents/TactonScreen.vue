@@ -6,9 +6,9 @@
     id="tactonHeader"
   >
     <v-col style="max-width: fit-content">
-      <v-btn @click="changeRecordMode" color="primary"> Start Record </v-btn>
-      <v-btn @click="startChannelActivity"> Start Try </v-btn>
-      <v-btn @click="stopChannelActivity"> Stop Try </v-btn>
+      <v-btn @click="changeRecordMode" color="primary">
+        {{ store.state.roomSettings.isRecording ? "Stop" : "Start" }} Record
+      </v-btn>
     </v-col>
     <v-col style="max-width: fit-content">
       <v-row align="center">
@@ -17,13 +17,10 @@
           class="durationBox"
           :items="items"
           v-model="duration"
+          :disabled="isRecordingStore"
         ></v-select>
       </v-row>
     </v-col>
-  </v-row>
-  <v-row no-gutters v-if="false">
-    <v-btn @click="startChannelActivity"> Start Try </v-btn>
-    <v-btn @click="stopChannelActivity"> Stop Try </v-btn>
   </v-row>
   <div id="tactonDisplay"></div>
 </template>
@@ -61,10 +58,14 @@
 </style>
 <script lang="ts">
 import * as PIXI from "pixi.js";
-import { CanvasRenderer } from "@pixi/canvas-renderer";
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "@/renderer/store/store";
-import { TactonSettingsActionTypes } from "@/renderer/store/modules/tactonSettings/tactonSettings";
+import {
+  TactonMutations,
+  TactonSettingsActionTypes,
+} from "@/renderer/store/modules/tactonSettings/tactonSettings";
+import { sendSocketMessage } from "@/renderer/CommunicationManager/WebSocketManager";
+import { WS_MSG_TYPE } from "@/renderer/CommunicationManager/WebSocketManager/ws_types";
 
 interface IntensityObject {
   intensity: number;
@@ -87,7 +88,6 @@ export default defineComponent({
       type: Boolean,
     },
   },
-
   data() {
     return {
       pixiApp: null as PIXI.Application | null,
@@ -107,8 +107,7 @@ export default defineComponent({
         actual: -1,
       },
       paddingRL: 20,
-      isRecording: false,
-      maxDuration: 10000,
+      maxDuration: 5000,
       growRatio: 0,
       currentTime: 0,
       numberOfOutputs: 12,
@@ -125,7 +124,44 @@ export default defineComponent({
         this.maxDuration =
           Number(newValue.substring(0, newValue.length - 1)) * 1000;
         this.calcLegend();
+        this.resizeRectangles();
       },
+    },
+    newStoreItem(): boolean {
+      return this.store.state.tactonSettings.insertValues;
+    },
+    isRecordingStore(): boolean {
+      return this.store.state.roomSettings.isRecording;
+    },
+  },
+  watch: {
+    isMounted(newVal, oldVal) {
+      if (newVal == true && newVal !== oldVal) this.resizeScreen();
+    },
+    isRecordingStore(recordMode) {
+      //update store from server, response retrieved
+      if (recordMode) {
+        this.currentTime = 0;
+        this.channelGraphs.forEach((graph) => {
+          graph.container.removeChildren();
+        });
+        this.channelGraphs = [];
+        console.log(this.ticker?.count);
+        if (this.ticker !== null && this.ticker.count > 0)
+          this.ticker?.remove(this.loop);
+        this.ticker?.add(this.loop);
+      } else {
+        this.store.commit(TactonMutations.UPDATE_INSERT_VALUES, false);
+        this.ticker?.stop();
+        this.ticker?.remove(this.loop);
+      }
+    },
+    newStoreItem(newValue) {
+      console.log("newStoreItem " + newValue);
+      if (this.newStoreItem == true) {
+        if (this.store.state.roomSettings.isRecording == true)
+          this.ticker?.start();
+      }
     },
   },
   mounted() {
@@ -137,23 +173,7 @@ export default defineComponent({
       antialias: true,
       resolution: window.devicePixelRatio,
     });
-    //pixiApp.autoResize=true
-    //this.$el.appendChild(this.app.view);
     this.pixiApp.renderer.view.style.display = "block";
-
-    this.numberOfOutputs = 12;
-    /**
-     * draw grid System
-     */
-
-    /**
-     *
-     */
-
-    /**
-     * create mask for graphs, so that they are cut off
-     */
-
     document.getElementById("tactonDisplay")!.appendChild(this.pixiApp.view);
 
     /**
@@ -188,7 +208,7 @@ export default defineComponent({
       if (this.width.original == -1) {
         this.width.original = newWidth;
         this.width.actual = newWidth;
-       
+
         console.log(newWidth);
 
         this.height.original = newHight;
@@ -249,9 +269,8 @@ export default defineComponent({
       this.graphContainer!.mask = px_mask_outter_bounds;
     },
     calcLegend() {
-      console.log("dsd");
-       this.growRatio =
-          (this.width.original - 2 * this.paddingRL) / this.maxDuration;
+      this.growRatio =
+        (this.width.original - 2 * this.paddingRL) / this.maxDuration;
 
       this.coordinateContainer?.removeChildren();
       let xPosition = this.width.actual - this.paddingRL;
@@ -292,32 +311,38 @@ export default defineComponent({
 
       this.coordinateContainer?.addChild(graphics);
     },
+    resizeRectangles() {
+      const channels = this.store.state.tactonSettings.deviceChannel;
+      for (let i = 0; i < channels.length; i++) {
+        const graph = this.channelGraphs.find(
+          (graph) => graph.channelId == channels[i].channelId
+        );
+
+        if(graph == undefined) continue;
+        for(let z = 0; z< graph.intensities.length;z++){
+          
+        }
+      }
+    },
     drawRectangle(
       idGraph: number,
+      xPosition: number,
       additionalWidth: number,
       intensity: number,
-      container: PIXI.Container,
-      xPosition?: number,
-      yPosition?: number
+      container: PIXI.Container
     ) {
       const height = 40 * intensity;
       const distLinesY = this.height.original / (this.numberOfOutputs + 1 + 1);
-      if (xPosition == undefined)
-        xPosition =
-          ((this.width.original - 2 * this.paddingRL) * this.currentTime) /
-            this.maxDuration +
-          this.paddingRL;
 
-      if (yPosition == undefined)
-        yPosition = (idGraph + 1) * distLinesY - height * 0.5;
-
+      const yPosition = (idGraph + 1) * distLinesY - height * 0.5;
+      /**
       console.log(
         "draw Rectangle at x: " +
           ((this.width.original - 2 * this.paddingRL) * this.currentTime) /
             this.maxDuration +
           this.paddingRL
       );
-
+ */
       // console.log( (idGraph + 1) * distLinesY - height * 0.5)
       // draw the rectangle
       const rect = new PIXI.Graphics();
@@ -338,30 +363,38 @@ export default defineComponent({
     loop(delta: any) {
       const additionalWidth = this.growRatio * this.ticker!.elapsedMS;
       const channels = this.store.state.tactonSettings.deviceChannel;
-      console.log(
+      /**      console.log(
         "startTime: " +
-          this.currentTime + 
+          this.currentTime +
           " additionalWidth: " +
           additionalWidth
       );
+       */
 
       for (let i = 0; i < channels.length; i++) {
         const graph = this.channelGraphs.find(
-          (graph) => graph.channelId == channels[i].id
+          (graph) => graph.channelId == channels[i].channelId
         );
         if (graph == undefined) {
-          if (channels[i].intensity == 0) continue;
-          console.log("channel is undefined");
+          //if (channels[i].intensity == 0) continue;
           //there is currently no rectangle
           const container = new PIXI.Container();
+
+          let xPosition = this.width.original - this.paddingRL;
+          if (this.currentTime < this.maxDuration)
+            xPosition =
+              (xPosition * this.currentTime) / this.maxDuration +
+              this.paddingRL;
+
           const intensityObject = this.drawRectangle(
             i,
+            xPosition,
             additionalWidth,
             channels[i].intensity,
             container
           );
           this.channelGraphs.push({
-            channelId: channels[i].id,
+            channelId: channels[i].channelId,
             container: container,
             intensities: [intensityObject],
           });
@@ -369,9 +402,8 @@ export default defineComponent({
           this.graphContainer?.addChild(container);
           ///this.ticker?.stop();
         } else {
-          console.log("channel is defined");
           //push the container to left, to have more place for new values
-          if (this.currentTime >= 10000) {
+          if (this.currentTime >= this.maxDuration) {
             graph.container.x -= additionalWidth;
           }
           //general item
@@ -391,18 +423,22 @@ export default defineComponent({
 
             const intensityObject = this.drawRectangle(
               i,
+              lastIntensityObject.object!.x,
               lastIntensityObject.width! + additionalWidth,
               channels[i].intensity,
-              graph.container as PIXI.Container,
-              lastIntensityObject.object?.x,
-              lastIntensityObject.object?.y
+              graph.container as PIXI.Container
             );
 
             graph.intensities[index] = intensityObject;
           } else {
             //intensity changed, draw new rectangle
+            const xPosition =
+              ((this.width.original - 2 * this.paddingRL) * this.currentTime) /
+                this.maxDuration +
+              this.paddingRL;
             const intensityObject = this.drawRectangle(
               i,
+              xPosition,
               additionalWidth,
               channels[i].intensity,
               graph.container as PIXI.Container
@@ -417,44 +453,17 @@ export default defineComponent({
       //this.ticker!.stop();
     },
     changeRecordMode() {
-      this.isRecording = !this.isRecording;
-      if (this.isRecording == true) {
-        this.currentTime = 0;
-        this.channelGraphs.forEach((graph) => {
-          graph.container.removeChildren();
+      if (this.store.state.roomSettings.isRecording) {
+        sendSocketMessage(WS_MSG_TYPE.UPDATE_RECORD_MODE_SERV, {
+          roomId: this.store.state.roomSettings.id,
+          shouldRecord: false,
         });
-        this.channelGraphs = [];
-        console.log(this.ticker?.count);
-        if (this.ticker !== null && this.ticker.count > 0)
-          this.ticker?.remove(this.loop);
-        this.ticker?.add(this.loop);
-        this.ticker?.start();
       } else {
-        this.ticker?.stop();
-        this.ticker?.remove(this.loop);
+        sendSocketMessage(WS_MSG_TYPE.UPDATE_RECORD_MODE_SERV, {
+          roomId: this.store.state.roomSettings.id,
+          shouldRecord: true,
+        });
       }
-    },
-    startChannelActivity() {
-      console.log("startChannelActivity");
-      this.store.dispatch(TactonSettingsActionTypes.modifySpecificChannel, {
-        id: 5,
-        intensity: 1,
-      });
-      this.store.dispatch(TactonSettingsActionTypes.modifySpecificChannel, {
-        id: 11,
-        intensity: 2,
-      });
-    },
-    stopChannelActivity() {
-      console.log("stopChannelActivity");
-      this.store.dispatch(TactonSettingsActionTypes.modifySpecificChannel, {
-        id: 5,
-        intensity: 0,
-      });
-      this.store.dispatch(TactonSettingsActionTypes.modifySpecificChannel, {
-        id: 11,
-        intensity: 1,
-      });
     },
   },
 });

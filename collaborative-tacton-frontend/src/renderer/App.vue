@@ -161,13 +161,13 @@ export default defineComponent({
     buttonDown(e: any) {
       if (!this.correctFrameForInput()) return;
       const key: string = e.key.toUpperCase();
-      console.log("buttonDown");
+      //console.log("buttonDown");
       this.store.dispatch(PlayGroundActionTypes.activateKey, key);
     },
     buttonUp(e: any) {
       if (!this.correctFrameForInput()) return;
       const key = e.key.toUpperCase();
-      console.log("buttonUp");
+      //console.log("buttonUp");
       this.store.dispatch(PlayGroundActionTypes.deactivateKey, key);
     },
   },

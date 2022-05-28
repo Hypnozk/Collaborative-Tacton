@@ -29,6 +29,7 @@ export type State = {
   description: string,
   participants: User[],
   user: User,
+  isRecording: boolean,
 };
 
 export const state: State = {
@@ -38,6 +39,7 @@ export const state: State = {
   description: "",
   participants: [],
   user: { id: "", name: "" },
+  isRecording: false,
 };
 /**
  * mutations
@@ -50,6 +52,7 @@ export enum RoomMutations {
   UPDATE_USER = "UPDATE_USER",
   UPDATE_USER_NAME = "UPDATE_USER_NAME",
   UPDATE_PARTICIPANTS = "UPDATE_PARTICIPANTS",
+  UPDATE_RECORD_MODE = "UPDATE_RECORD_MODE",
 }
 
 export type Mutations<S = State> = {
@@ -59,6 +62,7 @@ export type Mutations<S = State> = {
   [RoomMutations.UPDATE_USER](state: S, user: User): void
   [RoomMutations.UPDATE_USER_NAME](state: S, userName: string): void
   [RoomMutations.UPDATE_PARTICIPANTS](state: S, participants: User[]): void
+  [RoomMutations.UPDATE_RECORD_MODE](state: S, shouldRecord: boolean): void
 }
 
 export const mutations: MutationTree<State> & Mutations = {
@@ -83,6 +87,10 @@ export const mutations: MutationTree<State> & Mutations = {
   },
   [RoomMutations.UPDATE_PARTICIPANTS](state, participants) {
     state.participants = participants;
+  },
+  [RoomMutations.UPDATE_RECORD_MODE](state, shouldRecord) {
+    console.log("UPDATE_RECORD_MODE", shouldRecord)
+    state.isRecording = shouldRecord;
   },
 };
 

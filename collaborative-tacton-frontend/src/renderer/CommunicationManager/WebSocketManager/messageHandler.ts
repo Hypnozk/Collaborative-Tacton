@@ -4,6 +4,7 @@ import { WS_MSG_TYPE } from "./ws_types";
 import { RouterNames } from "@/types/Routernames";
 import router from "@/renderer/router";
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
+import { TactonSettingsActionTypes } from "@/renderer/store/modules/tactonSettings/tactonSettings";
 
 export interface SocketMessage {
     type: WS_MSG_TYPE;
@@ -35,6 +36,11 @@ export const handleMessage = (store: Store, msg: SocketMessage) => {
         }
         case WS_MSG_TYPE.SEND_INSTRUCTION_CLI: {
             window.api.send(IPC_CHANNELS.main.executeTask, msg.payload);
+            store.dispatch(TactonSettingsActionTypes.modifySpecificChannel, msg.payload)
+            break;
+        }
+        case WS_MSG_TYPE.UPDATE_RECORD_MODE_CLI: {
+            store.commit(RoomMutations.UPDATE_RECORD_MODE, msg.payload)
             break;
         }
     }

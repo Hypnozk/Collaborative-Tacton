@@ -7,7 +7,7 @@ import { RouterNames } from '../../../../types/Routernames';
  * 
  */
 interface DeviceChannel {
-  id: number,
+  channelId: number,
   intensity: number
 }
 /**
@@ -16,11 +16,13 @@ interface DeviceChannel {
  */
 
 export type State = {
-  deviceChannel: DeviceChannel[]
+  deviceChannel: DeviceChannel[],
+  insertValues: boolean
 };
 
 export const state: State = {
   deviceChannel: [],
+  insertValues: false
 };
 /**
  * mutations
@@ -29,11 +31,13 @@ export const state: State = {
 export enum TactonMutations {
   UDPATE_CHANNELS = "UDPATE_CHANNELS",
   UPDATE_SPECIFIC_CHANNEL = "UPDATE_SPECIFIC_CHANNEL",
+  UPDATE_INSERT_VALUES = "UPDATE_INSERT_VALUES",
 }
 
 export type Mutations<S = State> = {
   [TactonMutations.UDPATE_CHANNELS](state: S, channels: DeviceChannel[]): void
-  [TactonMutations.UPDATE_SPECIFIC_CHANNEL](state: S, payload:{index: number, channel: DeviceChannel}): void
+  [TactonMutations.UPDATE_SPECIFIC_CHANNEL](state: S, payload: { index: number, channel: DeviceChannel }): void
+  [TactonMutations.UPDATE_INSERT_VALUES](state: S, insertFirtsValue: boolean): void
 }
 
 export const mutations: MutationTree<State> & Mutations = {
@@ -42,6 +46,9 @@ export const mutations: MutationTree<State> & Mutations = {
   },
   [TactonMutations.UPDATE_SPECIFIC_CHANNEL](state, payload) {
     state.deviceChannel[payload.index] = payload.channel;
+  },
+  [TactonMutations.UPDATE_INSERT_VALUES](state, insertFirtsValue) {
+    state.insertValues = insertFirtsValue;
   },
 };
 
@@ -67,7 +74,7 @@ export interface Actions {
   ): void;
   [TactonSettingsActionTypes.modifySpecificChannel](
     { commit }: AugmentedActionContext,
-    payload: DeviceChannel, // Obsolete in here but left as an example
+    payload: DeviceChannel[], // Obsolete in here but left as an example
   ): void;
 }
 
@@ -77,17 +84,22 @@ export const actions: ActionTree<State, RootState> & Actions = {
 
     const numberOfOutputs = store.getters.getNumberOfOutputs;
     console.log("instantiate channels: " + numberOfOutputs)
-    const deviceChannelArray:DeviceChannel[] = [];
-    for(let i=0;i<numberOfOutputs;i++){
-      deviceChannelArray.push({id:i,intensity:0})
+    const deviceChannelArray: DeviceChannel[] = [];
+    for (let i = 0; i < numberOfOutputs; i++) {
+      deviceChannelArray.push({ channelId: i, intensity: 0 })
     }
     commit(TactonMutations.UDPATE_CHANNELS, deviceChannelArray);
   },
-  [TactonSettingsActionTypes.modifySpecificChannel]({ commit }, channel: DeviceChannel) {
+  [TactonSettingsActionTypes.modifySpecificChannel]({ commit }, channels: DeviceChannel[]) {
     //console.log("action " + state.deviceChannel)
-    const index = state.deviceChannel.findIndex(channelDevice => channelDevice.id == channel.id);
-    if(index == -1)return;
-    commit(TactonMutations.UPDATE_SPECIFIC_CHANNEL, {index:index, channel:channel});
+    for (let i = 0; i < channels.length; i++) {
+      const index = state.deviceChannel.findIndex(channelDevice => channelDevice.channelId == channels[i].channelId);
+      if (index == -1) continue;
+      if (!state.insertValues)
+        commit(TactonMutations.UPDATE_INSERT_VALUES, true);
+
+      commit(TactonMutations.UPDATE_SPECIFIC_CHANNEL, { index: index, channel: channels[i] });
+    }
   },
 };
 
@@ -101,7 +113,7 @@ export type Getters = {
 export const getters: GetterTree<State, RootState> & Getters = {
   getIntensityOfChannel: (state) => (id) => {
     const index = state.deviceChannel.findIndex(
-      (channel) => channel.id === id
+      (channel) => channel.channelId === id
     );
     if (index == -1)
       return 0;
