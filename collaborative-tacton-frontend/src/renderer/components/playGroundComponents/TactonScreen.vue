@@ -82,6 +82,12 @@ interface ChannelGraph extends GraphicObject {
 }
 export default defineComponent({
   name: "TactonScreen",
+  props: {
+    isMounted: {
+      type: Boolean,
+    },
+  },
+
   data() {
     return {
       pixiApp: null as PIXI.Application | null,
@@ -115,15 +121,15 @@ export default defineComponent({
       get(): string {
         return (this.maxDuration / 1000).toString() + "s";
       },
-      set(newValue) {
-        this.calcLegend();
+      set(newValue: any) {
         this.maxDuration =
           Number(newValue.substring(0, newValue.length - 1)) * 1000;
+        this.calcLegend();
       },
     },
   },
   mounted() {
-    console.log("mounted TactonScdren");
+    console.log("mountd TactonSreen " + this.isMounted);
     window.addEventListener("resize", this.resizeScreen);
 
     this.pixiApp = new PIXI.Application({
@@ -158,7 +164,7 @@ export default defineComponent({
     this.ticker.stop();
     this.store.dispatch(TactonSettingsActionTypes.instantiateArray);
 
-    //this.resizeScreen();
+    if (this.isMounted) this.resizeScreen();
   },
   beforeUnmount() {
     if (this.ticker !== null && this.ticker.count > 0)
@@ -182,14 +188,13 @@ export default defineComponent({
       if (this.width.original == -1) {
         this.width.original = newWidth;
         this.width.actual = newWidth;
-        this.growRatio =
-          (this.width.original - 2 * this.paddingRL) / this.maxDuration;
+       
         console.log(newWidth);
 
         this.height.original = newHight;
         this.height.actual = newHight;
 
-        this.pixiApp!.stage.removeChildren
+        this.pixiApp!.stage.removeChildren;
         this.coordinateContainer = new PIXI.Container();
         this.pixiApp!.stage.addChild(
           this.coordinateContainer! as PIXI.Container
@@ -199,15 +204,14 @@ export default defineComponent({
         this.graphContainer = graphContainer;
       }
 
-      if (this.width.original !== -1 && this.height.original !== -1) {
-        const xRatio = newWidth / this.width.actual;
-        const yRatio = newHight / this.height.actual;
-        this.width.actual = newWidth;
-        this.height.actual = newHight;
+      const xRatio = newWidth / this.width.actual;
+      const yRatio = newHight / this.height.actual;
+      this.width.actual = newWidth;
+      this.height.actual = newHight;
 
-        this.graphContainer!.width = this.graphContainer!.width * xRatio;
-        this.graphContainer!.height = this.graphContainer!.height * yRatio;
-        console.log(
+      this.graphContainer!.width = this.graphContainer!.width * xRatio;
+      this.graphContainer!.height = this.graphContainer!.height * yRatio;
+      /**        console.log(
           "x value " +
             this.graphContainer!.x +
             "   " +
@@ -219,10 +223,11 @@ export default defineComponent({
             "   " +
             this.graphContainer!.height
         );
-        this.pixiApp?.renderer.resize(this.width.actual, this.height.actual);
-        this.createMask();
-        this.calcLegend();
-      }
+         */
+
+      this.pixiApp?.renderer.resize(this.width.actual, this.height.actual);
+      this.createMask();
+      this.calcLegend();
     },
     createMask() {
       if (this.maskIndex !== -1)
@@ -245,6 +250,9 @@ export default defineComponent({
     },
     calcLegend() {
       console.log("dsd");
+       this.growRatio =
+          (this.width.original - 2 * this.paddingRL) / this.maxDuration;
+
       this.coordinateContainer?.removeChildren();
       let xPosition = this.width.actual - this.paddingRL;
       let yPosition = 0;
@@ -331,8 +339,8 @@ export default defineComponent({
       const additionalWidth = this.growRatio * this.ticker!.elapsedMS;
       const channels = this.store.state.tactonSettings.deviceChannel;
       console.log(
-        "currentTisme: " +
-          this.currentTime +
+        "startTime: " +
+          this.currentTime + 
           " additionalWidth: " +
           additionalWidth
       );
