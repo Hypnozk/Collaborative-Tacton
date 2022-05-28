@@ -2,7 +2,7 @@
   <v-container class="playGroundView" ref="container" tabindex="-1">
     <v-row no-gutters>
       <v-col cols="4" id="tactonScreen">
-        <TactonScreen />
+        <TactonScreen :isMounted="isMounted" />
       </v-col>
       <v-divider vertical />
       <v-col cols="8">
@@ -27,7 +27,7 @@
 
 <style lang="scss">
 .playGroundView {
-   display: flex;
+  display: flex;
   height: 100%;
   min-width: 100%;
   max-width: 100%;
@@ -62,11 +62,14 @@ export default defineComponent({
       store: useStore(),
       playGroundDialog: false,
       idOfEditableButton: "",
+      isMounted: false,
     };
   },
   mounted() {
     const container: any = this.$refs.container;
     this.$nextTick(() => container.$el.focus());
+    console.log("reallxy");
+    this.isMounted = true;
   },
   methods: {
     closeDialog() {

@@ -7,8 +7,8 @@
   >
     <v-col style="max-width: fit-content">
       <v-btn @click="changeRecordMode" color="primary"> Start Record </v-btn>
-          <v-btn @click="startChannelActivity"> Start Try </v-btn>
-              <v-btn @click="stopChannelActivity"> Stop Try </v-btn>
+      <v-btn @click="startChannelActivity"> Start Try </v-btn>
+      <v-btn @click="stopChannelActivity"> Stop Try </v-btn>
     </v-col>
     <v-col style="max-width: fit-content">
       <v-row align="center">
@@ -61,6 +61,7 @@
 </style>
 <script lang="ts">
 import * as PIXI from "pixi.js";
+import { CanvasRenderer } from "@pixi/canvas-renderer";
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "@/renderer/store/store";
 import { TactonSettingsActionTypes } from "@/renderer/store/modules/tactonSettings/tactonSettings";
@@ -88,15 +89,16 @@ export default defineComponent({
       channelGraphs: [] as ChannelGraph[],
       coordinateContainer: null as PIXI.Container | null,
       legendLabels: [] as GraphicObject[],
+      maskIndex: -1,
       ticker: null as PIXI.Ticker | null,
       store: useStore(),
       width: {
-        original: 0,
-        actual: 0,
+        original: -1,
+        actual: -1,
       },
       height: {
-        original: 0,
-        actual: 0,
+        original: -1,
+        actual: -1,
       },
       paddingRL: 20,
       isRecording: false,
@@ -132,46 +134,19 @@ export default defineComponent({
     //pixiApp.autoResize=true
     //this.$el.appendChild(this.app.view);
     this.pixiApp.renderer.view.style.display = "block";
-    this.width.original = document.getElementById("tactonScreen")!.clientWidth;
-    this.height.original =
-      document.getElementById("tactonScreen")!.clientHeight -
-      document.getElementById("tactonHeader")!.clientHeight;
-    this.width.actual = this.width.original;
-    this.height.actual = this.height.original;
-
-    this.pixiApp.renderer.resize(this.width.original, this.height.original);
 
     this.numberOfOutputs = 12;
-    this.growRatio =
-      (this.width.original - 2 * this.paddingRL) / this.maxDuration;
-
     /**
      * draw grid System
      */
-    this.coordinateContainer = new PIXI.Container();
-    this.pixiApp.stage.addChild(this.coordinateContainer! as PIXI.Container);
-    this.calcLegend();
+
+    /**
+     *
+     */
+
     /**
      * create mask for graphs, so that they are cut off
      */
-    const graphContainer = new PIXI.Container();
-    graphContainer.width = this.width.actual;
-
-   console.log("mounted "  + graphContainer.x+ "   " + graphContainer.width)
-    const px_mask_outter_bounds = new PIXI.Graphics();
-
-    px_mask_outter_bounds.drawRect(
-      this.paddingRL,
-      0,
-      this.width.original - 2 * this.paddingRL,
-      this.height.original
-    );
-    // px_mask_outter_bounds.renderable = true;
-    // px_mask_outter_bounds.cacheAsBitmap = true;
-    //this.pixiApp?.stage.addChild(px_mask_outter_bounds);
-    graphContainer.mask = px_mask_outter_bounds;
-    this.pixiApp?.stage.addChild(graphContainer);
-    this.graphContainer = graphContainer;
 
     document.getElementById("tactonDisplay")!.appendChild(this.pixiApp.view);
 
@@ -183,7 +158,7 @@ export default defineComponent({
     this.ticker.stop();
     this.store.dispatch(TactonSettingsActionTypes.instantiateArray);
 
-    console.log("mounted "  + this.graphContainer!.x+ "   " + this.graphContainer!.width)
+    //this.resizeScreen();
   },
   beforeUnmount() {
     if (this.ticker !== null && this.ticker.count > 0)
@@ -198,19 +173,75 @@ export default defineComponent({
        * this means you have never to update the width or height for your calculation
        * you will calculate the original position, width still and the scaling will position it relative
        */
-      this.width.actual = document.getElementById("tactonScreen")!.clientWidth;
-      this.height.actual =
+      const newWidth = document.getElementById("tactonScreen")!.clientWidth;
+      const newHight =
         window.innerHeight -
         document.getElementById("tactonHeader")!.clientHeight -
         document.getElementById("headerPlayGround")!.clientHeight;
- console.log("start "  + this.graphContainer!.x+ "   " + this.graphContainer!.width)
 
-      this.graphContainer!.width = this.width.actual;
-    //this.graphContainer!.height = this.height.actual;
-    console.log(this.graphContainer!.x+ "   " + this.graphContainer!.width)
-        console.log(this.graphContainer!.y+ "   " + this.graphContainer!.height)
-    this.pixiApp?.renderer.resize(this.width.actual, this.height.actual);
-      this.calcLegend();
+      if (this.width.original == -1) {
+        this.width.original = newWidth;
+        this.width.actual = newWidth;
+        this.growRatio =
+          (this.width.original - 2 * this.paddingRL) / this.maxDuration;
+        console.log(newWidth);
+
+        this.height.original = newHight;
+        this.height.actual = newHight;
+
+        this.pixiApp!.stage.removeChildren
+        this.coordinateContainer = new PIXI.Container();
+        this.pixiApp!.stage.addChild(
+          this.coordinateContainer! as PIXI.Container
+        );
+        const graphContainer = new PIXI.Container();
+        this.pixiApp!.stage.addChild(graphContainer);
+        this.graphContainer = graphContainer;
+      }
+
+      if (this.width.original !== -1 && this.height.original !== -1) {
+        const xRatio = newWidth / this.width.actual;
+        const yRatio = newHight / this.height.actual;
+        this.width.actual = newWidth;
+        this.height.actual = newHight;
+
+        this.graphContainer!.width = this.graphContainer!.width * xRatio;
+        this.graphContainer!.height = this.graphContainer!.height * yRatio;
+        console.log(
+          "x value " +
+            this.graphContainer!.x +
+            "   " +
+            this.graphContainer!.width
+        );
+        console.log(
+          "y value " +
+            this.graphContainer!.y +
+            "   " +
+            this.graphContainer!.height
+        );
+        this.pixiApp?.renderer.resize(this.width.actual, this.height.actual);
+        this.createMask();
+        this.calcLegend();
+      }
+    },
+    createMask() {
+      if (this.maskIndex !== -1)
+        this.pixiApp?.stage.removeChildAt(this.maskIndex);
+      const px_mask_outter_bounds = new PIXI.Graphics();
+      px_mask_outter_bounds.beginFill();
+      px_mask_outter_bounds.drawRect(
+        this.paddingRL,
+        0,
+        this.width.actual - 2 * this.paddingRL,
+        this.height.actual
+      );
+      px_mask_outter_bounds.endFill();
+      px_mask_outter_bounds.renderable = true;
+      px_mask_outter_bounds.cacheAsBitmap = true;
+      this.pixiApp!.stage.addChild(px_mask_outter_bounds);
+
+      this.maskIndex = this.pixiApp!.stage.children.length - 1;
+      this.graphContainer!.mask = px_mask_outter_bounds;
     },
     calcLegend() {
       console.log("dsd");
@@ -271,13 +302,15 @@ export default defineComponent({
 
       if (yPosition == undefined)
         yPosition = (idGraph + 1) * distLinesY - height * 0.5;
-      
-          console.log(
-            "draw Rectangle at x: " +
-                ((this.width.original - 2 * this.paddingRL) * this.currentTime) /
-          (this.maxDuration) + this.paddingRL);
-      
-// console.log( (idGraph + 1) * distLinesY - height * 0.5)
+
+      console.log(
+        "draw Rectangle at x: " +
+          ((this.width.original - 2 * this.paddingRL) * this.currentTime) /
+            this.maxDuration +
+          this.paddingRL
+      );
+
+      // console.log( (idGraph + 1) * distLinesY - height * 0.5)
       // draw the rectangle
       const rect = new PIXI.Graphics();
       rect.beginFill(0xff0000);
@@ -372,7 +405,6 @@ export default defineComponent({
         }
       }
 
-      
       this.currentTime += this.ticker!.elapsedMS;
       //this.ticker!.stop();
     },
@@ -401,8 +433,8 @@ export default defineComponent({
         intensity: 1,
       });
       this.store.dispatch(TactonSettingsActionTypes.modifySpecificChannel, {
-        id: 6,
-        intensity: 0.5,
+        id: 11,
+        intensity: 2,
       });
     },
     stopChannelActivity() {
@@ -412,8 +444,8 @@ export default defineComponent({
         intensity: 0,
       });
       this.store.dispatch(TactonSettingsActionTypes.modifySpecificChannel, {
-        id: 6,
-        intensity: 0.1,
+        id: 11,
+        intensity: 1,
       });
     },
   },
