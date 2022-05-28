@@ -7,6 +7,8 @@
   >
     <v-col style="max-width: fit-content">
       <v-btn @click="changeRecordMode" color="primary"> Start Record </v-btn>
+          <v-btn @click="startChannelActivity"> Start Try </v-btn>
+              <v-btn @click="stopChannelActivity"> Stop Try </v-btn>
     </v-col>
     <v-col style="max-width: fit-content">
       <v-row align="center">
@@ -69,9 +71,12 @@ interface IntensityObject {
   width?: number;
   object?: PIXI.Graphics;
 }
-interface ChannelGraph {
+interface GraphicObject {
   channelId: number;
   container: PIXI.Container;
+}
+
+interface ChannelGraph extends GraphicObject {
   intensities: IntensityObject[];
 }
 export default defineComponent({
@@ -80,13 +85,20 @@ export default defineComponent({
     return {
       pixiApp: null as PIXI.Application | null,
       graphContainer: null as PIXI.Container | null,
+      channelGraphs: [] as ChannelGraph[],
+      coordinateContainer: null as PIXI.Container | null,
+      legendLabels: [] as GraphicObject[],
       ticker: null as PIXI.Ticker | null,
       store: useStore(),
-      width: 0,
-      height: 0,
+      width: {
+        original: 0,
+        actual: 0,
+      },
+      height: {
+        original: 0,
+        actual: 0,
+      },
       paddingRL: 20,
-      distLinesY: 0,
-      channelGraphs: [] as ChannelGraph[],
       isRecording: false,
       maxDuration: 10000,
       growRatio: 0,
@@ -99,11 +111,12 @@ export default defineComponent({
   computed: {
     duration: {
       get(): string {
-        return (this.maxDuration/1000).toString() + "s";
+        return (this.maxDuration / 1000).toString() + "s";
       },
       set(newValue) {
-        this.calcDistribution()
-        this.maxDuration = Number(newValue.substring(0,newValue.length-1))*1000;
+        this.calcLegend();
+        this.maxDuration =
+          Number(newValue.substring(0, newValue.length - 1)) * 1000;
       },
     },
   },
@@ -119,69 +132,43 @@ export default defineComponent({
     //pixiApp.autoResize=true
     //this.$el.appendChild(this.app.view);
     this.pixiApp.renderer.view.style.display = "block";
-    this.width = document.getElementById("tactonScreen")!.clientWidth;
-    this.height =
+    this.width.original = document.getElementById("tactonScreen")!.clientWidth;
+    this.height.original =
       document.getElementById("tactonScreen")!.clientHeight -
       document.getElementById("tactonHeader")!.clientHeight;
-    this.pixiApp.renderer.resize(this.width, this.height);
+    this.width.actual = this.width.original;
+    this.height.actual = this.height.original;
+
+    this.pixiApp.renderer.resize(this.width.original, this.height.original);
 
     this.numberOfOutputs = 12;
-    let duration = this.maxDuration / 1000;
-    const timeInterval = duration / 5;
-    this.distLinesY = this.height / (this.numberOfOutputs + 1 + 1);
-    const distLinesX = (this.width - 2 * this.paddingRL) / 5;
-    this.growRatio = (this.width - 2 * this.paddingRL) / this.maxDuration;
+    this.growRatio =
+      (this.width.original - 2 * this.paddingRL) / this.maxDuration;
 
     /**
      * draw grid System
      */
-    const graphics = new PIXI.Graphics();
-    graphics.lineStyle(1, 0x000000, 1);
-
-    let yPosition = 0;
-    for (let i = 0; i < this.numberOfOutputs + 1; i++) {
-      yPosition += this.distLinesY;
-      graphics.moveTo(this.paddingRL, yPosition);
-      graphics.lineTo(this.width - this.paddingRL, yPosition);
-    }
-
-    let xPosition = this.width - this.paddingRL;
-    for (let i = 0; i <= 5; i++) {
-      graphics.moveTo(xPosition, yPosition - 10);
-      graphics.lineTo(xPosition, yPosition + 10);
-      const label = new PIXI.Text(duration.toString() + " s", {
-        fontFamily: "Arial",
-        fontSize: 12,
-        align: "center",
-      });
-      let xOffset = 8;
-      if (duration >= 10) xOffset = 12;
-
-      label.x = xPosition - xOffset;
-      label.y = yPosition + 15;
-      this.pixiApp.stage.addChild(label);
-      label.text = "hello"
-      duration -= timeInterval;
-      xPosition -= distLinesX;
-    }
-
-    this.pixiApp.stage.addChild(graphics);
-
+    this.coordinateContainer = new PIXI.Container();
+    this.pixiApp.stage.addChild(this.coordinateContainer! as PIXI.Container);
+    this.calcLegend();
     /**
      * create mask for graphs, so that they are cut off
      */
     const graphContainer = new PIXI.Container();
+    graphContainer.width = this.width.actual;
+
+   console.log("mounted "  + graphContainer.x+ "   " + graphContainer.width)
     const px_mask_outter_bounds = new PIXI.Graphics();
 
     px_mask_outter_bounds.drawRect(
       this.paddingRL,
       0,
-      this.width - 2 * this.paddingRL,
-      this.height
+      this.width.original - 2 * this.paddingRL,
+      this.height.original
     );
     // px_mask_outter_bounds.renderable = true;
     // px_mask_outter_bounds.cacheAsBitmap = true;
-    this.pixiApp?.stage.addChild(px_mask_outter_bounds);
+    //this.pixiApp?.stage.addChild(px_mask_outter_bounds);
     graphContainer.mask = px_mask_outter_bounds;
     this.pixiApp?.stage.addChild(graphContainer);
     this.graphContainer = graphContainer;
@@ -195,6 +182,8 @@ export default defineComponent({
     this.ticker.autoStart = false;
     this.ticker.stop();
     this.store.dispatch(TactonSettingsActionTypes.instantiateArray);
+
+    console.log("mounted "  + this.graphContainer!.x+ "   " + this.graphContainer!.width)
   },
   beforeUnmount() {
     if (this.ticker !== null && this.ticker.count > 0)
@@ -209,16 +198,60 @@ export default defineComponent({
        * this means you have never to update the width or height for your calculation
        * you will calculate the original position, width still and the scaling will position it relative
        */
-      this.pixiApp!.renderer.view.style.width =
-        document.getElementById("tactonScreen")!.clientWidth + "px";
-      this.pixiApp!.renderer.view.style.height =
+      this.width.actual = document.getElementById("tactonScreen")!.clientWidth;
+      this.height.actual =
         window.innerHeight -
         document.getElementById("tactonHeader")!.clientHeight -
-        document.getElementById("headerPlayGround")!.clientHeight +
-        "px";
+        document.getElementById("headerPlayGround")!.clientHeight;
+ console.log("start "  + this.graphContainer!.x+ "   " + this.graphContainer!.width)
+
+      this.graphContainer!.width = this.width.actual;
+    //this.graphContainer!.height = this.height.actual;
+    console.log(this.graphContainer!.x+ "   " + this.graphContainer!.width)
+        console.log(this.graphContainer!.y+ "   " + this.graphContainer!.height)
+    this.pixiApp?.renderer.resize(this.width.actual, this.height.actual);
+      this.calcLegend();
     },
-    calcDistribution(){
-      console.log("dsd")
+    calcLegend() {
+      console.log("dsd");
+      this.coordinateContainer?.removeChildren();
+      let xPosition = this.width.actual - this.paddingRL;
+      let yPosition = 0;
+      const distLinesY = this.height.actual / (this.numberOfOutputs + 1 + 1);
+      const distLinesX = (this.width.actual - 2 * this.paddingRL) / 5;
+      let duration = this.maxDuration / 1000;
+      const timeInterval = duration / 5;
+
+      const graphics = new PIXI.Graphics();
+      graphics.lineStyle(1, 0x000000, 1);
+
+      //draw horizontal lines
+      for (let i = 0; i < this.numberOfOutputs + 1; i++) {
+        yPosition += distLinesY;
+        graphics.moveTo(this.paddingRL, yPosition);
+        graphics.lineTo(this.width.actual - this.paddingRL, yPosition);
+      }
+
+      //draw vertical lines and labels
+      for (let i = 0; i <= 5; i++) {
+        graphics.moveTo(xPosition, yPosition - 10);
+        graphics.lineTo(xPosition, yPosition + 10);
+        const label = new PIXI.Text(duration.toString() + " s", {
+          fontFamily: "Arial",
+          fontSize: 12,
+          align: "center",
+        });
+        let xOffset = 8;
+        if (duration >= 10) xOffset = 12;
+
+        label.x = xPosition - xOffset;
+        label.y = yPosition + 15;
+        this.coordinateContainer?.addChild(label);
+        duration -= timeInterval;
+        xPosition -= distLinesX;
+      }
+
+      this.coordinateContainer?.addChild(graphics);
     },
     drawRectangle(
       idGraph: number,
@@ -229,21 +262,22 @@ export default defineComponent({
       yPosition?: number
     ) {
       const height = 40 * intensity;
+      const distLinesY = this.height.original / (this.numberOfOutputs + 1 + 1);
       if (xPosition == undefined)
         xPosition =
-          ((this.width - 2 * this.paddingRL) * this.currentTime) /
+          ((this.width.original - 2 * this.paddingRL) * this.currentTime) /
             this.maxDuration +
           this.paddingRL;
 
       if (yPosition == undefined)
-        yPosition = (idGraph + 1) * this.distLinesY - height * 0.5;
-      /**
+        yPosition = (idGraph + 1) * distLinesY - height * 0.5;
+      
           console.log(
             "draw Rectangle at x: " +
-                ((this.width - 2 * this.paddingRL) * this.currentTime) /
+                ((this.width.original - 2 * this.paddingRL) * this.currentTime) /
           (this.maxDuration) + this.paddingRL);
-      */
-
+      
+// console.log( (idGraph + 1) * distLinesY - height * 0.5)
       // draw the rectangle
       const rect = new PIXI.Graphics();
       rect.beginFill(0xff0000);
@@ -338,10 +372,7 @@ export default defineComponent({
         }
       }
 
-      if (this.currentTime >= this.maxDuration) {
-        this.currentTime = this.maxDuration;
-        return;
-      }
+      
       this.currentTime += this.ticker!.elapsedMS;
       //this.ticker!.stop();
     },
