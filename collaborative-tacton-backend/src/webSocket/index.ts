@@ -106,7 +106,27 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 console.log(msg.payload);
                 const newInstructions = StorageManager.updateIntensities(client, msg.payload.roomId, msg.payload.keyId, msg.payload.channels, msg.payload.intensity)
                 if (newInstructions == undefined || newInstructions.length == 0) return;
-                StorageManager.sendInstruction(msg.payload.roomId, newInstructions)
+                console.log("sended Instruction")
+                console.log(newInstructions)
+                StorageManager.broadCastMessage(msg.payload.roomId, WS_MSG_TYPE.SEND_INSTRUCTION_CLI, newInstructions)
+                break;
+            }
+            case WS_MSG_TYPE.UPDATE_RECORD_MODE_SERV: {
+                /**
+                 * recieve "{roomId:string,shouldRecord":boolean} as payload
+                 * change RecordMode of the room, if correct roomID transmitted
+                 * update all clients with the new recordmode
+                 */
+                StorageManager.updateRecordMode(msg.payload.roomId, msg.payload.shouldRecord)
+                break;
+            }
+            case WS_MSG_TYPE.CHANGE_DURATION_SERV: {
+                /**
+                 * recieve "{roomId:string,duration":number} as payload
+                 * change Max_Duration of the room, if correct roomID transmitted
+                 * update all clients with the new maximal duration
+                 */
+                StorageManager.updateMaxDuration(msg.payload.roomId, msg.payload.duration)
                 break;
             }
         }

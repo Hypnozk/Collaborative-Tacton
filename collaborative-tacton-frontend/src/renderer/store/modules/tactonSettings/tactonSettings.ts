@@ -17,12 +17,12 @@ interface DeviceChannel {
 
 export type State = {
   deviceChannel: DeviceChannel[],
-  insertValues: boolean
+  insertValues: boolean,
 };
 
 export const state: State = {
   deviceChannel: [],
-  insertValues: false
+  insertValues: false,
 };
 /**
  * mutations

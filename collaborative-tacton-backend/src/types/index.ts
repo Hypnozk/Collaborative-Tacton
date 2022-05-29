@@ -8,6 +8,8 @@ export interface Room {
     id: string,
     name: string,
     description: string,
+    isRecording:boolean,
+    maxDurationRecord:number,
 }
 
 export interface TactileTask {

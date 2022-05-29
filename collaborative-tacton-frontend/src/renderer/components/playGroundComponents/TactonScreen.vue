@@ -109,7 +109,6 @@ export default defineComponent({
         actual: -1,
       },
       paddingRL: 20,
-      maxDuration: 5000,
       growRatio: 0,
       currentTime: 0,
       numberOfOutputs: 12,
@@ -118,19 +117,19 @@ export default defineComponent({
     };
   },
   computed: {
+    maxDurationStore(): number {
+      console.log("maxDurationStore")
+      return this.store.state.roomSettings.maxDuration;
+    },
     duration: {
       get(): string {
-        return (this.maxDuration / 1000).toString() + "s";
+        return (this.maxDurationStore / 1000).toString() + "s";
       },
       set(newValue: any) {
-        this.maxDuration =
-          Number(newValue.substring(0, newValue.length - 1)) * 1000;
-
-        this.calcLegend();
-        const oldGrowRatio = this.growRatio;
-        this.growRatio =
-          (this.width.original - 2 * this.paddingRL) / this.maxDuration;
-        this.resizeRectangles(oldGrowRatio);
+        sendSocketMessage(WS_MSG_TYPE.CHANGE_DURATION_SERV, {
+          roomId: this.store.state.roomSettings.id,
+          duration: newValue.substring(0, newValue.length - 1) * 1000,
+        });
       },
     },
     newStoreItem(): boolean {
@@ -144,21 +143,26 @@ export default defineComponent({
     isMounted(newVal, oldVal) {
       if (newVal == true && newVal !== oldVal) this.resizeScreen();
     },
+    maxDurationStore() {
+       console.log("maxDurationStore watcher")
+      this.calcLegend();
+      const oldGrowRatio = this.growRatio;
+      this.growRatio =
+        (this.width.original - 2 * this.paddingRL) / this.maxDurationStore;
+      this.resizeRectangles(oldGrowRatio);
+    },
     isRecordingStore(recordMode) {
       //update store from server, response retrieved
       if (recordMode) {
         this.currentTime = 0;
-                this.store.commit(TactonMutations.UPDATE_INSERT_VALUES, false);
         this.channelGraphs.forEach((graph) => {
           graph.container.removeChildren();
         });
         this.channelGraphs = [];
-        console.log(this.ticker?.count);
         if (this.ticker !== null && this.ticker.count > 0)
           this.ticker?.remove(this.loop);
         this.ticker?.add(this.loop);
       } else {
-        this.store.commit(TactonMutations.UPDATE_INSERT_VALUES, false);
         this.ticker?.stop();
         this.ticker?.remove(this.loop);
       }
@@ -255,7 +259,7 @@ export default defineComponent({
       this.pixiApp?.renderer.resize(this.width.actual, this.height.actual);
       this.createMask();
       this.growRatio =
-        (this.width.original - 2 * this.paddingRL) / this.maxDuration;
+        (this.width.original - 2 * this.paddingRL) / this.maxDurationStore;
       this.calcLegend();
     },
     createMask() {
@@ -283,7 +287,7 @@ export default defineComponent({
       let yPosition = 0;
       const distLinesY = this.height.actual / (this.numberOfOutputs + 1 + 1);
       const distLinesX = (this.width.actual - 2 * this.paddingRL) / 5;
-      let duration = this.maxDuration / 1000;
+      let duration = this.maxDurationStore / 1000;
       const timeInterval = duration / 5;
 
       const graphics = new PIXI.Graphics();
@@ -329,8 +333,8 @@ export default defineComponent({
         graph.container.removeChildren();
         console.log("container offset " + graph.container.x);
         let timeToMoveContainer = 0;
-        if (this.currentTime > this.maxDuration)
-          timeToMoveContainer = this.currentTime - this.maxDuration;
+        if (this.currentTime > this.maxDurationStore)
+          timeToMoveContainer = this.currentTime - this.maxDurationStore;
 
         graph.container.x = 0 - timeToMoveContainer * this.growRatio;
         for (let z = graph.intensities.length - 1; z >= 0; z--) {
@@ -419,9 +423,9 @@ export default defineComponent({
           const container = new PIXI.Container();
 
           let xPosition = this.width.original - this.paddingRL;
-          if (this.currentTime < this.maxDuration)
+          if (this.currentTime < this.maxDurationStore)
             xPosition =
-              (xPosition * this.currentTime) / this.maxDuration +
+              (xPosition * this.currentTime) / this.maxDurationStore +
               this.paddingRL;
 
           const intensityObject = this.drawRectangle(
@@ -447,7 +451,7 @@ export default defineComponent({
           ///this.ticker?.stop();
         } else {
           //push the container to left, to have more place for new values
-          if (this.currentTime >= this.maxDuration) {
+          if (this.currentTime >= this.maxDurationStore) {
             graph.container.x -= additionalWidth;
           }
           //general item
@@ -482,7 +486,7 @@ export default defineComponent({
             //intensity changed, draw new rectangle
             const xPosition =
               ((this.width.original - 2 * this.paddingRL) * this.currentTime) /
-                this.maxDuration +
+                this.maxDurationStore +
               this.paddingRL;
             const intensityObject = this.drawRectangle(
               i,

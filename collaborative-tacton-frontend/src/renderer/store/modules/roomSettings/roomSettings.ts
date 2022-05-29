@@ -1,5 +1,6 @@
 import { MutationTree, GetterTree, ActionTree, ActionContext } from 'vuex'
-import { RootState } from '../../store';
+import { RootState, useStore } from '../../store';
+import { TactonMutations } from '../tactonSettings/tactonSettings';
 /**
  * Tyopes
  * 
@@ -13,7 +14,9 @@ export interface Room {
   id: string,
   name: string,
   description: string,
-  participants: User[]
+  participants: User[],
+  isRecording: boolean,
+  maxDurationRecord: number,
 }
 
 
@@ -30,6 +33,7 @@ export type State = {
   participants: User[],
   user: User,
   isRecording: boolean,
+  maxDuration: number,
 };
 
 export const state: State = {
@@ -40,6 +44,7 @@ export const state: State = {
   participants: [],
   user: { id: "", name: "" },
   isRecording: false,
+  maxDuration: 5000,
 };
 /**
  * mutations
@@ -53,6 +58,7 @@ export enum RoomMutations {
   UPDATE_USER_NAME = "UPDATE_USER_NAME",
   UPDATE_PARTICIPANTS = "UPDATE_PARTICIPANTS",
   UPDATE_RECORD_MODE = "UPDATE_RECORD_MODE",
+  UPDATE_MAX_DURATION_TACTON = "UPDATE_MAX_DURATION_TACTON",
 }
 
 export type Mutations<S = State> = {
@@ -63,6 +69,7 @@ export type Mutations<S = State> = {
   [RoomMutations.UPDATE_USER_NAME](state: S, userName: string): void
   [RoomMutations.UPDATE_PARTICIPANTS](state: S, participants: User[]): void
   [RoomMutations.UPDATE_RECORD_MODE](state: S, shouldRecord: boolean): void
+  [RoomMutations.UPDATE_MAX_DURATION_TACTON](state: S, maxDuration: number): void
 }
 
 export const mutations: MutationTree<State> & Mutations = {
@@ -72,6 +79,8 @@ export const mutations: MutationTree<State> & Mutations = {
     state.roomName = props.roomInfo.name;
     state.description = props.roomInfo.description;
     state.participants = props.roomInfo.participants;
+    state.isRecording = props.roomInfo.isRecording;
+    state.maxDuration = props.roomInfo.maxDurationRecord;
   },
   [RoomMutations.UPDATE_ROOM_NAME](state, roomName) {
     state.roomName = roomName;
@@ -91,6 +100,9 @@ export const mutations: MutationTree<State> & Mutations = {
   [RoomMutations.UPDATE_RECORD_MODE](state, shouldRecord) {
     console.log("UPDATE_RECORD_MODE", shouldRecord)
     state.isRecording = shouldRecord;
+  },
+  [RoomMutations.UPDATE_MAX_DURATION_TACTON](state, maxDuration) {
+    state.maxDuration = maxDuration;
   },
 };
 
@@ -127,9 +139,10 @@ export const actions: ActionTree<State, RootState> & Actions = {
   },
   [RoomSettingsActionTypes.enterRoom]({ commit }, props: { room: Room, userId: string, participants: User[] }) {
     const user = props.participants.find(participant => participant.id == props.userId);
+
     if (user !== undefined)
       commit(RoomMutations.UPDATE_USER, { id: user.id, name: user.name });
-      
+
     commit(RoomMutations.CHANGE_ROOM, {
       existRoom: true,
       roomInfo: {
@@ -137,6 +150,8 @@ export const actions: ActionTree<State, RootState> & Actions = {
         name: props.room.name,
         description: props.room.description,
         participants: props.participants,
+        isRecording: props.room.isRecording,
+        maxDurationRecord: props.room.maxDurationRecord,
       }
     })
   },
