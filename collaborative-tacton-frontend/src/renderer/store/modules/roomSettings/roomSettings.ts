@@ -1,6 +1,5 @@
 import { MutationTree, GetterTree, ActionTree, ActionContext } from 'vuex'
-import { RootState, useStore } from '../../store';
-import { TactonMutations } from '../tactonSettings/tactonSettings';
+import { RootState } from '../../store';
 /**
  * Tyopes
  * 
@@ -98,7 +97,6 @@ export const mutations: MutationTree<State> & Mutations = {
     state.participants = participants;
   },
   [RoomMutations.UPDATE_RECORD_MODE](state, shouldRecord) {
-    console.log("UPDATE_RECORD_MODE", shouldRecord)
     state.isRecording = shouldRecord;
   },
   [RoomMutations.UPDATE_MAX_DURATION_TACTON](state, maxDuration) {

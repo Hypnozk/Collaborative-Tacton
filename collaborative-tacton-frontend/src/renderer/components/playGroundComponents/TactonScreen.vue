@@ -61,7 +61,6 @@ import * as PIXI from "pixi.js";
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "@/renderer/store/store";
 import {
-  TactonMutations,
   TactonSettingsActionTypes,
 } from "@/renderer/store/modules/tactonSettings/tactonSettings";
 import { sendSocketMessage } from "@/renderer/CommunicationManager/WebSocketManager";
@@ -118,7 +117,6 @@ export default defineComponent({
   },
   computed: {
     maxDurationStore(): number {
-      console.log("maxDurationStore")
       return this.store.state.roomSettings.maxDuration;
     },
     duration: {
@@ -144,12 +142,10 @@ export default defineComponent({
       if (newVal == true && newVal !== oldVal) this.resizeScreen();
     },
     maxDurationStore() {
-       console.log("maxDurationStore watcher")
       this.calcLegend();
-      const oldGrowRatio = this.growRatio;
       this.growRatio =
         (this.width.original - 2 * this.paddingRL) / this.maxDurationStore;
-      this.resizeRectangles(oldGrowRatio);
+      this.resizeRectangles();
     },
     isRecordingStore(recordMode) {
       //update store from server, response retrieved
@@ -185,7 +181,7 @@ export default defineComponent({
       resolution: window.devicePixelRatio,
     });
     this.pixiApp.renderer.view.style.display = "block";
-    document.getElementById("tactonDisplay")!.appendChild(this.pixiApp.view);
+    document.getElementById("tactonDisplay")?.appendChild(this.pixiApp.view);
 
     /**
      * create ticker for animation
@@ -321,7 +317,7 @@ export default defineComponent({
 
       this.coordinateContainer?.addChild(graphics);
     },
-    resizeRectangles(oldGrowRatio: number) {
+    resizeRectangles() {
       const channels = this.store.state.tactonSettings.deviceChannel;
       for (let i = 0; i < channels.length; i++) {
         const graph = this.channelGraphs.find(
@@ -331,7 +327,6 @@ export default defineComponent({
         if (graph == undefined) continue;
         const intensityArray: IntensityObject[] = [];
         graph.container.removeChildren();
-        console.log("container offset " + graph.container.x);
         let timeToMoveContainer = 0;
         if (this.currentTime > this.maxDurationStore)
           timeToMoveContainer = this.currentTime - this.maxDurationStore;
@@ -402,7 +397,7 @@ export default defineComponent({
         object: rect,
       };
     },
-    loop(delta: any) {
+    loop() {
       const additionalWidth = this.growRatio * this.ticker!.elapsedMS;
       const channels = this.store.state.tactonSettings.deviceChannel;
       /**      console.log(

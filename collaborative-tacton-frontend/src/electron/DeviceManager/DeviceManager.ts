@@ -28,8 +28,9 @@ const addDevice = (peripheral: Peripheral) => {
     })
 }
 
-const updateConnectedDevice = (peripheral: Peripheral) => {
+const updateConnectedDevice = async (peripheral: Peripheral) => {
     connectedDevice = peripheral;
+
     sendMessageToRenderer(IPC_CHANNELS.renderer.deviceStatusChanged, {
         id: peripheral.id,
         name: peripheral.advertisement.localName,
@@ -57,6 +58,17 @@ const executeTask = (taskList: TactileTask[]) => {
     executeInstruction(connectedDevice, taskList)
 }
 
+const initialVibration =async () => {
+    executeTask([{
+        channelId: 0,
+        intensity: 1
+    }])
+    await new Promise((r) => setTimeout(r, 1000));
+    executeTask([{
+        channelId: 0,
+        intensity: 0
+    }])
+}
 export default {
     startScan,
     stopScan,
@@ -64,5 +76,6 @@ export default {
     updateConnectedDevice,
     connectDevice,
     disconnectDevice,
-    executeTask
+    executeTask,
+    initialVibration,
 }

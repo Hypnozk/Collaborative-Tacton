@@ -14,7 +14,7 @@ noble.on("discover", function (peripheral: Peripheral) {
     if (!isKnownService(peripheral.advertisement.serviceUuids))
         return;
 
-        DeviceManager.addDevice(peripheral)
+    DeviceManager.addDevice(peripheral)
 });
 
 export const startBluetoothScan = () => {
@@ -36,7 +36,21 @@ export const stopBluetoothScan = () => {
     noble.stopScanning();
 }
 
-const discoverServices = (device:Peripheral) => {
+const setOnCharacteristicsDiscover = (service: noble.Service) => {
+    service.once("characteristicsDiscover", (characteristics) => {
+        if (characteristics.length <= 0) {
+            console.log("[Bluetooth] No characteristics found");
+            // disconnect, since we dont know anything about that device
+            DeviceManager.disconnectDevice();
+            return;
+        }
+
+        DeviceManager.initialVibration();
+
+    });
+}
+
+const discoverServices = (device: Peripheral) => {
     device!.discoverServices(knownServiceUuids, (err, services) => {
         console.log(`[Bluetooth][${device!.id}]: ${services.length} service(s) found.`)
         if (err !== null || services.length == 0) {
@@ -44,6 +58,7 @@ const discoverServices = (device:Peripheral) => {
         }
         services.forEach((service) => {
             // Let each service add its specific event callbacks, callbacks are stored in service object, in callback array
+            setOnCharacteristicsDiscover(service);
             service.discoverCharacteristics();
         });
     });
@@ -53,8 +68,8 @@ export const connectBlutetoothDevice = (device: Peripheral) => {
     // setup events
     device.once("connect", async () => {
         console.log(`[Bluetooth][${device.id}]: ${device.advertisement.localName} connected`);
+        DeviceManager.updateConnectedDevice(device);
         discoverServices(device);
-        DeviceManager.updateConnectedDevice(device)
     });
     device.once("disconnect", () => {
         console.log(`[Bluetooth][${device.id}]: ${device.advertisement.localName} disconnected`);

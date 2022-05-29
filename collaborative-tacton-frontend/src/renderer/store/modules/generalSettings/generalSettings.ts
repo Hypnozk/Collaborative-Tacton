@@ -189,7 +189,7 @@ export const getters: GetterTree<State, RootState> & Getters = {
     return state.deviceList.find(device => device.state == "connected");
   },
   getNumberOfOutputs: (state) => {
-    const device = getters.getConnectedDevice(state);
+    //const device = getters.getConnectedDevice(state);
     //if(device==undefined) return 0;
     //todo calculate the number
     return 12;

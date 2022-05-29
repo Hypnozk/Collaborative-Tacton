@@ -1,7 +1,6 @@
 
 import { MutationTree, GetterTree, ActionTree, ActionContext } from 'vuex'
 import { RootState, useStore } from '../../store';
-import { RouterNames } from '../../../../types/Routernames';
 /**
  * Tyopes
  * 
