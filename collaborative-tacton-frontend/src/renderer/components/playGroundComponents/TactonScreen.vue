@@ -69,6 +69,8 @@ import { WS_MSG_TYPE } from "@/renderer/CommunicationManager/WebSocketManager/ws
 
 interface IntensityObject {
   intensity: number;
+  startTime?: number;
+  endTime?: number;
   index?: number;
   width?: number;
   object?: PIXI.Graphics;
@@ -123,8 +125,12 @@ export default defineComponent({
       set(newValue: any) {
         this.maxDuration =
           Number(newValue.substring(0, newValue.length - 1)) * 1000;
+
         this.calcLegend();
-        this.resizeRectangles();
+        const oldGrowRatio = this.growRatio;
+        this.growRatio =
+          (this.width.original - 2 * this.paddingRL) / this.maxDuration;
+        this.resizeRectangles(oldGrowRatio);
       },
     },
     newStoreItem(): boolean {
@@ -142,6 +148,7 @@ export default defineComponent({
       //update store from server, response retrieved
       if (recordMode) {
         this.currentTime = 0;
+                this.store.commit(TactonMutations.UPDATE_INSERT_VALUES, false);
         this.channelGraphs.forEach((graph) => {
           graph.container.removeChildren();
         });
@@ -247,6 +254,8 @@ export default defineComponent({
 
       this.pixiApp?.renderer.resize(this.width.actual, this.height.actual);
       this.createMask();
+      this.growRatio =
+        (this.width.original - 2 * this.paddingRL) / this.maxDuration;
       this.calcLegend();
     },
     createMask() {
@@ -269,9 +278,6 @@ export default defineComponent({
       this.graphContainer!.mask = px_mask_outter_bounds;
     },
     calcLegend() {
-      this.growRatio =
-        (this.width.original - 2 * this.paddingRL) / this.maxDuration;
-
       this.coordinateContainer?.removeChildren();
       let xPosition = this.width.actual - this.paddingRL;
       let yPosition = 0;
@@ -311,16 +317,52 @@ export default defineComponent({
 
       this.coordinateContainer?.addChild(graphics);
     },
-    resizeRectangles() {
+    resizeRectangles(oldGrowRatio: number) {
       const channels = this.store.state.tactonSettings.deviceChannel;
       for (let i = 0; i < channels.length; i++) {
         const graph = this.channelGraphs.find(
           (graph) => graph.channelId == channels[i].channelId
         );
 
-        if(graph == undefined) continue;
-        for(let z = 0; z< graph.intensities.length;z++){
-          
+        if (graph == undefined) continue;
+        const intensityArray: IntensityObject[] = [];
+        graph.container.removeChildren();
+        console.log("container offset " + graph.container.x);
+        let timeToMoveContainer = 0;
+        if (this.currentTime > this.maxDuration)
+          timeToMoveContainer = this.currentTime - this.maxDuration;
+
+        graph.container.x = 0 - timeToMoveContainer * this.growRatio;
+        for (let z = graph.intensities.length - 1; z >= 0; z--) {
+          if (graph.intensities[z].intensity == 0) continue;
+          let lastDrawTime = -1;
+          if (this.currentTime > 15000) lastDrawTime = this.currentTime - 15000;
+
+          if (graph.intensities[z].endTime! < lastDrawTime) break;
+          intensityArray.push({
+            intensity: graph.intensities[z].intensity,
+            startTime: graph.intensities[z].startTime,
+            endTime: graph.intensities[z].endTime,
+          });
+        }
+
+        graph.intensities = [];
+        for (let z = intensityArray.length - 1; z >= 0; z--) {
+          const duration =
+            intensityArray[z].endTime! - intensityArray[z].startTime!;
+          const intensityObject = this.drawRectangle(
+            graph.channelId,
+            intensityArray[z].startTime! * this.growRatio + this.paddingRL,
+            duration * this.growRatio,
+            intensityArray[z].intensity,
+            graph.container as PIXI.Container
+          );
+
+          graph.intensities.push({
+            ...intensityObject,
+            startTime: intensityArray[z].startTime,
+            endTime: intensityArray[z].endTime,
+          });
         }
       }
     },
@@ -335,14 +377,10 @@ export default defineComponent({
       const distLinesY = this.height.original / (this.numberOfOutputs + 1 + 1);
 
       const yPosition = (idGraph + 1) * distLinesY - height * 0.5;
-      /**
-      console.log(
-        "draw Rectangle at x: " +
-          ((this.width.original - 2 * this.paddingRL) * this.currentTime) /
-            this.maxDuration +
-          this.paddingRL
-      );
- */
+
+      //console.log("draw Rectangle at x: " + xPosition);
+      //console.log("draw Rectangle width: " + additionalWidth);
+      //console.log("draw Rectangle height: " + height);
       // console.log( (idGraph + 1) * distLinesY - height * 0.5)
       // draw the rectangle
       const rect = new PIXI.Graphics();
@@ -396,7 +434,13 @@ export default defineComponent({
           this.channelGraphs.push({
             channelId: channels[i].channelId,
             container: container,
-            intensities: [intensityObject],
+            intensities: [
+              {
+                ...intensityObject,
+                startTime: this.currentTime,
+                endTime: this.currentTime + this.ticker!.elapsedMS,
+              },
+            ],
           });
 
           this.graphContainer?.addChild(container);
@@ -429,7 +473,11 @@ export default defineComponent({
               graph.container as PIXI.Container
             );
 
-            graph.intensities[index] = intensityObject;
+            graph.intensities[index] = {
+              ...intensityObject,
+              startTime: lastIntensityObject.startTime,
+              endTime: lastIntensityObject.endTime! + this.ticker!.elapsedMS,
+            };
           } else {
             //intensity changed, draw new rectangle
             const xPosition =
@@ -444,7 +492,11 @@ export default defineComponent({
               graph.container as PIXI.Container
             );
 
-            graph.intensities.push(intensityObject);
+            graph.intensities.push({
+              ...intensityObject,
+              startTime: this.currentTime,
+              endTime: this.currentTime + this.ticker!.elapsedMS,
+            });
           }
         }
       }

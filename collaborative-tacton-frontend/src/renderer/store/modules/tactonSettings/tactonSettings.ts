@@ -94,9 +94,11 @@ export const actions: ActionTree<State, RootState> & Actions = {
     //console.log("action " + state.deviceChannel)
     for (let i = 0; i < channels.length; i++) {
       const index = state.deviceChannel.findIndex(channelDevice => channelDevice.channelId == channels[i].channelId);
-      if (index == -1) continue;
-      if (!state.insertValues)
-        commit(TactonMutations.UPDATE_INSERT_VALUES, true);
+
+      if (index == -1) {
+        continue
+      }
+      commit(TactonMutations.UPDATE_INSERT_VALUES, true);
 
       commit(TactonMutations.UPDATE_SPECIFIC_CHANNEL, { index: index, channel: channels[i] });
     }
