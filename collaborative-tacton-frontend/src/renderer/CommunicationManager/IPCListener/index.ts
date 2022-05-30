@@ -14,4 +14,8 @@ export const initIPCListener = () => {
     store.dispatch(GeneralSettingsActionTypes.updateDeviceStatus, device)
   });
 
+  window.api.receive(IPC_CHANNELS.renderer.numberOfOutputsDiscovered, (payload:{deviceId:string, numOfOutputs:number}) => {
+    store.dispatch(GeneralSettingsActionTypes.setNumberOfOutPuts, payload)
+  });
+
 }

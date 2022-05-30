@@ -3,7 +3,7 @@ import { Peripheral } from "@abandonware/noble";
 import { IPC_CHANNELS } from "../IPCMainManager/IPCChannels";
 import { sendMessageToRenderer } from "../IPCMainManager/IPCController";
 import { connectBlutetoothDevice, disconnectBlutetoothDevice, startBluetoothScan, stopBluetoothScan } from "./BluetoothController"
-import { executeInstruction } from "./DeviceController";
+import { executeInstruction } from "./VTProtoTransformer";
 
 let discoveredDevices = [] as Peripheral[]
 let connectedDevice: Peripheral | undefined = undefined;
@@ -29,8 +29,11 @@ const addDevice = (peripheral: Peripheral) => {
 }
 
 const updateConnectedDevice = async (peripheral: Peripheral) => {
-    connectedDevice = peripheral;
-
+    if(peripheral.state == "connected"){
+        connectedDevice = peripheral;
+    }else{
+        connectedDevice = undefined;
+    }
     sendMessageToRenderer(IPC_CHANNELS.renderer.deviceStatusChanged, {
         id: peripheral.id,
         name: peripheral.advertisement.localName,

@@ -68,7 +68,6 @@ export default defineComponent({
   mounted() {
     const container: any = this.$refs.container;
     this.$nextTick(() => container.$el.focus());
-    console.log("reallxy");
     this.isMounted = true;
   },
   methods: {

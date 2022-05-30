@@ -130,9 +130,6 @@ export default defineComponent({
   },
   methods: {
     logOut() {
-      console.log("this.store.state.playGround.gridItems");
-      console.log(this.store.state.playGround.gridItems);
-
       sendSocketMessage(WS_MSG_TYPE.LOG_OUT, {
         roomId: this.store.state.roomSettings.id,
         user: this.store.state.roomSettings.user,

@@ -1,4 +1,7 @@
-const hm10Service = {
+import { IPC_CHANNELS } from "../IPCMainManager/IPCChannels";
+import { sendMessageToRenderer } from "../IPCMainManager/IPCController";
+
+const hm10Service:Service = {
     service: {
         uuid: "5eb8eec2b92d4dca901c3bc3b69936e6",
         callbacks: [
@@ -41,10 +44,10 @@ const hm10Service = {
         },
     },
 };
-const pwmService = {
+const pwmService:Service = {
     service: { uuid: "f20913f7faa84f7b8d21f932d63af743" },
 };
-const tactileDisplayService = {
+const tactileDisplayService:Service = {
     service: { uuid: "f33c00018ebf4c9c83ecbfff479a930b" },
     characteristics: {
         vtprotoBuffer: {
@@ -59,6 +62,11 @@ const tactileDisplayService = {
                         if (error) {
                             console.log(error);
                         }
+                        console.log("im A characteristic")
+                        sendMessageToRenderer(IPC_CHANNELS.renderer.numberOfOutputsDiscovered, {
+                            deviceId:characteristic._peripheralId,
+                            numOfOutputs:data.readUInt8()
+                        })
                         /**
                         webSocketServer.broadcastData(WS_BT.numberOfOutputsDiscovered, {
                             [WS_DEVICE_INFO.id]: characteristic._peripheralId,
@@ -77,6 +85,19 @@ const tactileDisplayService = {
     },
 };
 
+interface Service {
+    service: {
+        uuid: string,
+        callbacks?: any[],
+    },
+    characteristics?: {
+        [key: string]: {
+            uuid: string,
+            callbacks?: any[],
+        },
+    },
+}
+const knownServices: Service[] = [pwmService, hm10Service, tactileDisplayService];
 //important
 const knownServiceUuids = [
     pwmService.service.uuid,
@@ -97,5 +118,6 @@ export {
     pwmService,
     tactileDisplayService,
     knownServiceUuids,
+    knownServices,
     isKnownService
 }

@@ -60,9 +60,7 @@
 import * as PIXI from "pixi.js";
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "@/renderer/store/store";
-import {
-  TactonSettingsActionTypes,
-} from "@/renderer/store/modules/tactonSettings/tactonSettings";
+import { TactonSettingsActionTypes } from "@/renderer/store/modules/tactonSettings/tactonSettings";
 import { sendSocketMessage } from "@/renderer/CommunicationManager/WebSocketManager";
 import { WS_MSG_TYPE } from "@/renderer/CommunicationManager/WebSocketManager/ws_types";
 
@@ -110,7 +108,6 @@ export default defineComponent({
       paddingRL: 20,
       growRatio: 0,
       currentTime: 0,
-      numberOfOutputs: 12,
       dropdownDisabled: false,
       items: ["5s", "10s", "15s"],
     };
@@ -135,6 +132,9 @@ export default defineComponent({
     },
     isRecordingStore(): boolean {
       return this.store.state.roomSettings.isRecording;
+    },
+    numberOfOutputs(): number {
+      return this.store.getters.getNumberOfOutputs;
     },
   },
   watch: {
@@ -172,7 +172,6 @@ export default defineComponent({
     },
   },
   mounted() {
-    console.log("mountd TactonSreen " + this.isMounted);
     window.addEventListener("resize", this.resizeScreen);
 
     this.pixiApp = new PIXI.Application({
@@ -372,15 +371,15 @@ export default defineComponent({
       intensity: number,
       container: PIXI.Container
     ) {
-      const height = 40 * intensity;
+      if (intensity == 0) return { intensity: 0 };
       const distLinesY = this.height.original / (this.numberOfOutputs + 1 + 1);
-
-      const yPosition = (idGraph + 1) * distLinesY - height * 0.5;
+      const height = (distLinesY - 25) * intensity;
+      let yPosition = (idGraph + 1) * distLinesY - height * 0.5;
 
       //console.log("draw Rectangle at x: " + xPosition);
+      // console.log(draw Rectangle at x: " + yPosition)
       //console.log("draw Rectangle width: " + additionalWidth);
       //console.log("draw Rectangle height: " + height);
-      // console.log( (idGraph + 1) * distLinesY - height * 0.5)
       // draw the rectangle
       const rect = new PIXI.Graphics();
       rect.beginFill(0xff0000);
