@@ -5,7 +5,7 @@
         <v-main>
           <router-view />
           <transition name="fade">
-            <div class="snackbar" v-show="false">
+            <div class="snackbar" v-show="!store.getters.isConnectedToSocket">
               <div class="label">
                 It seems you are offline pleasy try to reconnect
               </div>
@@ -128,12 +128,6 @@ import { initWebsocket } from "./CommunicationManager/WebSocketManager";
 import { PlayGroundActionTypes } from "./store/modules/playGround/types";
 export default defineComponent({
   name: "App",
-  setup() {
-    const store = useStore();
-    return {
-      isConnected: computed(() => store.getters.isConnectedToSocket),
-    };
-  },
   data() {
     return {
       store: useStore(),

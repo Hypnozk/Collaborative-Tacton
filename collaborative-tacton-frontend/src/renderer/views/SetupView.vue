@@ -1,11 +1,18 @@
 <template>
   <v-container class="setupView">
     <v-row class="subRow title">
-      {{
-        `${store.state.roomSettings.existRoom ? "Enter" : "Create"} Room: ${
-          store.state.roomSettings.roomName
-        }`
-      }}
+      {{ `${store.state.roomSettings.roomState} Room` }}
+    </v-row>
+    <v-row class="subRow">
+      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px">Name</v-col>
+      <v-col cols="5">
+        <v-text-field
+          variant="underlined"
+          hide-details="auto"
+          no-resize
+          v-model="roomName"
+        ></v-text-field>
+      </v-col>
     </v-row>
     <v-row class="subRow">
       <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px"
@@ -18,7 +25,6 @@
           no-resize
           rows="4"
           v-model="description"
-          :readonly="store.state.roomSettings.existRoom"
         ></v-textarea>
       </v-col>
     </v-row>
@@ -61,11 +67,19 @@
       <v-col cols="6">
         <v-row>
           <v-btn elevation="2" color="primary" @click="cancelRoomEnter">
-            Cancel
+            {{
+              store.state.roomSettings.roomState == configureState
+                ? "Log Out"
+                : "Cancel"
+            }}
           </v-btn>
           <v-spacer />
           <v-btn elevation="2" color="primary" @click="enterRoom">
-            Enter Room
+            {{
+              store.state.roomSettings.roomState == configureState
+                ? "Finish Configuration"
+                : "Enter Room"
+            }}
           </v-btn>
         </v-row>
       </v-col>
@@ -111,7 +125,7 @@
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "../store/store";
 import router from "../router";
-import { RoomMutations } from "../store/modules/roomSettings/roomSettings";
+import { RoomMutations, RoomState } from "../store/modules/roomSettings/roomSettings";
 import DeviceSection from "../components/deviceComponents/DeviceSection.vue";
 import ParticipantSection from "../components/deviceComponents/ParticipantSection.vue";
 import { sendSocketMessage } from "../CommunicationManager/WebSocketManager";
@@ -126,10 +140,19 @@ export default defineComponent({
   },
   data() {
     return {
+      configureState:RoomState.Configure,
       store: useStore(),
     };
   },
   computed: {
+    roomName: {
+      get(): string {
+        return this.store.state.roomSettings.roomName;
+      },
+      set(value: string) {
+        this.store.commit(RoomMutations.UPDATE_ROOM_NAME, value);
+      },
+    },
     description: {
       get(): string {
         return this.store.state.roomSettings.description;
@@ -150,11 +173,15 @@ export default defineComponent({
   methods: {
     cancelRoomEnter() {
       window.api.send(IPC_CHANNELS.main.changeScan, false);
+       sendSocketMessage(WS_MSG_TYPE.LOG_OUT, {
+        roomId: this.store.state.roomSettings.id,
+        user: this.store.state.roomSettings.user,
+      });
       router.push("/");
     },
     enterRoom() {
       window.api.send(IPC_CHANNELS.main.changeScan, false);
-      sendSocketMessage(WS_MSG_TYPE.ENTER_ROOM, {
+      sendSocketMessage(WS_MSG_TYPE.UPDATE_ENTER_ROOM_SERV, {
         room: {
           id: this.store.state.roomSettings.id,
           name: this.store.state.roomSettings.roomName,

@@ -1,5 +1,5 @@
 import { Store } from "../../store/store";
-import { RoomMutations, RoomSettingsActionTypes } from "../../store/modules/roomSettings/roomSettings";
+import { RoomMutations, RoomSettingsActionTypes, RoomState } from "../../store/modules/roomSettings/roomSettings";
 import { WS_MSG_TYPE } from "./ws_types";
 import { RouterNames } from "@/types/Routernames";
 import router from "@/renderer/router";
@@ -14,14 +14,17 @@ export interface SocketMessage {
 export const handleMessage = (store: Store, msg: SocketMessage) => {
     switch (msg.type) {
         case WS_MSG_TYPE.SEND_ROOM_INFO: {
-            store.dispatch(RoomSettingsActionTypes.addRoomInformations, msg.payload)
+            let roomState = RoomState.Create;
+            if(msg.payload.existRoom == true)roomState = RoomState.Enter;
+            store.commit(RoomMutations.CHANGE_ROOM, { roomState: roomState, roomInfo:  msg.payload.roomInfo })
             console.log("SEND_ROOM_INFO")
             console.log(msg.payload)
             if (store.state.generalSettings.currentView == RouterNames.ROOM)
                 router.push("/setup");
             break;
         }
-        case WS_MSG_TYPE.ENTER_ROOM_FINISHED: {
+        case WS_MSG_TYPE.UPDATE_ENTER_ROOM_CLI: {
+            console.log("UPDATE_ENTER_ROOM_CLI")
             store.dispatch(RoomSettingsActionTypes.enterRoom, msg.payload)
             console.log(store.state.generalSettings.currentView)
             if (store.state.generalSettings.currentView == RouterNames.SETUP)

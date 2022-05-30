@@ -1,5 +1,6 @@
 import { WS_MSG_TYPE } from "./ws_types";
 import StorageManager from "../store/StoreManager"
+import { User } from "../types";
 interface SocketMessage {
     type: WS_MSG_TYPE;
     payload: any;
@@ -19,28 +20,42 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
         let msg: SocketMessage = JSON.parse(data);
         console.log(msg.payload)
         switch (msg.type) {
-            case WS_MSG_TYPE.ENTER_ROOM: {
+            case WS_MSG_TYPE.UPDATE_ENTER_ROOM_SERV: {
                 /**
                 * recieve {room:Room, userName:string} as payload --> room don't contain participants list
                 * return {userId:string, participants:User[]}
                 * userId is the id of the user, who entered or created the room; 
                 * participants is list, of all users of the room, with the new person included
                 */
-                console.log("ENTER_ROOM")
-                let roomInfo = undefined;
-                if (msg.payload.room.id !== undefined && msg.payload.room.id.length > 0)
-                    roomInfo = StorageManager.getRoomInfo(msg.payload.room.id)
+                console.log("UPDATE_ENTER_ROOM_SERV " + msg.payload )
+                console.log(msg.payload )
 
-                if (roomInfo == undefined)
-                    roomInfo = StorageManager.createRoom(msg.payload.room);
+                    //check if there is already a room
+                    let roomInfo = StorageManager.getRoomInfo(msg.payload.room.id)
+                console.log(roomInfo)
+                    let updateAllUsers = false;
+                    if (roomInfo == undefined) {
+                        //create a new room
+                        roomInfo = StorageManager.createRoom(msg.payload.room);
+                    } else {
+                        //update otherwise room information, return true if something is updated
+                        updateAllUsers = StorageManager.updateRoomInformation(msg.payload.room.id, msg.payload.room.name, msg.payload.room.id)
+                    }
 
-
-                const participants = StorageManager.enterRoom(ws, client, msg.payload.userName, roomInfo.id);
-                if (participants !== undefined)
-                    ws.send(JSON.stringify({
-                        type: WS_MSG_TYPE.ENTER_ROOM_FINISHED,
-                        payload: { room: roomInfo, userId: participants.userId, participants: participants.userList },
-                    }))
+                    const data = StorageManager.enterRoom(ws, client, msg.payload.userName, roomInfo.id);
+                    if (data !== undefined) {
+                        if (updateAllUsers == true || data.newParticipant == true) {
+                            StorageManager.broadCastMessage(roomInfo.id,
+                                WS_MSG_TYPE.UPDATE_ENTER_ROOM_CLI,
+                                { room: roomInfo, userId: data.participants.userId, participants: data.participants.userList })
+                        } else {
+                            ws.send(JSON.stringify({
+                                type: WS_MSG_TYPE.UPDATE_ENTER_ROOM_CLI,
+                                payload: { room: roomInfo, userId: data.participants.userId, participants: data.participants.userList },
+                            }))
+                        }
+                    }
+          
                 break;
             }
             case WS_MSG_TYPE.GET_ROOM_INFO: {

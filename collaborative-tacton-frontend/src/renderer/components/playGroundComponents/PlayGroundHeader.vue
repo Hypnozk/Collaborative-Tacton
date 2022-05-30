@@ -45,10 +45,12 @@
           </v-list-item>
         </v-list>
       </v-menu>
-
+   <v-btn variant="text" style="margin-right: 20px" @click="settings">
+        Settings <v-icon right> mdi-cog-outline </v-icon>
+      </v-btn>
       <v-btn variant="text" style="margin-right: 20px" @click="logOut">
-        Log out <v-icon right> mdi-logout </v-icon></v-btn
-      >
+        Log out <v-icon right> mdi-logout </v-icon>
+      </v-btn>
     </v-row>
   </v-container>
 </template>
@@ -95,7 +97,7 @@
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 import router from "@/renderer/router";
 import { GeneralSettingsActionTypes } from "@/renderer/store/modules/generalSettings/generalSettings";
-import { RoomMutations } from "@/renderer/store/modules/roomSettings/roomSettings";
+import { RoomMutations, RoomState } from "@/renderer/store/modules/roomSettings/roomSettings";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 import { sendSocketMessage } from "../../CommunicationManager/WebSocketManager";
@@ -143,6 +145,10 @@ export default defineComponent({
         `${this.store.state.roomSettings.roomName}#${this.store.state.roomSettings.id}`
       );
     },
+    settings(){
+      this.store.commit(RoomMutations.UPDATE_ROOM_STATE, RoomState.Configure);
+      router.push("/setup");
+    }
   },
 });
 </script>
