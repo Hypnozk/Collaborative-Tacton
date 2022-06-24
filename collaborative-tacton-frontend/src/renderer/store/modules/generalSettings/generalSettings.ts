@@ -16,7 +16,8 @@ export interface VibrotactileDevice {
   id: string,
   name: string,
   rssi: number,
-  state: DeviceStatus
+  state: DeviceStatus,
+  numOfOutputs: number,
 }
 /**
  * state
@@ -96,7 +97,8 @@ export enum GeneralSettingsActionTypes {
   addNewDevice = 'addNewDevice',
   updateDeviceStatus = 'updateDeviceStatus',
   userNameGetSaved = "userNameGetSaved",
-  copyAdressToClipboard = "copyAdressToClipboard"
+  copyAdressToClipboard = "copyAdressToClipboard",
+  setNumberOfOutPuts = "setNumberOfOutPuts"
 }
 
 type AugmentedActionContext = {
@@ -129,6 +131,10 @@ export interface Actions {
   [GeneralSettingsActionTypes.copyAdressToClipboard](
     { commit }: AugmentedActionContext
   ): void;
+  [GeneralSettingsActionTypes.setNumberOfOutPuts](
+    { commit }: AugmentedActionContext,
+    payload: { deviceId: string, numOfOutputs: number }
+  ): void;
 }
 
 export const actions: ActionTree<State, RootState> & Actions = {
@@ -160,6 +166,14 @@ export const actions: ActionTree<State, RootState> & Actions = {
 
     commit(GeneralMutations.UPDATE_DEVICE, { index: index, device: modifiedDevice });
   },
+  [GeneralSettingsActionTypes.setNumberOfOutPuts]({ commit }, payload: { deviceId: string, numOfOutputs: number }) {
+    const index = state.deviceList.findIndex(device => device.id === payload.deviceId);
+    //no device found
+    if (index == -1)
+      return;
+
+    commit(GeneralMutations.UPDATE_DEVICE, { index: index, device: { ...state.deviceList[index], numOfOutputs: payload.numOfOutputs } });
+  },
 };
 
 /**
@@ -169,7 +183,8 @@ export type Getters = {
   currentView(state: State): RouterNames,
   isConnectedToSocket(state: State): boolean,
   getDeviceStatus(state: State): (id: string) => DeviceStatus,
-  getConnectedDevice(state: State): VibrotactileDevice | undefined
+  getConnectedDevice(state: State): VibrotactileDevice | undefined,
+  getNumberOfOutputs(state: State): number
 }
 
 export const getters: GetterTree<State, RootState> & Getters = {
@@ -186,5 +201,12 @@ export const getters: GetterTree<State, RootState> & Getters = {
   },
   getConnectedDevice: (state) => {
     return state.deviceList.find(device => device.state == "connected");
+  },
+  getNumberOfOutputs: (state) => {
+    const device = getters.getConnectedDevice(state);
+    //12 is default so the user without the device will at least see 12 graphs
+    if (device == undefined) return 12;
+    if (device.numOfOutputs == undefined) return 12;
+    return device.numOfOutputs;
   }
 };

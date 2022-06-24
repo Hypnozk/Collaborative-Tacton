@@ -1,9 +1,10 @@
 import { Store } from "../../store/store";
-import { RoomMutations, RoomSettingsActionTypes } from "../../store/modules/roomSettings/roomSettings";
+import { RoomMutations, RoomSettingsActionTypes, RoomState } from "../../store/modules/roomSettings/roomSettings";
 import { WS_MSG_TYPE } from "./ws_types";
 import { RouterNames } from "@/types/Routernames";
 import router from "@/renderer/router";
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
+import { TactonMutations, TactonSettingsActionTypes } from "@/renderer/store/modules/tactonSettings/tactonSettings";
 
 export interface SocketMessage {
     type: WS_MSG_TYPE;
@@ -13,14 +14,17 @@ export interface SocketMessage {
 export const handleMessage = (store: Store, msg: SocketMessage) => {
     switch (msg.type) {
         case WS_MSG_TYPE.SEND_ROOM_INFO: {
-            store.dispatch(RoomSettingsActionTypes.addRoomInformations, msg.payload)
+            let roomState = RoomState.Create;
+            if(msg.payload.existRoom == true)roomState = RoomState.Enter;
+            store.commit(RoomMutations.CHANGE_ROOM, { roomState: roomState, roomInfo:  msg.payload.roomInfo })
             console.log("SEND_ROOM_INFO")
             console.log(msg.payload)
             if (store.state.generalSettings.currentView == RouterNames.ROOM)
                 router.push("/setup");
             break;
         }
-        case WS_MSG_TYPE.ENTER_ROOM_FINISHED: {
+        case WS_MSG_TYPE.UPDATE_ENTER_ROOM_CLI: {
+            console.log("UPDATE_ENTER_ROOM_CLI")
             store.dispatch(RoomSettingsActionTypes.enterRoom, msg.payload)
             console.log(store.state.generalSettings.currentView)
             if (store.state.generalSettings.currentView == RouterNames.SETUP)
@@ -35,6 +39,17 @@ export const handleMessage = (store: Store, msg: SocketMessage) => {
         }
         case WS_MSG_TYPE.SEND_INSTRUCTION_CLI: {
             window.api.send(IPC_CHANNELS.main.executeTask, msg.payload);
+            store.dispatch(TactonSettingsActionTypes.modifySpecificChannel, msg.payload)
+            store.commit(TactonMutations.UPDATE_INSERT_VALUES, true);
+            break;
+        }
+        case WS_MSG_TYPE.UPDATE_RECORD_MODE_CLI: {
+            store.commit(RoomMutations.UPDATE_RECORD_MODE, msg.payload)
+            store.commit(TactonMutations.UPDATE_INSERT_VALUES, !msg.payload);
+            break;
+        }
+        case WS_MSG_TYPE.CHANGE_DURATION_CLI: {
+            store.commit(RoomMutations.UPDATE_MAX_DURATION_TACTON, msg.payload)
             break;
         }
     }

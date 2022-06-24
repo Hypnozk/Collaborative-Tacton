@@ -27,18 +27,46 @@ const createRoom = (room: Room): Room => {
     roomList.set(roomId, {
         id: roomId,
         name: room.name,
-        description: room.description
+        description: room.description,
+        isRecording: false,
+        maxDurationRecord: 5000,
     });
 
     return roomList.get(roomId)!;
 }
 
-const enterRoom = (ws: WebSocket, userID: string, userName: string, roomId: string): { userId: string, userList: User[] } | undefined => {
+const updateRoomInformation = (id: string, name: string, description: string) => {
+    const room = getRoomInfo(id)
+    if (room == undefined) return false;
+
+    let needUpdate = false;
+    if (room.name !== name) {
+        room.name = name;
+        needUpdate = true;
+    }
+    if (room.description !== description) {
+        room.description = description;
+        needUpdate = true;
+    }
+    return needUpdate;
+}
+const enterRoom = (ws: WebSocket, userID: string, userName: string, roomId: string): { participants: { userId: string, userList: User[] }, newParticipant: boolean } | undefined => {
     const participants = participantList.get(roomId);
     if (participants == undefined) return;
-    participantList.set(roomId, [...participants, { id: userID, name: userName, ws: ws }])
+    let needUpdate = participants.length == 0;
+    for (let i = 0; i < participants.length; i++) {
+        if (participants[i].id == userID) {
+            needUpdate = false;
+            break;
+        }
+    }
+    if (needUpdate)
+        participantList.set(roomId, [...participants, { id: userID, name: userName, ws: ws }])
 
-    return { userId: userID, userList: Array.from(participantList.get(roomId)!, item => { return { id: item.id, name: item.name } }) };
+    return {
+        participants: { userId: userID, userList: Array.from(participantList.get(roomId)!, item => { return { id: item.id, name: item.name } }) },
+        newParticipant: needUpdate
+    };
 }
 
 const updateParticipants = (roomId: string, user: User): string | undefined => {
@@ -61,18 +89,13 @@ const sendUpdatedParticipants = (roomId: string) => {
     const list = Array.from(participants, item => { return { id: item.id, name: item.name } })
     console.log("sendUpdatedParticipants: ");
     console.log(list);
-    for (let i = 0; i < participants.length; i++) {
-        participants[i].ws?.send(JSON.stringify({
-            type: WS_MSG_TYPE.UPDATE_USER_ACCOUNT_CLI,
-            payload: list,
-        }))
-    };
+    broadCastMessage(roomId, WS_MSG_TYPE.UPDATE_USER_ACCOUNT_CLI, list)
 }
 
 const removeParticipant = (roomId: string, userId: string): number | undefined => {
-    console.log("removeParticipant")
-    console.log(roomList)
-    console.log(roomList.get(roomId))
+    //console.log("removeParticipant")
+    //console.log(roomList)
+    //console.log(roomList.get(roomId))
     const participants = participantList.get(roomId);
     if (participants == undefined)
         return;
@@ -165,22 +188,37 @@ const updateIntensities = (clientId: string, roomId: string, keyId: string, chan
     return clientInstruction;
 }
 
-const sendInstruction = (roomId: string, instruction: Array<{ channelId: string, intensity: number }>) => {
-    console.log("sended Instruction")
-    console.log(instruction)
+const broadCastMessage = (roomId: string, type: WS_MSG_TYPE, payload: any) => {
     const participants = participantList.get(roomId);
     if (participants == undefined) return;
 
     for (let i = 0; i < participants.length; i++) {
         participants[i].ws?.send(JSON.stringify({
-            type: WS_MSG_TYPE.SEND_INSTRUCTION_CLI,
-            payload: instruction,
+            type: type,
+            payload: payload,
         }))
     };
+}
+const updateRecordMode = (roomId: string, shouldRecord: boolean) => {
+    const room = roomList.get(roomId);
+    if (room == undefined) return;
+    room.isRecording = shouldRecord;
+
+    broadCastMessage(roomId, WS_MSG_TYPE.UPDATE_RECORD_MODE_CLI, room.isRecording)
+}
+
+const updateMaxDuration = (roomId: string, maxDuration: number) => {
+    const room = roomList.get(roomId);
+    if (room == undefined) return;
+    if (room.isRecording) return;
+
+    room.maxDurationRecord = maxDuration;
+    broadCastMessage(roomId, WS_MSG_TYPE.CHANGE_DURATION_CLI, room.maxDurationRecord)
 }
 
 export default {
     getNewRoomName,
+    updateRoomInformation,
     getRoomInfo,
     hasRoom,
     createRoom,
@@ -191,5 +229,7 @@ export default {
     removeRoom,
     findRoomIdOfUser,
     updateIntensities,
-    sendInstruction
+    broadCastMessage,
+    updateRecordMode,
+    updateMaxDuration
 }

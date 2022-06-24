@@ -31,15 +31,6 @@
   </grid-layout>
 </template>
 
-<style lang="scss" scoped>
-.playGroundView {
-  display: flex;
-  height: 100%;
-  min-width: 100% !important;
-  max-width: 100% !important;
-  background-color: aquamarine;
-}
-</style>
 
 <script>
 import {

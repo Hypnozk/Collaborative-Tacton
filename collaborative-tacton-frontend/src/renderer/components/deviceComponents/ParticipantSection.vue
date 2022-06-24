@@ -1,25 +1,20 @@
 <template>
-  <v-row no-gutters>
-    <v-col cols="1">
-      {{ store.state.roomSettings.participants.length }}
-    </v-col>
-    <v-col cols="3"> Participants </v-col>
-  </v-row>
-  <v-row>
-    <v-list>
-      <v-list-item
-        v-for="(item, i) in store.state.roomSettings.participants"
-        :key="i"
-        :value="item"
-        active-color="primary"
-      >
+  <v-list>
+    <v-list-item
+      v-for="(item, i) in store.state.roomSettings.participants"
+      :key="i"
+      :value="item"
+      active-color="primary"
+      disabled
+    >
+      <div v-if="item.id !== store.state.roomSettings.user.id">
         <v-list-item-avatar start>
           <v-icon>mdi-account-circle</v-icon>
         </v-list-item-avatar>
-        <v-list-item-title v-text="item.userName"></v-list-item-title>
-      </v-list-item>
-    </v-list>
-  </v-row>
+        <v-list-item-title v-text="item.name"></v-list-item-title>
+      </div>
+    </v-list-item>
+  </v-list>
 </template>
 
 <style>

@@ -68,7 +68,7 @@ export default defineComponent({
           intensity: 1,
         },
       ]);
-      await new Promise((r) => setTimeout(r, 2000));
+      await new Promise((r) => setTimeout(r, 1000));
 
       window.api.send(IPC_CHANNELS.main.executeTask, [
         {

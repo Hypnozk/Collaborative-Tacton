@@ -73,7 +73,7 @@ export const executeInstruction = (device: Peripheral, taskList: TactileTask[]) 
         const service = device.services.find((x) => x.uuid === tactileDisplayService.service.uuid)
 
         if (service !== undefined) {
-            const characteristic = service.characteristics.find((characteristic) => characteristic.uuid === tactileDisplayService.characteristics.vtprotoBuffer.uuid);
+            const characteristic = service.characteristics.find((characteristic) => characteristic.uuid === tactileDisplayService.characteristics!.vtprotoBuffer.uuid);
             if (characteristic !== undefined) {
                 const instructions: Instruction[] = convertTaskToInstruction(taskList, InstSetParamDef)
                 const messages = buildMessages(instructions, instructionDef);

@@ -3,7 +3,7 @@ import { Peripheral } from "@abandonware/noble";
 import { IPC_CHANNELS } from "../IPCMainManager/IPCChannels";
 import { sendMessageToRenderer } from "../IPCMainManager/IPCController";
 import { connectBlutetoothDevice, disconnectBlutetoothDevice, startBluetoothScan, stopBluetoothScan } from "./BluetoothController"
-import { executeInstruction } from "./DeviceController";
+import { executeInstruction } from "./VTProtoTransformer";
 
 let discoveredDevices = [] as Peripheral[]
 let connectedDevice: Peripheral | undefined = undefined;
@@ -28,8 +28,12 @@ const addDevice = (peripheral: Peripheral) => {
     })
 }
 
-const updateConnectedDevice = (peripheral: Peripheral) => {
-    connectedDevice = peripheral;
+const updateConnectedDevice = async (peripheral: Peripheral) => {
+    if(peripheral.state == "connected"){
+        connectedDevice = peripheral;
+    }else{
+        connectedDevice = undefined;
+    }
     sendMessageToRenderer(IPC_CHANNELS.renderer.deviceStatusChanged, {
         id: peripheral.id,
         name: peripheral.advertisement.localName,
@@ -57,6 +61,17 @@ const executeTask = (taskList: TactileTask[]) => {
     executeInstruction(connectedDevice, taskList)
 }
 
+const initialVibration =async () => {
+    executeTask([{
+        channelId: 0,
+        intensity: 1
+    }])
+    await new Promise((r) => setTimeout(r, 1000));
+    executeTask([{
+        channelId: 0,
+        intensity: 0
+    }])
+}
 export default {
     startScan,
     stopScan,
@@ -64,5 +79,6 @@ export default {
     updateConnectedDevice,
     connectDevice,
     disconnectDevice,
-    executeTask
+    executeTask,
+    initialVibration,
 }

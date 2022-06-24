@@ -1,9 +1,10 @@
 <template>
   <v-container class="playGroundView" ref="container" tabindex="-1">
     <v-row no-gutters>
-      <v-col cols="4">
-        <TactonScreen />
+      <v-col cols="4" id="tactonScreen">
+        <TactonScreen :isMounted="isMounted" />
       </v-col>
+      <v-divider vertical />
       <v-col cols="8">
         <GridHeader @openDialog="startDialog" />
         <GridArea @editButton="startDialog" />
@@ -12,7 +13,7 @@
 
     <v-dialog
       v-model="playGroundDialog"
-      max-width="40%"
+      max-width="50%"
       class="tesing"
       @click:outside="closeDialog"
     >
@@ -35,9 +36,6 @@
 
 .playGroundView:focus {
   outline: none;
-}
-.v-overlay__content {
-  width: 100%;
 }
 </style>
 
@@ -64,11 +62,13 @@ export default defineComponent({
       store: useStore(),
       playGroundDialog: false,
       idOfEditableButton: "",
+      isMounted: false,
     };
   },
   mounted() {
     const container: any = this.$refs.container;
     this.$nextTick(() => container.$el.focus());
+    this.isMounted = true;
   },
   methods: {
     closeDialog() {
