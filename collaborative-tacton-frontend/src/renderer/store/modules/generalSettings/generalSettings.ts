@@ -205,8 +205,12 @@ export const getters: GetterTree<State, RootState> & Getters = {
   getNumberOfOutputs: (state) => {
     const device = getters.getConnectedDevice(state);
     //12 is default so the user without the device will at least see 12 graphs
+    /**
+     * for testing we use only 8 actauators always just, uncomment the code to set default to 12 and use the number you get from the device
     if (device == undefined) return 12;
     if (device.numOfOutputs == undefined) return 12;
     return device.numOfOutputs;
+     */
+    return 8;
   }
 };

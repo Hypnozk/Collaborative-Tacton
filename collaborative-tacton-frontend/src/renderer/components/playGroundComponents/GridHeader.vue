@@ -1,8 +1,14 @@
 <template>
-  <v-row no-gutters style="padding: 20px">
-    <v-btn elevation="2" color="primary" @click="openDialog">
-      Add Button
-    </v-btn>
+  <v-row no-gutters style="margin: 5px 10px">
+    <v-btn elevation="2" color="primary" @click="openDialog"> Add Button </v-btn>
+    <v-switch
+      v-model="editModeOne"
+      :label="`Edite Mode: ${this.store.state.playGround.inEditMode ? 'on' : 'off'}`"
+      color="primary"
+      :value="true"
+      hide-details
+      class="customSwitch black--text"
+    ></v-switch>
     <v-spacer />
     <v-col cols="4">
       <v-row no-gutters class="slider">
@@ -21,10 +27,24 @@
   </v-row>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .slider {
   justify-content: center;
   align-items: center;
+}
+.customSwitch {
+  padding: 0px 10px;
+  display: flex;
+  align-items: center;
+  color:#000000 !important;
+  opacity:1;
+  .v-selection-control {
+    size: 10px;
+    height: 15px;
+  }
+  .v-input--density-default {
+    --v-input-control-height: 0px;
+  }
 }
 </style>
 
@@ -35,7 +55,7 @@ import { defineComponent } from "@vue/runtime-core";
 
 export default defineComponent({
   name: "GridHeader",
-  emits:["openDialog"],
+  emits: ["openDialog"],
   data: () => ({
     store: useStore(),
   }),
@@ -48,11 +68,19 @@ export default defineComponent({
         this.store.commit(PlayGroundMutations.UPDATE_GLOBAL_INTENSITY, value);
       },
     },
+    editModeOne: {
+      get() {
+        return this.store.state.playGround.editModeOne;
+      },
+      set(value) {
+        this.store.commit(PlayGroundMutations.UPDATE_EDIT_MDOE, value);
+      },
+    },
   },
-  methods:{
-    openDialog(){
-      this.$emit("openDialog")
-    }
-  }
+  methods: {
+    openDialog() {
+      this.$emit("openDialog");
+    },
+  },
 });
 </script>

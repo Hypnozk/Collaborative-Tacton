@@ -20,12 +20,14 @@ export type State = {
     gridLayout: Layout
     gridItems: KeyBoardButton[],
     globalIntensity: number,
+    inEditMode:boolean
 };
 
 export const state: State = {
     gridLayout: { x: 11, y: 8 },
     gridItems: [],
     globalIntensity: 1,
+    inEditMode:false,
 };
 /**
  * mutations
@@ -37,6 +39,7 @@ export type Mutations<S = State> = {
     [PlayGroundMutations.ADD_ITEM_TO_GRID](state: S, button: KeyBoardButton): void
     [PlayGroundMutations.DELETE_ITEM_FROM_GRID](state: S, key: string): void
     [PlayGroundMutations.UPDATE_GLOBAL_INTENSITY](state: S, intensity: number): void
+    [PlayGroundMutations.UPDATE_EDIT_MDOE](state: S, edditModeOn: boolean): void
 }
 
 export const mutations: MutationTree<State> & Mutations = {
@@ -56,6 +59,9 @@ export const mutations: MutationTree<State> & Mutations = {
     },
     [PlayGroundMutations.UPDATE_GLOBAL_INTENSITY](state, intensity) {
         state.globalIntensity = intensity;
+    },
+    [PlayGroundMutations.UPDATE_EDIT_MDOE](state, edditModeOn) {
+        state.inEditMode = edditModeOn;
     },
 };
 

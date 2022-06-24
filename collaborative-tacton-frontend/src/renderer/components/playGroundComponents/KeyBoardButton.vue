@@ -4,8 +4,8 @@
     max-width="100"
     min-width="100"
     min-height="100"
-    @click="mouseUp()"
-    @mousedown="mouseDown()"
+    @click="handleMouse(false)"
+    @mousedown="handleMouse(true)"
     v-bind:style="{ backgroundColor: colorActuator }"
   >
     <v-card-text style="padding: 1px" class="keyButton">
@@ -22,7 +22,7 @@
       <v-row align="center" no-gutters justify="center">
         {{ listChannels() }}
         <v-spacer />
-        <v-icon class="mr-1" small @click.stop @mousedown.stop @click="edit">
+        <v-icon class="mr-1" small v-if="this.store.state.playGround.inEditMode">
           mdi-pencil
         </v-icon>
       </v-row>
@@ -65,49 +65,29 @@ export default defineComponent({
       type: Object as () => KeyBoardButton,
       required: true,
     },
-    isMoved: {
-      type: Boolean,
-      required: true,
-    },
   },
-  emits: ["updateisMoved", "editButton"],
+  emits: ["editButton"],
   computed: {
     colorActuator() {
-      //console.log("colorActuator: " + this.button.isActive);
-      if (this.button.isActive)
-        return lightenDarkenColor(this.button.color, -100);
+      if (this.button.isActive) return lightenDarkenColor(this.button.color, -100);
       return this.button.color;
     },
   },
   methods: {
     handleMouse(mouseDown: true) {
-      //console.log("isMoved: " + this.isMoved + ":: mousedown " + mouseDown);
-      if (this.isMoved) {
-        //moving card is finished, reset variable
-        //if user was too slow deactivate wrong activated key
-        this.store.dispatch(PlayGroundActionTypes.deactivateKey, this.button.key);
-        this.$emit("updateisMoved", false);
-        return;
-      }
-      if (mouseDown) {
-        //button clicked
-        this.store.dispatch(PlayGroundActionTypes.activateKey, this.button.key);
+      if (this.store.state.playGround.inEditMode) {
+        if (!mouseDown) {
+          //the button wanted to be edit
+          this.$emit("editButton", this.button.i);
+        }
       } else {
-        this.store.dispatch(PlayGroundActionTypes.deactivateKey, this.button.key);
+        if (mouseDown) {
+          //button clicked
+          this.store.dispatch(PlayGroundActionTypes.activateKey, this.button.key);
+        } else {
+          this.store.dispatch(PlayGroundActionTypes.deactivateKey, this.button.key);
+        }
       }
-    },
-    mouseUp() {
-      const refhandleMouse = this.handleMouse;
-      setTimeout(refhandleMouse, 200, false);
-    },
-    mouseDown() {
-      const refHandleMouse = this.handleMouse;
-      setTimeout(refHandleMouse, 200, true);
-    },
-    edit() {
-      //the button wanted to be edit
-      this.$emit("updateisMoved", false);
-      this.$emit("editButton", this.button.i);
     },
     listChannels(): string {
       let channelList = "[";

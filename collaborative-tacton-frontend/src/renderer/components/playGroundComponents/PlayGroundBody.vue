@@ -48,6 +48,7 @@ import PlayGroundDialog from "./PlayGroundDialog.vue";
 import { GeneralMutations } from "../../store/modules/generalSettings/generalSettings";
 import { RouterNames } from "@/types/Routernames";
 import { useStore } from "../../store/store";
+import {PlayGroundMutations} from "../../store/modules/playGround/types"
 
 export default defineComponent({
   name: "PlayGroundBody",
@@ -69,6 +70,7 @@ export default defineComponent({
     const container: any = this.$refs.container;
     this.$nextTick(() => container.$el.focus());
     this.isMounted = true;
+    this.store.commit(PlayGroundMutations.UPDATE_EDIT_MDOE, false);
   },
   methods: {
     closeDialog() {

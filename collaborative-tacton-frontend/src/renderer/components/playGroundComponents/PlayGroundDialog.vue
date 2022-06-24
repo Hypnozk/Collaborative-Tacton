@@ -170,7 +170,7 @@ export default defineComponent({
       key: "",
       intensity: 1,
       color: "#65FF00",
-      channelActive: new Array(12).fill(false),
+      channelActive: new Array(0).fill(false),
     };
   },
   mounted() {
@@ -180,6 +180,14 @@ export default defineComponent({
       RouterNames.PLAY_GROUND_DIALOG
     );
 
+    /**
+      set the number of maximum activeChannels
+    */
+    this.channelActive = new Array(this.store.getters.getNumberOfOutputs).fill(false);
+
+    /**
+    set channels active, if the area button get modified
+    */
     if (this.keyButtonId == undefined) return;
     const keyButton = this.store.getters.getKeyButton(this.keyButtonId);
     if (keyButton == undefined) return;
@@ -238,7 +246,6 @@ export default defineComponent({
       if (!this.isKeyDetecting) return;
 
       const newKey = e.key.toUpperCase();
-      console.log("enterNewKey");
       this.keyIsRequired = false;
 
       this.key = newKey;

@@ -6,9 +6,7 @@
           <router-view />
           <transition name="fade">
             <div class="snackbar" v-show="!store.getters.isConnectedToSocket">
-              <div class="label">
-                It seems you are offline pleasy try to reconnect
-              </div>
+              <div class="label">It seems you are offline pleasy try to reconnect</div>
               <v-btn
                 text
                 color="transparent"
@@ -137,10 +135,7 @@ export default defineComponent({
   watch: {
     $route(to) {
       //this.show = false;
-      this.store.dispatch(
-        GeneralSettingsActionTypes.changeCurrentView,
-        to.name
-      );
+      this.store.dispatch(GeneralSettingsActionTypes.changeCurrentView, to.name);
     },
   },
   methods: {
@@ -153,12 +148,14 @@ export default defineComponent({
       return this.store.getters.currentView == RouterNames.PLAY_GROUND;
     },
     buttonDown(e: any) {
+      if (this.store.state.playGround.inEditMode) return;
       if (!this.correctFrameForInput()) return;
       const key: string = e.key.toUpperCase();
       //console.log("buttonDown");
       this.store.dispatch(PlayGroundActionTypes.activateKey, key);
     },
     buttonUp(e: any) {
+      if (this.store.state.playGround.inEditMode) return;
       if (!this.correctFrameForInput()) return;
       const key = e.key.toUpperCase();
       //console.log("buttonUp");

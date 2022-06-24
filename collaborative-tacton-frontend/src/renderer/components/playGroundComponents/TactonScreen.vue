@@ -382,8 +382,8 @@ export default defineComponent({
       //console.log("draw Rectangle height: " + height);
       // draw the rectangle
       const rect = new PIXI.Graphics();
-      rect.beginFill(0xff0000);
-      rect.lineStyle(5, 0xff0000);
+      rect.beginFill(0x5353c6);
+      rect.lineStyle(5, 0x5353c6);
       rect.drawRect(0, 0, additionalWidth, height);
       rect.position.set(xPosition, yPosition);
 

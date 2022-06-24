@@ -18,13 +18,10 @@
       :w="item.w"
       :h="item.h"
       :i="item.i"
-      @move="moveEvent"
       @moved="movedEvent"
     >
       <KeyBoardButton
         :button="item"
-        :isMoved="isMoved"
-        @updateisMoved="updateisMoved"
         @editButton="(id) => $emit('editButton', id)"
       />
     </grid-item>
@@ -51,7 +48,6 @@ export default defineComponent({
   emits: ["editButton"],
   data: () => ({
     store: useStore(),
-    isMoved: false,
   }),
   methods: {
     movedEvent: function (i, newX, newY) {
@@ -63,24 +59,6 @@ export default defineComponent({
           y: newY,
         },
       });
-    },
-    moveEvent: function (i, newX, newY) {
-      console.log("MOVED Fast i=" + i + ", X=" + newX + ", Y=" + newY);
-       this.isMoved = true;
-      /**this.store.dispatch(PlayGroundActionTypes.updateKeyButton, 
-       {
-          id: i,
-          props: {
-            x: newX,
-            y: newY,
-          },
-
-      });
-*/
-      //this.isMoved = false;
-    },
-    updateisMoved: function (newValue) {
-      this.isMoved = newValue;
     },
   },
 });
