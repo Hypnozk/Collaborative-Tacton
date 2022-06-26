@@ -1,5 +1,5 @@
 <template>
-  <v-row no-gutters style="margin: 5px 10px">
+  <v-row no-gutters style="margin: 5px 10px 40px 10px">
     <v-btn elevation="2" color="primary" @click="openDialog"> Add Button </v-btn>
     <v-switch
       v-model="editModeOne"

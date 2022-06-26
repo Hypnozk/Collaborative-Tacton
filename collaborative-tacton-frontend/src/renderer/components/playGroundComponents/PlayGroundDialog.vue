@@ -4,7 +4,7 @@
       <v-col cols="2" align-self="center" style="margin-top: 10px">
         Name
       </v-col>
-      <v-col cols="6">
+      <v-col cols="7">
         <v-text-field
           variant="underlined"
           hide-details="auto"
@@ -14,7 +14,7 @@
     </v-row>
     <v-row justify="center" style="margin-bottom: 10px">
       <v-col cols="2" align-self="center"> Key </v-col>
-      <v-col cols="6">
+      <v-col cols="7">
         <v-row no-gutters>
           <v-col cols="7" align-self="center">
             <div>
@@ -43,7 +43,7 @@
     </v-row>
     <v-row justify="center">
       <v-col cols="2" align-self="center"> Intensity </v-col>
-      <v-col cols="6">
+      <v-col cols="7">
         <v-row no-gutters class="slider">
           <v-slider
             v-model="intensity"
@@ -61,13 +61,12 @@
     </v-row>
     <v-row justify="center" style="margin-top: 10px">
       <v-col cols="2" align-self="center"> Color </v-col>
-      <v-col cols="6">
-        <v-color-picker
-          v-model="colorModell"
-          mode="hex"
-          hide-canvas
-          style="margin-bottom: 500px !important"
-        ></v-color-picker>
+      <v-col cols="7">
+        <v-row style="justify-content: space-between" no-gutters>
+          <v-col cols="1" v-for="(item, index) in colors" v-bind:key="index">
+            <span class="dot" :style="[item==colorButtons ? {backgroundColor:item, border:'solid 0.11em'}:{backgroundColor:item}]" @click="colorButtons=item"></span>
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
     <v-row class="pa-3">
@@ -107,7 +106,7 @@
 <style lang="scss" scoped>
 .playDialog {
   background-color: white;
-  min-width:90%;
+  min-width: 90%;
   align-items: center;
   border-radius: 20px;
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
@@ -116,6 +115,15 @@
 .playDialog:focus {
   outline: none;
 }
+
+.dot {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  display: inline-block;
+  cursor: pointer;
+}
+
 .listChannels {
   display: flex;
   flex-wrap: wrap;
@@ -150,7 +158,7 @@ import {
 import { useStore } from "@/renderer/store/store";
 import { RouterNames } from "@/types/Routernames";
 import { defineComponent } from "@vue/runtime-core";
-import { lightenDarkenColor } from "../../lib/colors";
+import { lightenDarkenColor, defaultColors } from "../../lib/colors";
 
 export default defineComponent({
   name: "PlayGroundDialog",
@@ -169,8 +177,9 @@ export default defineComponent({
       name: "",
       key: "",
       intensity: 1,
-      color: "#65FF00",
+      colorButtons: defaultColors[1],
       channelActive: new Array(0).fill(false),
+      colors: defaultColors,
     };
   },
   mounted() {
@@ -183,7 +192,9 @@ export default defineComponent({
     /**
       set the number of maximum activeChannels
     */
-    this.channelActive = new Array(this.store.getters.getNumberOfOutputs).fill(false);
+    this.channelActive = new Array(this.store.getters.getNumberOfOutputs).fill(
+      false
+    );
 
     /**
     set channels active, if the area button get modified
@@ -196,25 +207,17 @@ export default defineComponent({
     if (keyButton.name !== undefined) this.name = keyButton.name;
     this.key = keyButton.key;
     this.intensity = keyButton.intensity;
-    this.color = keyButton.color;
+    this.colorButtons = keyButton.color;
     keyButton.channels.forEach((element) => {
       this.channelActive[element] = true;
     });
   },
   computed: {
-    colorModell: {
-      get(): string {
-        return this.color;
-      },
-      set(value: string) {
-        this.color = value.substring(0, 7);
-      },
-    },
     colorActuator() {
       return (index: number) => {
         if (this.channelActive[index])
-          return lightenDarkenColor(this.colorModell, -100);
-        return this.colorModell;
+          return lightenDarkenColor(this.colorButtons, -100);
+        return this.colorButtons;
       };
     },
   },
@@ -259,7 +262,7 @@ export default defineComponent({
       this.isKeyDetecting = false;
     },
     deleteButton() {
-      if(this.keyButtonId == undefined) return;
+      if (this.keyButtonId == undefined) return;
       this.store.commit(
         PlayGroundMutations.DELETE_ITEM_FROM_GRID,
         this.keyButtonId
@@ -280,7 +283,7 @@ export default defineComponent({
       });
       const button = {
         channels: channels,
-        color: this.colorModell,
+        color: this.colorButtons,
         intensity: this.intensity,
         name: this.name,
         key: this.key,

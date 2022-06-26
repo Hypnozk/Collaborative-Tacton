@@ -25,3 +25,5 @@ export const lightenDarkenColor = (col:string, amount:number):string => {
   const string = "000000" + (g | (b << 8) | (r << 16)).toString(16);
   return (usePound ? "#" : "") + string.substr(string.length - 6);
 };
+
+export const defaultColors = ["#FF0C00","#FF9F00","#FFDA00","#65FF00", "#00FFE6", "#CD00FF", "#FF00AC"]

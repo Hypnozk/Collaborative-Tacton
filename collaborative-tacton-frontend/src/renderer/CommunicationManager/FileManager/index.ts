@@ -15,7 +15,7 @@ export const initConfig = () => {
         key: "Z",
         w: 1,
         x: 5,
-        y: 1,
+        y: 0,
         isActive: false
     },
     {
@@ -27,7 +27,7 @@ export const initConfig = () => {
         key: "U",
         w: 1,
         x: 7,
-        y: 2,
+        y: 1,
         isActive: false
     },
     {
@@ -39,7 +39,7 @@ export const initConfig = () => {
         key: "K",
         w: 1,
         x: 8,
-        y: 4,
+        y: 3,
         isActive: false
     },
     {
@@ -51,7 +51,7 @@ export const initConfig = () => {
         key: "N",
         w: 1,
         x: 7,
-        y: 6,
+        y: 5,
         isActive: false
     },
     {
@@ -63,7 +63,7 @@ export const initConfig = () => {
         key: "B",
         w: 1,
         x: 5,
-        y: 7,
+        y: 6,
         isActive: false
     },
     {
@@ -75,7 +75,7 @@ export const initConfig = () => {
         key: "V",
         w: 1,
         x: 3,
-        y: 6,
+        y: 5,
         isActive: false
     },
     {
@@ -87,7 +87,7 @@ export const initConfig = () => {
         key: "F",
         w: 1,
         x: 2,
-        y: 4,
+        y: 3,
         isActive: false
     },
     {
@@ -99,7 +99,7 @@ export const initConfig = () => {
         key: "T",
         w: 1,
         x: 3,
-        y: 2,
+        y: 1,
         isActive: false
     }]
 
