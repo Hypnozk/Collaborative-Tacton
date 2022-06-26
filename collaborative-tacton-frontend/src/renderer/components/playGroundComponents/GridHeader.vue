@@ -3,7 +3,7 @@
     <v-btn elevation="2" color="primary" @click="openDialog"> Add Button </v-btn>
     <v-switch
       v-model="editModeOne"
-      :label="`Edite Mode: ${this.store.state.playGround.inEditMode ? 'on' : 'off'}`"
+      :label="`Edite Mode: ${editModeOne ? 'on' : 'off'}`"
       color="primary"
       :value="true"
       hide-details
@@ -70,7 +70,7 @@ export default defineComponent({
     },
     editModeOne: {
       get() {
-        return this.store.state.playGround.editModeOne;
+        return this.store.state.playGround.inEditMode;
       },
       set(value) {
         this.store.commit(PlayGroundMutations.UPDATE_EDIT_MDOE, value);

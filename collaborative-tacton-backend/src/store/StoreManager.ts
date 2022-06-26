@@ -50,22 +50,31 @@ const updateRoomInformation = (id: string, name: string, description: string) =>
     }
     return needUpdate;
 }
-const enterRoom = (ws: WebSocket, userID: string, userName: string, roomId: string): { participants: { userId: string, userList: User[] }, newParticipant: boolean } | undefined => {
+const enterRoom = (ws: WebSocket, userID: string, userName: string, roomId: string): { participants: { userId: string, userList: User[] }, updateParticipant: boolean } | undefined => {
     const participants = participantList.get(roomId);
     if (participants == undefined) return;
-    let needUpdate = participants.length == 0;
+    let newUser = true;
+    let indexUpdatedName = -1;
     for (let i = 0; i < participants.length; i++) {
         if (participants[i].id == userID) {
-            needUpdate = false;
+            newUser = false;
+            if (participants[i].name !== userName)
+                indexUpdatedName = i;
             break;
         }
     }
-    if (needUpdate)
+    if (newUser)
         participantList.set(roomId, [...participants, { id: userID, name: userName, ws: ws }])
+
+    if (indexUpdatedName > -1) {
+        participants[indexUpdatedName].name = userName;
+        participantList.set(roomId, participants)
+    }
+
 
     return {
         participants: { userId: userID, userList: Array.from(participantList.get(roomId)!, item => { return { id: item.id, name: item.name } }) },
-        newParticipant: needUpdate
+        updateParticipant: newUser || indexUpdatedName > -1
     };
 }
 
