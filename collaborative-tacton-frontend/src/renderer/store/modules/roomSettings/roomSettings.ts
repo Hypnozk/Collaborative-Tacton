@@ -104,6 +104,7 @@ export const mutations: MutationTree<State> & Mutations = {
   },
   [RoomMutations.UPDATE_PARTICIPANTS](state, participants) {
     state.participants = participants;
+    console.log(state.participants);
   },
   [RoomMutations.UPDATE_RECORD_MODE](state, shouldRecord) {
     state.isRecording = shouldRecord;
@@ -158,6 +159,7 @@ export const actions: ActionTree<State, RootState> & Actions = {
         maxDurationRecord: props.room.maxDurationRecord,
       }
     })
+    commit(RoomMutations.UPDATE_PARTICIPANTS, props.participants);
   },
   [RoomSettingsActionTypes.updateRoom]({ commit }, props: { room: Room, participants: User[] }) {
     commit(RoomMutations.CHANGE_ROOM, {
@@ -171,6 +173,7 @@ export const actions: ActionTree<State, RootState> & Actions = {
         maxDurationRecord: props.room.maxDurationRecord,
       }
     })
+    commit(RoomMutations.UPDATE_PARTICIPANTS, props.participants);
   },
 };
 

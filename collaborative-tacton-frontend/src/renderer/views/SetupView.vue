@@ -100,6 +100,7 @@
   text-decoration: underline;
   justify-content: center;
   font-weight: bold;
+  padding-bottom:10px;
 }
 .subRow {
   flex: 0;

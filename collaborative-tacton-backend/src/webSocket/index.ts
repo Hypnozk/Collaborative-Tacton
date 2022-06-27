@@ -59,11 +59,11 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
             }
             case WS_MSG_TYPE.ENTER_ROOM_SERV: {
                 let roomInfo = StorageManager.getRoomInfo(msg.payload.room.id)
-                if (roomInfo !== undefined)
-                    break;
+                if (roomInfo == undefined)
+                    roomInfo = StorageManager.createRoom(msg.payload.room);
 
-                roomInfo = StorageManager.createRoom(msg.payload.room);
                 const data = StorageManager.enterRoom(ws, client, msg.payload.userName, roomInfo.id);
+
                 //send the new user all data and his uerid
                 if (data !== undefined) {
                     ws.send(JSON.stringify({

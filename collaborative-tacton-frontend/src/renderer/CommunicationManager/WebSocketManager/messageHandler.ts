@@ -15,8 +15,9 @@ export const handleMessage = (store: Store, msg: SocketMessage) => {
     switch (msg.type) {
         case WS_MSG_TYPE.ROOM_INFO_CLI: {
             let roomState = RoomState.Create;
+            console.log(msg.payload)
             if(msg.payload.existRoom == true)roomState = RoomState.Enter;
-            store.commit(RoomMutations.CHANGE_ROOM, { roomState: roomState, roomInfo:  msg.payload.roomInfo })
+            store.commit(RoomMutations.CHANGE_ROOM, { roomState: roomState, roomInfo:  {...msg.payload.roomInfo, participants: msg.payload.participants,}})
             console.log("ROOM_INFO_CLI")
             console.log(msg.payload)
             if (store.state.generalSettings.currentView == RouterNames.ROOM)

@@ -1,25 +1,14 @@
 <template>
   <v-container id="headerPlayGround" class="headerPlayGround">
-    <v-row class="align-center">
-      <v-col style="padding: 0px 0px 0px 10px">
-        {{
-          `${store.state.roomSettings.roomName}#${store.state.roomSettings.id}`
-        }}
-        <v-btn variant="text" icon="mdi-content-copy" @click="copyAdress">
-        </v-btn>
+    <v-row class="align-center" no-gutters>
+      <v-col style="padding: 0px 0px 0px 10px; flex-grow:1" >
+        {{ `${store.state.roomSettings.roomName}#${store.state.roomSettings.id}` }}
+        <v-btn variant="text" icon="mdi-content-copy" @click="copyAdress"> </v-btn>
       </v-col>
-      <v-spacer></v-spacer>
-
-      <v-menu
-        class="customMenu"
-        stlye="margin-right:5px"
-        v-model="participantMenu"
-      >
+      <v-menu class="customMenu" stlye="margin-right:5px" v-model="participantMenu">
         <template v-slot:activator="{ props }">
           <v-btn variant="text" v-bind="props">
-            {{
-              `Participants: ${store.state.roomSettings.participants.length}`
-            }}
+            {{ `Participants: ${store.state.roomSettings.participants.length}` }}
           </v-btn>
         </template>
         <v-list>
@@ -28,24 +17,23 @@
               <input
                 style="padding: 5px"
                 class="inputField"
+                v-on:keyup.enter="onEnter"
                 v-model="userName"
               />
-              <v-icon right @click="participantMenu = false">
-                mdi-content-save
-              </v-icon>
+              <v-icon right @click="participantMenu = false"> mdi-content-save </v-icon>
             </div>
           </div>
           <v-list-item
-            v-for="(item, index) in store.state.roomSettings.participants"
+            v-for="(item, index) in participantList"
             :key="index"
             :value="index"
             class="customMenu"
           >
-            <v-list-item-title>{{ item.userName }}</v-list-item-title>
+            {{ item.name }}
           </v-list-item>
         </v-list>
       </v-menu>
-   <v-btn variant="text" style="margin-right: 20px" @click="settings">
+      <v-btn variant="text" style="margin-right: 20px" @click="settings">
         Settings <v-icon right> mdi-cog-outline </v-icon>
       </v-btn>
       <v-btn variant="text" style="margin-right: 20px" @click="logOut">
@@ -60,6 +48,7 @@
   min-width: 100% !important;
   max-width: 100% !important;
   border-bottom: 1px solid rgb(48, 41, 41);
+  padding: 2px 10px;
 }
 
 .customField {
@@ -97,7 +86,10 @@
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 import router from "@/renderer/router";
 import { GeneralSettingsActionTypes } from "@/renderer/store/modules/generalSettings/generalSettings";
-import { RoomMutations, RoomState } from "@/renderer/store/modules/roomSettings/roomSettings";
+import {
+  RoomMutations,
+  RoomState,
+} from "@/renderer/store/modules/roomSettings/roomSettings";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 import { sendSocketMessage } from "../../CommunicationManager/WebSocketManager";
@@ -118,6 +110,11 @@ export default defineComponent({
         this.store.commit(RoomMutations.UPDATE_USER_NAME, value);
       },
     },
+    participantList() {
+      return this.store.state.roomSettings.participants.filter(
+        (user) => user.id !== this.store.state.roomSettings.user.id
+      );
+    },
   },
   watch: {
     participantMenu(newValue) {
@@ -131,6 +128,9 @@ export default defineComponent({
     },
   },
   methods: {
+    onEnter() {
+      this.participantMenu = false;
+    },
     logOut() {
       sendSocketMessage(WS_MSG_TYPE.LOG_OUT, {
         roomId: this.store.state.roomSettings.id,
@@ -145,10 +145,10 @@ export default defineComponent({
         `${this.store.state.roomSettings.roomName}#${this.store.state.roomSettings.id}`
       );
     },
-    settings(){
+    settings() {
       this.store.commit(RoomMutations.UPDATE_ROOM_STATE, RoomState.Configure);
       router.push("/setup");
-    }
+    },
   },
 });
 </script>
