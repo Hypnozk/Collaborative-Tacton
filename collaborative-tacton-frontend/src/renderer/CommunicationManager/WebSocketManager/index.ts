@@ -7,7 +7,7 @@ import { WS_MSG_TYPE } from "./ws_types";
 let clientWs = null as WebSocket | null;
 export const initWebsocket = (store: Store) => {
     //store.dispatch(GeneralSettingsActionTypes.addSocketClient, new WebSocket("ws://localhost:8080/patth?token=secure"));
-    clientWs = new WebSocket("ws://141.56.132.33:8080/patth?token=secure")
+    clientWs = new WebSocket("ws://localhost:8080/patth?token=secure")
     if (clientWs !== null) {
         clientWs.onopen = function (event: Event) {
             store.commit(GeneralMutations.UPDATE_SOCKET_CONNECTION, true);

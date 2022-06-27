@@ -36,6 +36,7 @@ import { useStore } from "../store/store";
 import { RoomMutations } from "../store/modules/roomSettings/roomSettings";
 import { sendSocketMessage } from "../CommunicationManager/WebSocketManager";
 import { WS_MSG_TYPE } from "../CommunicationManager/WebSocketManager/ws_types";
+import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 
 export default defineComponent({
   name: "RoomView",
@@ -57,7 +58,8 @@ export default defineComponent({
   },
   methods: {
     enterRoom() {
-      sendSocketMessage(WS_MSG_TYPE.GET_ROOM_INFO, this.roomName);
+      window.api.send(IPC_CHANNELS.main.modifyUserConfig);
+      //sendSocketMessage(WS_MSG_TYPE.GET_ROOM_INFO, this.roomName);
     },
   },
 });

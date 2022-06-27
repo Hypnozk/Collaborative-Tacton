@@ -102,3 +102,5 @@ process.on('unhandledRejection', function (err) {
   console.log("Unexpected error occured: " + err);
   app.quit();
 });
+
+console.log(app.getPath('userData'))
