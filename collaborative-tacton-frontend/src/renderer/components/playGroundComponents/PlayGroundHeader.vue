@@ -1,7 +1,7 @@
 <template>
   <v-container id="headerPlayGround" class="headerPlayGround">
     <v-row class="align-center" no-gutters>
-      <v-col style="padding: 0px 0px 0px 10px; flex-grow:1" >
+      <v-col style="padding: 0px 0px 0px 10px; flex-grow: 1">
         {{ `${store.state.roomSettings.roomName}#${store.state.roomSettings.id}` }}
         <v-btn variant="text" icon="mdi-content-copy" @click="copyAdress"> </v-btn>
       </v-col>
@@ -146,8 +146,7 @@ export default defineComponent({
       );
     },
     settings() {
-      this.store.commit(RoomMutations.UPDATE_ROOM_STATE, RoomState.Configure);
-      router.push("/setup");
+      sendSocketMessage(WS_MSG_TYPE.ROOM_INFO_SERV, this.store.state.roomSettings.id);
     },
   },
 });

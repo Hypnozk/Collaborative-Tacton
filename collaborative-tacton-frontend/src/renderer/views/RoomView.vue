@@ -2,9 +2,7 @@
   <v-container fill-height class="roomView">
     <v-container fill-height>
       <v-row justify="center">
-        <v-col cols="2" align-self="center" style="margin-top: 10px">
-          Room
-        </v-col>
+        <v-col cols="2" align-self="center" style="margin-top: 10px"> Room </v-col>
         <v-col cols="6">
           <v-text-field
             variant="underlined"
@@ -14,9 +12,7 @@
         </v-col>
       </v-row>
       <v-row align="center" justify="center" style="margin-top: 40px">
-        <v-btn elevation="2" color="primary" @click="enterRoom"
-          >Enter Room</v-btn
-        >
+        <v-btn elevation="2" color="primary" @click="enterRoom">Enter Room</v-btn>
       </v-row>
     </v-container>
   </v-container>

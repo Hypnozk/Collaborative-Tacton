@@ -29,8 +29,6 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 * userId is the id of the user, who entered or created the room; 
                 * participants is list, of all users of the room, with the new person included
                 */
-                console.log("UPDATE_ENTER_ROOM_SERV " + msg.payload)
-                console.log(msg.payload)
 
                 //check if there is already a room
                 let roomInfo = StorageManager.getRoomInfo(msg.payload.room.id)
@@ -39,15 +37,16 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
 
                 //update otherwise room information, return true if something is updated
                 //StorageManager.updateParticipants(msg.payload.room.id, msg.payload.userName)
-                const updateAllUsers = StorageManager.updateRoomInformation(msg.payload.room.id, msg.payload.room.name, msg.payload.room.description)
+                const updateAllUsers = StorageManager.updateRoomInformation(roomInfo.id, msg.payload.room.name, msg.payload.room.description)
+                const userData = StorageManager.updateUserOfRoom(ws, client, msg.payload.userName, roomInfo.id);
 
-                if (data !== undefined) {
-                    console.log(data.participants)
-                    if (updateAllUsers == true || data.updateParticipant == true) {
+                if (userData !== undefined) {
+                    console.log(userData.participants)
+                    if (updateAllUsers == true || userData.updateParticipant == true) {
                         console.log("broadCastMasage")
                         StorageManager.broadCastMessage(roomInfo.id,
                             WS_MSG_TYPE.UPDATE_ROOM_CLI,
-                            { room: roomInfo, participants: data.participants.userList })
+                            { room: roomInfo, participants: userData.participants.userList })
                     } else {
                         ws.send(JSON.stringify({
                             type: WS_MSG_TYPE.NO_CHANGE_ROOM_CLI,
@@ -62,18 +61,18 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 if (roomInfo == undefined)
                     roomInfo = StorageManager.createRoom(msg.payload.room);
 
-                const data = StorageManager.enterRoom(ws, client, msg.payload.userName, roomInfo.id);
+                const userData = StorageManager.updateUserOfRoom(ws, client, msg.payload.userName, roomInfo.id);
 
                 //send the new user all data and his uerid
-                if (data !== undefined) {
+                if (userData !== undefined) {
                     ws.send(JSON.stringify({
                         type: WS_MSG_TYPE.ENTER_ROOM_CLI,
-                        payload: { room: roomInfo, userId: data.participants.userId, participants: data.participants.userList },
+                        payload: { room: roomInfo, userId: userData.participants.userId, participants: userData.participants.userList },
                     }))
 
                     StorageManager.broadCastMessage(roomInfo.id,
                         WS_MSG_TYPE.UPDATE_ROOM_CLI,
-                        { room: roomInfo, participants: data.participants.userList })
+                        { room: roomInfo, participants: userData.participants.userList })
                 }
                 break;
             }

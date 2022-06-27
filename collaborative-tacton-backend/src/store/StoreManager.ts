@@ -50,7 +50,7 @@ const updateRoomInformation = (id: string, name: string, description: string) =>
     }
     return needUpdate;
 }
-const enterRoom = (ws: WebSocket, userID: string, userName: string, roomId: string): { participants: { userId: string, userList: User[] }, updateParticipant: boolean } | undefined => {
+const updateUserOfRoom = (ws: WebSocket, userID: string, userName: string, roomId: string): { participants: { userId: string, userList: User[] }, updateParticipant: boolean } | undefined => {
     const participants = participantList.get(roomId);
     if (participants == undefined) return;
     let newUser = true;
@@ -239,7 +239,7 @@ export default {
     getRoomInfo,
     hasRoom,
     createRoom,
-    enterRoom,
+    updateUserOfRoom,
     updateParticipants,
     sendUpdatedParticipants,
     removeParticipant,

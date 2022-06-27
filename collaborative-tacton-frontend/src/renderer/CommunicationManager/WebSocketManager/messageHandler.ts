@@ -14,14 +14,19 @@ export interface SocketMessage {
 export const handleMessage = (store: Store, msg: SocketMessage) => {
     switch (msg.type) {
         case WS_MSG_TYPE.ROOM_INFO_CLI: {
-            let roomState = RoomState.Create;
             console.log(msg.payload)
-            if(msg.payload.existRoom == true)roomState = RoomState.Enter;
-            store.commit(RoomMutations.CHANGE_ROOM, { roomState: roomState, roomInfo:  {...msg.payload.roomInfo, participants: msg.payload.participants,}})
-            console.log("ROOM_INFO_CLI")
-            console.log(msg.payload)
-            if (store.state.generalSettings.currentView == RouterNames.ROOM)
+            if (store.state.generalSettings.currentView == RouterNames.ROOM || store.state.generalSettings.currentView == RouterNames.PLAY_GROUND) {
+                let roomState = RoomState.Create;
+                if (msg.payload.existRoom == true) {
+                    roomState = RoomState.Enter
+                    if (store.state.generalSettings.currentView == RouterNames.PLAY_GROUND)
+                        roomState = RoomState.Configure;
+                }
+
+                store.commit(RoomMutations.CHANGE_ROOM, { roomState: roomState, roomInfo: { ...msg.payload.roomInfo, participants: msg.payload.participants, } })
                 router.push("/setup");
+            }
+
             break;
         }
         case WS_MSG_TYPE.ENTER_ROOM_CLI: {
@@ -50,9 +55,11 @@ export const handleMessage = (store: Store, msg: SocketMessage) => {
             break;
         }
         case WS_MSG_TYPE.SEND_INSTRUCTION_CLI: {
-            window.api.send(IPC_CHANNELS.main.executeTask, msg.payload);
             store.dispatch(TactonSettingsActionTypes.modifySpecificChannel, msg.payload)
             store.commit(TactonMutations.UPDATE_INSERT_VALUES, true);
+            if (store.state.generalSettings.currentView == RouterNames.PLAY_GROUND && !store.state.playGround.inEditMode) {
+                window.api.send(IPC_CHANNELS.main.executeTask, msg.payload);
+            }
             break;
         }
         case WS_MSG_TYPE.UPDATE_RECORD_MODE_CLI: {

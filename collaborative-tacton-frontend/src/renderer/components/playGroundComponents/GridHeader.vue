@@ -36,8 +36,8 @@
   padding: 0px 10px;
   display: flex;
   align-items: center;
-  color:#000000 !important;
-  opacity:1;
+  color: #000000 !important;
+  opacity: 1;
   .v-selection-control {
     size: 10px;
     height: 15px;
