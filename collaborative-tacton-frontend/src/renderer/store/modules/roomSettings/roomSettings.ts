@@ -41,7 +41,7 @@ export type State = {
 
 export const state: State = {
   roomState: RoomState.Create,
-  id: "",
+  id: undefined,
   roomName: "",
   description: "",
   participants: [],

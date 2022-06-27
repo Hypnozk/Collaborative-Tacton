@@ -185,6 +185,7 @@ export default defineComponent({
       } else {
         sendSocketMessage(WS_MSG_TYPE.ENTER_ROOM_SERV, {
           room: {
+            id: this.store.state.roomSettings.id,
             name: this.store.state.roomSettings.roomName,
             description: this.description,
           },

@@ -48,7 +48,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                         StorageManager.broadCastMessage(roomInfo.id,
                             WS_MSG_TYPE.UPDATE_ROOM_CLI,
                             { room: roomInfo, participants: data.participants.userList })
-                    }else{
+                    } else {
                         ws.send(JSON.stringify({
                             type: WS_MSG_TYPE.NO_CHANGE_ROOM_CLI,
                         }))
@@ -84,6 +84,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                  */
                 let existRoom = true;
                 let roomInfo = undefined;
+
                 const id = getID(msg.payload);
                 if (id !== undefined)
                     roomInfo = StorageManager.getRoomInfo(id);
@@ -91,16 +92,19 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 if (roomInfo == undefined) {
                     existRoom = false;
                     roomInfo = {
-                        id: "",
+                        id: undefined,
                         description: "",
                         name: msg.payload ? msg.payload : StorageManager.getNewRoomName(),
                         participants: []
                     }
                 }
-                console.log({ existRoom: existRoom, roomInfo: roomInfo })
+
+                const partipantList = StorageManager.getParticipants(id);
+                console.log({ existRoom: existRoom, roomInfo: roomInfo, participants: partipantList });
+
                 ws.send(JSON.stringify({
                     type: WS_MSG_TYPE.ROOM_INFO_CLI,
-                    payload: { existRoom: existRoom, roomInfo: roomInfo },
+                    payload: { existRoom: existRoom, roomInfo: roomInfo, participants: partipantList },
                 }))
                 break;
             }

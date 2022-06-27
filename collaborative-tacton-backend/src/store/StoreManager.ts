@@ -78,6 +78,14 @@ const enterRoom = (ws: WebSocket, userID: string, userName: string, roomId: stri
     };
 }
 
+const getParticipants = (roomId: string): { id: string, name: string }[] => {
+    const participants = participantList.get(roomId);
+    if (participants == undefined)
+        return [];
+
+    return Array.from(participants, item => { return { id: item.id, name: item.name } });
+}
+
 const updateParticipants = (roomId: string, user: User): string | undefined => {
     const participants = participantList.get(roomId);
     if (participants == undefined)
@@ -240,5 +248,6 @@ export default {
     updateIntensities,
     broadCastMessage,
     updateRecordMode,
-    updateMaxDuration
+    updateMaxDuration,
+    getParticipants
 }
