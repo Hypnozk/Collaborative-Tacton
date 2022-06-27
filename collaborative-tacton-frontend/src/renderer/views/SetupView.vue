@@ -15,9 +15,7 @@
       </v-col>
     </v-row>
     <v-row class="subRow">
-      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px"
-        >Description</v-col
-      >
+      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px">Description</v-col>
       <v-col cols="5">
         <v-textarea
           variant="underlined"
@@ -29,9 +27,7 @@
       </v-col>
     </v-row>
     <v-row class="subRow">
-      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px"
-        >Username</v-col
-      >
+      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px">Username</v-col>
       <v-col cols="5">
         <v-text-field
           variant="underlined"
@@ -41,9 +37,7 @@
       </v-col>
     </v-row>
     <v-row class="subRow">
-      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px"
-        >Connected Device</v-col
-      >
+      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px">Connected Device</v-col>
       <v-col cols="5">
         {{ store.getters.getConnectedDevice?.name }}
       </v-col>
@@ -68,9 +62,7 @@
         <v-row>
           <v-btn elevation="2" color="primary" @click="cancelRoomEnter">
             {{
-              store.state.roomSettings.roomState == configureState
-                ? "Log Out"
-                : "Cancel"
+              store.state.roomSettings.roomState == configureState ? "Log Out" : "Cancel"
             }}
           </v-btn>
           <v-spacer />
@@ -140,7 +132,7 @@ export default defineComponent({
   },
   data() {
     return {
-      configureState:RoomState.Configure,
+      configureState: RoomState.Configure,
       store: useStore(),
     };
   },
@@ -173,7 +165,7 @@ export default defineComponent({
   methods: {
     cancelRoomEnter() {
       window.api.send(IPC_CHANNELS.main.changeScan, false);
-       sendSocketMessage(WS_MSG_TYPE.LOG_OUT, {
+      sendSocketMessage(WS_MSG_TYPE.LOG_OUT, {
         roomId: this.store.state.roomSettings.id,
         user: this.store.state.roomSettings.user,
       });
@@ -181,14 +173,24 @@ export default defineComponent({
     },
     enterRoom() {
       window.api.send(IPC_CHANNELS.main.changeScan, false);
-      sendSocketMessage(WS_MSG_TYPE.UPDATE_ENTER_ROOM_SERV, {
-        room: {
-          id: this.store.state.roomSettings.id,
-          name: this.store.state.roomSettings.roomName,
-          description: this.description,
-        },
-        userName: this.userName,
-      });
+      if (this.store.state.roomSettings.roomState == RoomState.Configure) {
+        sendSocketMessage(WS_MSG_TYPE.UPDATE_ROOM_SERV, {
+          room: {
+            id: this.store.state.roomSettings.id,
+            name: this.store.state.roomSettings.roomName,
+            description: this.description,
+          },
+          userName: this.userName,
+        });
+      } else {
+        sendSocketMessage(WS_MSG_TYPE.ENTER_ROOM_SERV, {
+          room: {
+            name: this.store.state.roomSettings.roomName,
+            description: this.description,
+          },
+          userName: this.userName,
+        });
+      }
     },
   },
 });

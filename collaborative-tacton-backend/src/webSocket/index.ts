@@ -6,11 +6,13 @@ interface SocketMessage {
     payload: any;
 }
 
-const getID = (address: string): string | undefined => {
+const getID = (address: string): string => {
     const index = address.lastIndexOf("#")
+    console.log("index")
+    console.log(index)
     if (index == -1)
-        return;
-    return address.slice(index, -1);
+        return address;
+    return address.slice(index + 1, address.length);
 }
 
 export const onMessage = (ws: WebSocket, data: any, client: string) => {
@@ -20,7 +22,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
         let msg: SocketMessage = JSON.parse(data);
         console.log(msg.payload)
         switch (msg.type) {
-            case WS_MSG_TYPE.UPDATE_ENTER_ROOM_SERV: {
+            case WS_MSG_TYPE.UPDATE_ROOM_SERV: {
                 /**
                 * recieve {room:Room, userName:string} as payload --> room don't contain participants list
                 * return {userId:string, participants:User[]}
@@ -32,36 +34,50 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
 
                 //check if there is already a room
                 let roomInfo = StorageManager.getRoomInfo(msg.payload.room.id)
-                let updateAllUsers = false;
-                if (roomInfo == undefined) {
-                    //create a new room
-                    roomInfo = StorageManager.createRoom(msg.payload.room);
-                } else {
-                    //update otherwise room information, return true if something is updated
-                    //StorageManager.updateParticipants(msg.payload.room.id, msg.payload.userName)
-                    updateAllUsers = StorageManager.updateRoomInformation(msg.payload.room.id, msg.payload.room.name, msg.payload.room.description)
-                }
+                if (roomInfo == undefined)
+                    break;
 
-                const data = StorageManager.enterRoom(ws, client, msg.payload.userName, roomInfo.id);
+                //update otherwise room information, return true if something is updated
+                //StorageManager.updateParticipants(msg.payload.room.id, msg.payload.userName)
+                const updateAllUsers = StorageManager.updateRoomInformation(msg.payload.room.id, msg.payload.room.name, msg.payload.room.description)
+
                 if (data !== undefined) {
                     console.log(data.participants)
                     if (updateAllUsers == true || data.updateParticipant == true) {
                         console.log("broadCastMasage")
                         StorageManager.broadCastMessage(roomInfo.id,
-                            WS_MSG_TYPE.UPDATE_ENTER_ROOM_CLI,
-                            { room: roomInfo, userId: data.participants.userId, participants: data.participants.userList })
-                    } else {
-                        console.log("updateSingleUser")
+                            WS_MSG_TYPE.UPDATE_ROOM_CLI,
+                            { room: roomInfo, participants: data.participants.userList })
+                    }else{
                         ws.send(JSON.stringify({
-                            type: WS_MSG_TYPE.UPDATE_ENTER_ROOM_CLI,
-                            payload: { room: roomInfo, userId: data.participants.userId, participants: data.participants.userList },
+                            type: WS_MSG_TYPE.NO_CHANGE_ROOM_CLI,
                         }))
                     }
                 }
 
                 break;
             }
-            case WS_MSG_TYPE.GET_ROOM_INFO: {
+            case WS_MSG_TYPE.ENTER_ROOM_SERV: {
+                let roomInfo = StorageManager.getRoomInfo(msg.payload.room.id)
+                if (roomInfo !== undefined)
+                    break;
+
+                roomInfo = StorageManager.createRoom(msg.payload.room);
+                const data = StorageManager.enterRoom(ws, client, msg.payload.userName, roomInfo.id);
+                //send the new user all data and his uerid
+                if (data !== undefined) {
+                    ws.send(JSON.stringify({
+                        type: WS_MSG_TYPE.ENTER_ROOM_CLI,
+                        payload: { room: roomInfo, userId: data.participants.userId, participants: data.participants.userList },
+                    }))
+
+                    StorageManager.broadCastMessage(roomInfo.id,
+                        WS_MSG_TYPE.UPDATE_ROOM_CLI,
+                        { room: roomInfo, participants: data.participants.userList })
+                }
+                break;
+            }
+            case WS_MSG_TYPE.ROOM_INFO_SERV: {
                 /**
                  * recieve "roomName#id":string as payload
                  * return {existRoom:boolean, roomInfo:Room}
@@ -75,15 +91,15 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 if (roomInfo == undefined) {
                     existRoom = false;
                     roomInfo = {
-                        id: undefined,
+                        id: "",
                         description: "",
                         name: msg.payload ? msg.payload : StorageManager.getNewRoomName(),
                         participants: []
                     }
                 }
-
+                console.log({ existRoom: existRoom, roomInfo: roomInfo })
                 ws.send(JSON.stringify({
-                    type: WS_MSG_TYPE.SEND_ROOM_INFO,
+                    type: WS_MSG_TYPE.ROOM_INFO_CLI,
                     payload: { existRoom: existRoom, roomInfo: roomInfo },
                 }))
                 break;

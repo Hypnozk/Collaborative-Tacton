@@ -41,7 +41,7 @@ export type State = {
 
 export const state: State = {
   roomState: RoomState.Create,
-  id: undefined,
+  id: "",
   roomName: "",
   description: "",
   participants: [],
@@ -118,7 +118,8 @@ export const mutations: MutationTree<State> & Mutations = {
  * 
  */
 export enum RoomSettingsActionTypes {
-  enterRoom = "enterRoom"
+  enterRoom = "enterRoom",
+  updateRoom = "updateRoom",
 }
 
 type AugmentedActionContext = {
@@ -131,7 +132,11 @@ type AugmentedActionContext = {
 export interface Actions {
   [RoomSettingsActionTypes.enterRoom](
     { commit }: AugmentedActionContext,
-    payload: { room: Room, userId: string, participants: User[] }, // Obsolete in here but left as an example
+    payload: { room: Room, userId: string, participants: User[] },
+  ): void;
+  [RoomSettingsActionTypes.updateRoom](
+    { commit }: AugmentedActionContext,
+    payload: { room: Room, participants: User[] },
   ): void;
 }
 
@@ -142,6 +147,19 @@ export const actions: ActionTree<State, RootState> & Actions = {
     if (user !== undefined)
       commit(RoomMutations.UPDATE_USER, { id: user.id, name: user.name });
 
+    commit(RoomMutations.CHANGE_ROOM, {
+      roomState: RoomState.Enter,
+      roomInfo: {
+        id: props.room.id,
+        name: props.room.name,
+        description: props.room.description,
+        participants: props.participants,
+        isRecording: props.room.isRecording,
+        maxDurationRecord: props.room.maxDurationRecord,
+      }
+    })
+  },
+  [RoomSettingsActionTypes.updateRoom]({ commit }, props: { room: Room, participants: User[] }) {
     commit(RoomMutations.CHANGE_ROOM, {
       roomState: RoomState.Enter,
       roomInfo: {

@@ -13,20 +13,31 @@ export interface SocketMessage {
 
 export const handleMessage = (store: Store, msg: SocketMessage) => {
     switch (msg.type) {
-        case WS_MSG_TYPE.SEND_ROOM_INFO: {
+        case WS_MSG_TYPE.ROOM_INFO_CLI: {
             let roomState = RoomState.Create;
             if(msg.payload.existRoom == true)roomState = RoomState.Enter;
             store.commit(RoomMutations.CHANGE_ROOM, { roomState: roomState, roomInfo:  msg.payload.roomInfo })
-            console.log("SEND_ROOM_INFO")
+            console.log("ROOM_INFO_CLI")
             console.log(msg.payload)
             if (store.state.generalSettings.currentView == RouterNames.ROOM)
                 router.push("/setup");
             break;
         }
-        case WS_MSG_TYPE.UPDATE_ENTER_ROOM_CLI: {
-            console.log("UPDATE_ENTER_ROOM_CLI")
+        case WS_MSG_TYPE.ENTER_ROOM_CLI: {
+            console.log("ENTER_ROOM_CLI")
             store.dispatch(RoomSettingsActionTypes.enterRoom, msg.payload)
-            console.log(store.state.generalSettings.currentView)
+            if (store.state.generalSettings.currentView == RouterNames.SETUP)
+                router.push("/playGround");
+            break;
+        }
+        case WS_MSG_TYPE.UPDATE_ROOM_CLI: {
+            console.log("UPDATE_ROOM_CLI")
+            store.dispatch(RoomSettingsActionTypes.updateRoom, msg.payload)
+            if (store.state.generalSettings.currentView == RouterNames.SETUP)
+                router.push("/playGround");
+            break;
+        }
+        case WS_MSG_TYPE.NO_CHANGE_ROOM_CLI: {
             if (store.state.generalSettings.currentView == RouterNames.SETUP)
                 router.push("/playGround");
             break;
