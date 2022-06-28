@@ -2,7 +2,7 @@ import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 import { useStore } from "../../store/store";
 import { GeneralSettingsActionTypes, VibrotactileDevice } from "@/renderer/store/modules/generalSettings/generalSettings";
 import { PlayGroundMutations } from "@/renderer/store/modules/playGround/types";
-import { CustomSettings } from "@/electron/SetingManager/initSettings";
+import { CustomSettings } from "@/electron/FileManager/initSettings";
 import { RoomMutations } from "@/renderer/store/modules/roomSettings/roomSettings";
 
 const store = useStore()

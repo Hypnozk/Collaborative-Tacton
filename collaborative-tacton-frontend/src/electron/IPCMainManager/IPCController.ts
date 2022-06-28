@@ -4,9 +4,13 @@ import { app, BrowserWindow } from "electron";
 import { IPC_CHANNELS } from "./IPCChannels";
 import DeviceManager from "../DeviceManager/DeviceManager"
 import { KeyBoardButton, TactileTask } from "@/types/GeneralType";
-import SettingManager from "../SetingManager/SettingManager";
+import SettingManager from "../FileManager/SettingManager";
+import { LoggingLevel } from "../FileManager/LoggingLevel";
+import LoggingManager from "../FileManager/LoggingManager";
+
 let _win: BrowserWindow;
 let _settingManager: SettingManager;
+let _loggingManager: LoggingManager;
 /*
 to recieve messages from the renderer process
 --------------------------------------------------------------
@@ -75,15 +79,27 @@ ipcMain.on(IPC_CHANNELS.main.saveKeyBoardButton, (event, button: KeyBoardButton)
     _settingManager.updateButton(button);
 });
 
+ipcMain.on(IPC_CHANNELS.main.logMessageInfos, (event, payload: {
+    level:LoggingLevel,
+    type: string;
+    startTimeStamp: number;
+    endTimeStamp: number
+}
+) => {
+    _loggingManager.writeLog(payload.level, payload.type, payload.endTimeStamp - payload.startTimeStamp);
+});
+
 export function sendMessageToRenderer(channel: string, payload: any): void {
     _win.webContents.send(channel, payload)
 }
 
 export function setBrowserWindow(browserWindow: BrowserWindow) {
     _win = browserWindow;
+    _loggingManager = new LoggingManager();
 
 }
 
 export function initSettingManager(){
     _settingManager = new SettingManager();
+
 }

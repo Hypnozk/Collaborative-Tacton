@@ -9,6 +9,7 @@ const IPC_CHANNELS = {
         modifyUserConfig: "tactile-jam.main.modifyUserConfig",
         saveUserName: "tactile-jam.main.saveUserName",
         saveKeyBoardButton: "tactile-jam.main.saveKeyBoardButton",
+        logMessageInfos: "tactile-jam.main.logMessageInfos",
     },
     renderer: {
         actuator: "tactile-jam.renderer.devices",
