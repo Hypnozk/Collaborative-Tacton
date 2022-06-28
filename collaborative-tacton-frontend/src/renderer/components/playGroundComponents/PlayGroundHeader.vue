@@ -119,7 +119,16 @@ export default defineComponent({
   watch: {
     participantMenu(newValue) {
       if (newValue == false && this.store.getters.userNameUpdated) {
+        //save that its stored to show snackbar
         this.store.dispatch(GeneralSettingsActionTypes.userNameGetSaved);
+        //save the setting inside of the config file
+        console.log("sendUserName")
+        console.log(window.api)
+        window.api.send(
+           IPC_CHANNELS.main.saveUserName,
+          this.store.state.roomSettings.user.name
+        );
+        //update user that the userName get changed
         sendSocketMessage(WS_MSG_TYPE.UPDATE_USER_ACCOUNT_SERV, {
           roomId: this.store.state.roomSettings.id,
           user: this.store.state.roomSettings.user,
@@ -140,6 +149,8 @@ export default defineComponent({
     },
     copyAdress() {
       this.store.dispatch(GeneralSettingsActionTypes.copyAdressToClipboard);
+      console.log("copyAdress")
+        console.log(window.api)
       window.api.send(
         IPC_CHANNELS.main.copyToClipBoard,
         `${this.store.state.roomSettings.roomName}#${this.store.state.roomSettings.id}`

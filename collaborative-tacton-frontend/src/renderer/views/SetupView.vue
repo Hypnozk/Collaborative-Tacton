@@ -118,7 +118,10 @@
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "../store/store";
 import router from "../router";
-import { RoomMutations, RoomState } from "../store/modules/roomSettings/roomSettings";
+import {
+  RoomMutations,
+  RoomState,
+} from "../store/modules/roomSettings/roomSettings";
 import DeviceSection from "../components/deviceComponents/DeviceSection.vue";
 import ParticipantSection from "../components/deviceComponents/ParticipantSection.vue";
 import { sendSocketMessage } from "../CommunicationManager/WebSocketManager";
@@ -174,6 +177,7 @@ export default defineComponent({
     },
     enterRoom() {
       window.api.send(IPC_CHANNELS.main.changeScan, false);
+      window.api.send(IPC_CHANNELS.main.saveUserName, this.userName);
       if (this.store.state.roomSettings.roomState == RoomState.Configure) {
         sendSocketMessage(WS_MSG_TYPE.UPDATE_ROOM_SERV, {
           room: {

@@ -6,6 +6,7 @@ import { KeyBoardAttributes, KeyBoardButton } from '@/types/GeneralType';
 import { sendSocketMessage } from '@/renderer/CommunicationManager/WebSocketManager';
 import { WS_MSG_TYPE } from '@/renderer/CommunicationManager/WebSocketManager/ws_types';
 import { PlayGroundActionTypes, PlayGroundMutations } from './types';
+import { IPC_CHANNELS } from '@/electron/IPCMainManager/IPCChannels';
 
 export interface Layout {
     x: number,
@@ -20,14 +21,14 @@ export type State = {
     gridLayout: Layout
     gridItems: KeyBoardButton[],
     globalIntensity: number,
-    inEditMode:boolean
+    inEditMode: boolean
 };
 
 export const state: State = {
     gridLayout: { x: 11, y: 8 },
     gridItems: [],
     globalIntensity: 1,
-    inEditMode:false,
+    inEditMode: false,
 };
 /**
  * mutations
@@ -145,12 +146,24 @@ export const actions: ActionTree<State, RootState> & Actions = {
                 }
             }
         }
-        commit(PlayGroundMutations.ADD_ITEM_TO_GRID, { i: uid, x: space.x, y: space.y, h: 1, w: 1, ...button });
+        const keyBoardButton = { i: uid, x: space.x, y: space.y, h: 1, w: 1, ...button };
+        //save updated keyBoard inside of config
+        window.api.send(
+            IPC_CHANNELS.main.saveKeyBoardButton,
+            keyBoardButton
+        );
+        //save it in store
+        commit(PlayGroundMutations.ADD_ITEM_TO_GRID, keyBoardButton);
     },
     [PlayGroundActionTypes.updateKeyButton]({ commit }, payload: { id: string, props: any }) {
         const index = state.gridItems.findIndex(keyButton => keyButton.i == payload.id);
         if (index == -1) return;
 
+        //save updated keyBoard inside of config
+        window.api.send(
+            IPC_CHANNELS.main.saveKeyBoardButton,
+            state.gridItems[index]
+        );
         commit(PlayGroundMutations.UPDATE_GRID_ITEM, { index: index, button: { ...state.gridItems[index], ...payload.props } });
     },
 };

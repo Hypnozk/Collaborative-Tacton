@@ -1,9 +1,12 @@
 const { ipcMain, clipboard } = require('electron');
-import { BrowserWindow } from "electron";
+
+import { app, BrowserWindow } from "electron";
 import { IPC_CHANNELS } from "./IPCChannels";
 import DeviceManager from "../DeviceManager/DeviceManager"
-import { TactileTask } from "@/types/GeneralType";
+import { KeyBoardButton, TactileTask } from "@/types/GeneralType";
+import SettingManager from "../SetingManager/SettingManager";
 let _win: BrowserWindow;
+let _settingManager: SettingManager;
 /*
 to recieve messages from the renderer process
 --------------------------------------------------------------
@@ -57,6 +60,20 @@ ipcMain.on(IPC_CHANNELS.main.copyToClipBoard, (event, adress: string) => {
     clipboard.writeText(adress);
 });
 
+ipcMain.on(IPC_CHANNELS.main.modifyUserConfig, (event, setting: { key: string, value: any }) => {
+    //console.log("copyToClipBoard");
+    _settingManager.sendSettings();
+});
+
+ipcMain.on(IPC_CHANNELS.main.saveUserName, (event, userName: string) => {
+    console.log("copyToClipBoard");
+    _settingManager.updateUserName(userName);
+});
+
+ipcMain.on(IPC_CHANNELS.main.saveKeyBoardButton, (event, button: KeyBoardButton) => {
+    //console.log("copyToClipBoard");
+    _settingManager.updateButton(button);
+});
 
 export function sendMessageToRenderer(channel: string, payload: any): void {
     _win.webContents.send(channel, payload)
@@ -64,4 +81,5 @@ export function sendMessageToRenderer(channel: string, payload: any): void {
 
 export function setBrowserWindow(browserWindow: BrowserWindow) {
     _win = browserWindow;
+    _settingManager = new SettingManager();
 }

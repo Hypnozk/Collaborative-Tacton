@@ -1,12 +1,10 @@
-import { PlayGroundMutations } from "@/renderer/store/modules/playGround/types";
-import { KeyBoardButton } from "@/types/GeneralType";
-import { useStore } from "../../store/store";
+import { KeyBoardButton } from '@/types/GeneralType';
 import { v4 as uuidv4 } from 'uuid';
 
-const store = useStore()
 
-export const initConfig = () => {
-    const buttons: KeyBoardButton[] = [{
+export const initSettings = {
+    userName: "",
+    buttons: [{
         i: uuidv4(),
         channels: [0],
         color: "#65FF00",
@@ -102,8 +100,9 @@ export const initConfig = () => {
         y: 1,
         isActive: false
     }]
+}
 
-
-
-    store.commit(PlayGroundMutations.BULK_GRID_UPDATE, buttons)
+export interface CustomSettings {
+    userName:string,
+    buttons:KeyBoardButton[]
 }
