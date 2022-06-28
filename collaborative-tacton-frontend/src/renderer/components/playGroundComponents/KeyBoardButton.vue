@@ -5,7 +5,7 @@
     min-width="100"
     min-height="100"
     @click="handleMouse(false)"
-    @mouseleave="handleMouse(false)"
+    @mouseleave="handleMouseLeave()"
     @mousedown="handleMouse(true)"
     v-bind:style="{ backgroundColor: colorActuator }"
   >
@@ -71,8 +71,12 @@ export default defineComponent({
       type: Object as () => KeyBoardButton,
       required: true,
     },
+    isMoved: {
+      type: Boolean,
+      required: true,
+    },
   },
-  emits: ["editButton"],
+  emits: ["updateisMoved","editButton"],
   computed: {
     colorActuator() {
       if (this.button.isActive.mouse || this.button.isActive.keyboard)
@@ -82,12 +86,20 @@ export default defineComponent({
   },
   methods: {
     handleMouseLeave() {
-      this.store.dispatch(PlayGroundActionTypes.deactivateKey, {
-        buttonKey: this.button.key,
-        mouse: false,
-      });
+      if (!this.store.state.playGround.inEditMode) {
+        this.store.dispatch(PlayGroundActionTypes.deactivateKey, {
+          buttonKey: this.button.key,
+          mouse: false,
+        });
+      }
     },
     handleMouse(mouseDown: boolean) {
+      if (this.isMoved) {
+        //moving card is finished, reset variable
+        this.$emit("updateisMoved", false);
+        return;
+      }
+
       if (this.store.state.playGround.inEditMode) {
         if (!mouseDown) {
           //the button wanted to be edit
