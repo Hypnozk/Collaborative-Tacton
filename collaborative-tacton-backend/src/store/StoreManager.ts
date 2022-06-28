@@ -101,12 +101,12 @@ const updateParticipants = (roomId: string, user: User): string | undefined => {
     return roomId
 }
 
-const sendUpdatedParticipants = (roomId: string) => {
+const sendUpdatedParticipants = (roomId: string, startTimeStamp:number) => {
     const participants = participantList.get(roomId)!;
     const list = Array.from(participants, item => { return { id: item.id, name: item.name } })
     console.log("sendUpdatedParticipants: ");
     console.log(list);
-    broadCastMessage(roomId, WS_MSG_TYPE.UPDATE_USER_ACCOUNT_CLI, list)
+    broadCastMessage(roomId, WS_MSG_TYPE.UPDATE_USER_ACCOUNT_CLI, list,startTimeStamp)
 }
 
 const removeParticipant = (roomId: string, userId: string): number | undefined => {
@@ -210,7 +210,7 @@ const updateIntensities = (clientId: string, roomId: string, instructionList: [{
     return clientInstruction;
 }
 
-const broadCastMessage = (roomId: string, type: WS_MSG_TYPE, payload: any) => {
+const broadCastMessage = (roomId: string, type: WS_MSG_TYPE, payload: any, startTimeStamp:number) => {
     const participants = participantList.get(roomId);
     if (participants == undefined) return;
 
@@ -218,24 +218,26 @@ const broadCastMessage = (roomId: string, type: WS_MSG_TYPE, payload: any) => {
         participants[i].ws?.send(JSON.stringify({
             type: type,
             payload: payload,
+            startTimeStamp:startTimeStamp,
+            endTimeStamp:new Date().getTime(),
         }))
     };
 }
-const updateRecordMode = (roomId: string, shouldRecord: boolean) => {
+const updateRecordMode = (roomId: string, shouldRecord: boolean, startTimeStamp:number) => {
     const room = roomList.get(roomId);
     if (room == undefined) return;
     room.isRecording = shouldRecord;
 
-    broadCastMessage(roomId, WS_MSG_TYPE.UPDATE_RECORD_MODE_CLI, room.isRecording)
+    broadCastMessage(roomId, WS_MSG_TYPE.UPDATE_RECORD_MODE_CLI, room.isRecording, startTimeStamp)
 }
 
-const updateMaxDuration = (roomId: string, maxDuration: number) => {
+const updateMaxDuration = (roomId: string, maxDuration: number, startTimeStamp:number) => {
     const room = roomList.get(roomId);
     if (room == undefined) return;
     if (room.isRecording) return;
 
     room.maxDurationRecord = maxDuration;
-    broadCastMessage(roomId, WS_MSG_TYPE.CHANGE_DURATION_CLI, room.maxDurationRecord)
+    broadCastMessage(roomId, WS_MSG_TYPE.CHANGE_DURATION_CLI, room.maxDurationRecord, startTimeStamp)
 }
 
 export default {

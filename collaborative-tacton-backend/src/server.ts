@@ -12,7 +12,7 @@ const wss = new WebSocketServer({ noServer: true });
 
 wss.on('connection', function connection(ws: WebSocket, request: string, client: string) {
     ws.onmessage = (ev) => onMessage(ws, ev.data, client)
-    ws.onclose = () => onClose(client);
+    ws.onclose = (ev) => onClose(client);
     
 });
 

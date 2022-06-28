@@ -3,6 +3,7 @@ import StorageManager from "../store/StoreManager"
 import { User } from "../types";
 interface SocketMessage {
     type: WS_MSG_TYPE;
+    startTimeStamp: number;
     payload: any;
 }
 
@@ -16,6 +17,9 @@ const getID = (address: string): string => {
 }
 
 export const onMessage = (ws: WebSocket, data: any, client: string) => {
+    /**
+     * every message has an startTimeStamp, to calculate the latency
+     */
     //console.log(`Received message from user ${client}`);
     //StorageManager.temp()
     try {
@@ -46,10 +50,13 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                         console.log("broadCastMasage")
                         StorageManager.broadCastMessage(roomInfo.id,
                             WS_MSG_TYPE.UPDATE_ROOM_CLI,
-                            { room: roomInfo, participants: userData.participants.userList })
+                            { room: roomInfo, participants: userData.participants.userList },
+                            msg.startTimeStamp)
                     } else {
                         ws.send(JSON.stringify({
                             type: WS_MSG_TYPE.NO_CHANGE_ROOM_CLI,
+                            startTimeStamp:msg.startTimeStamp,
+                            endTimeStamp:new Date().getTime(),
                         }))
                     }
                 }
@@ -68,11 +75,14 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                     ws.send(JSON.stringify({
                         type: WS_MSG_TYPE.ENTER_ROOM_CLI,
                         payload: { room: roomInfo, userId: userData.participants.userId, participants: userData.participants.userList },
+                        startTimeStamp:msg.startTimeStamp,
+                        endTimeStamp:new Date().getTime(),
                     }))
 
                     StorageManager.broadCastMessage(roomInfo.id,
                         WS_MSG_TYPE.UPDATE_ROOM_CLI,
-                        { room: roomInfo, participants: userData.participants.userList })
+                        { room: roomInfo, participants: userData.participants.userList },
+                        msg.startTimeStamp)
                 }
                 break;
             }
@@ -81,7 +91,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                  * recieve "roomName#id":string as payload
                  * return {existRoom:boolean, roomInfo:Room}
                  */
-                 console.log("{ existRoom: existRoom, roomInfo: roomInfo, participants: partipantList }");
+                console.log("{ existRoom: existRoom, roomInfo: roomInfo, participants: partipantList }");
                 let existRoom = true;
                 let roomInfo = undefined;
 
@@ -105,6 +115,8 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 ws.send(JSON.stringify({
                     type: WS_MSG_TYPE.ROOM_INFO_CLI,
                     payload: { existRoom: existRoom, roomInfo: roomInfo, participants: partipantList },
+                    startTimeStamp: msg.startTimeStamp,
+                    endTimeStamp: new Date().getTime(),
                 }))
                 break;
             }
@@ -115,7 +127,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                  */
                 const partId = StorageManager.updateParticipants(msg.payload.roomId, msg.payload.user)
                 if (partId !== undefined)
-                    StorageManager.sendUpdatedParticipants(partId)
+                    StorageManager.sendUpdatedParticipants(partId, msg.startTimeStamp)
                 break;
             }
             case WS_MSG_TYPE.LOG_OUT: {
@@ -129,7 +141,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                     if (userInRoom == 0) {
                         StorageManager.removeRoom(msg.payload.roomId);
                     } else {
-                        StorageManager.sendUpdatedParticipants(msg.payload.roomId);
+                        StorageManager.sendUpdatedParticipants(msg.payload.roomId, msg.startTimeStamp);
                     }
                 }
                 break;
@@ -145,7 +157,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 if (newInstructions == undefined || newInstructions.length == 0) return;
                 console.log("sended Instruction")
                 console.log(newInstructions)
-                StorageManager.broadCastMessage(msg.payload.roomId, WS_MSG_TYPE.SEND_INSTRUCTION_CLI, newInstructions)
+                StorageManager.broadCastMessage(msg.payload.roomId, WS_MSG_TYPE.SEND_INSTRUCTION_CLI, newInstructions, msg.startTimeStamp)
                 break;
             }
             case WS_MSG_TYPE.UPDATE_RECORD_MODE_SERV: {
@@ -154,7 +166,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                  * change RecordMode of the room, if correct roomID transmitted
                  * update all clients with the new recordmode
                  */
-                StorageManager.updateRecordMode(msg.payload.roomId, msg.payload.shouldRecord)
+                StorageManager.updateRecordMode(msg.payload.roomId, msg.payload.shouldRecord, msg.startTimeStamp)
                 break;
             }
             case WS_MSG_TYPE.CHANGE_DURATION_SERV: {
@@ -163,7 +175,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                  * change Max_Duration of the room, if correct roomID transmitted
                  * update all clients with the new maximal duration
                  */
-                StorageManager.updateMaxDuration(msg.payload.roomId, msg.payload.duration)
+                StorageManager.updateMaxDuration(msg.payload.roomId, msg.payload.duration, msg.startTimeStamp)
                 break;
             }
         }
@@ -183,7 +195,7 @@ export const onClose = (client: string) => {
             if (userInRoom == 0) {
                 StorageManager.removeRoom(roomId);
             } else {
-                StorageManager.sendUpdatedParticipants(roomId);
+                StorageManager.sendUpdatedParticipants(roomId, new Date().getTime());
             }
         }
     }
