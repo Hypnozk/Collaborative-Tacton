@@ -59,7 +59,7 @@ export default defineComponent({
   methods: {
     enterRoom() {
       window.api.send(IPC_CHANNELS.main.modifyUserConfig);
-      //sendSocketMessage(WS_MSG_TYPE.GET_ROOM_INFO, this.roomName);
+      sendSocketMessage(WS_MSG_TYPE.GET_ROOM_INFO, this.roomName);
     },
   },
 });

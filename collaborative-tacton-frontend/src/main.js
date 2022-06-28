@@ -6,7 +6,6 @@ import router from "./renderer/router";
 import { useStore } from "./renderer/store/store";
 import { initWebsocket } from "./renderer/CommunicationManager/WebSocketManager";
 import { initIPCListener } from "./renderer/CommunicationManager/IPCListener";
-import { initConfig } from "./renderer/CommunicationManager/FileManager";
 
 loadFonts()
 const store = useStore();
@@ -18,4 +17,3 @@ createApp(App)
 
 initIPCListener();
 initWebsocket(store);
-initConfig();

@@ -1,3 +1,4 @@
+import { KeyBoardButton } from '@/types/GeneralType';
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -99,4 +100,9 @@ export const initSettings = {
         y: 1,
         isActive: false
     }]
+}
+
+export interface CustomSettings {
+    userName:string,
+    buttons:KeyBoardButton[]
 }

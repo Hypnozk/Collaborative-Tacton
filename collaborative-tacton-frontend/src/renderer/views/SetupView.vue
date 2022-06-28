@@ -125,7 +125,10 @@
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "../store/store";
 import router from "../router";
-import { RoomMutations, RoomState } from "../store/modules/roomSettings/roomSettings";
+import {
+  RoomMutations,
+  RoomState,
+} from "../store/modules/roomSettings/roomSettings";
 import DeviceSection from "../components/deviceComponents/DeviceSection.vue";
 import ParticipantSection from "../components/deviceComponents/ParticipantSection.vue";
 import { sendSocketMessage } from "../CommunicationManager/WebSocketManager";
@@ -140,7 +143,7 @@ export default defineComponent({
   },
   data() {
     return {
-      configureState:RoomState.Configure,
+      configureState: RoomState.Configure,
       store: useStore(),
     };
   },
@@ -173,7 +176,7 @@ export default defineComponent({
   methods: {
     cancelRoomEnter() {
       window.api.send(IPC_CHANNELS.main.changeScan, false);
-       sendSocketMessage(WS_MSG_TYPE.LOG_OUT, {
+      sendSocketMessage(WS_MSG_TYPE.LOG_OUT, {
         roomId: this.store.state.roomSettings.id,
         user: this.store.state.roomSettings.user,
       });
@@ -181,6 +184,7 @@ export default defineComponent({
     },
     enterRoom() {
       window.api.send(IPC_CHANNELS.main.changeScan, false);
+      window.api.send(IPC_CHANNELS.main.saveUserName, this.userName);
       sendSocketMessage(WS_MSG_TYPE.UPDATE_ENTER_ROOM_SERV, {
         room: {
           id: this.store.state.roomSettings.id,

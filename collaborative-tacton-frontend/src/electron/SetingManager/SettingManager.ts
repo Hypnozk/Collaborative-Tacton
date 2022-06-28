@@ -1,78 +1,83 @@
 import fs from 'fs';
 const path = require('path');
+const util = require('util');
 import { app } from "electron";
-import { initSettings } from './initSettings';
+import { initSettings, CustomSettings } from './initSettings';
 import { sendMessageToRenderer } from '../IPCMainManager/IPCController';
 import { IPC_CHANNELS } from '../IPCMainManager/IPCChannels';
+import { KeyBoardButton } from '@/types/GeneralType';
 
 class SettingManager {
     readonly pathSettings: string;
-    couldAccessFile: boolean;
+    customSettings: CustomSettings;
+    readonly errorReading: number = 0;
 
     constructor() {
         const userDataPath = app.getPath('userData')
         this.pathSettings = path.join(userDataPath, 'configCollaborativeTacton.json');
-        this.couldAccessFile = true;
+        this.customSettings = initSettings;
+        this.sendSettings()
 
-        const fileExist = this.checkIfFileExist();
-        if (fileExist == undefined)
-            this.couldAccessFile = false;
+    }
 
-        if (fileExist == false)
+    sendSettings() {
+        let readSuccessfully = this.readSettings();
+
+        if (readSuccessfully == false)
             this.initConfigFile();
 
-        let data = undefined;
-        if (this.couldAccessFile) {
-            data = this.readSettings();
-        }
-
-        if (data == undefined)
-            data = initSettings;
-
-        sendMessageToRenderer(IPC_CHANNELS.renderer.initConfig, data);
+        sendMessageToRenderer(IPC_CHANNELS.renderer.initConfig, this.customSettings);
     }
 
-    checkIfFileExist() {
-        let fileExist: Boolean | undefined = false;
-        fs.stat(this.pathSettings, (err: NodeJS.ErrnoException | null, stats: fs.Stats) => {
-            if (err) {
-                if (err.code !== "ENOENT")
-                    fileExist = undefined;
 
-                return;
-            }
-            if (stats.isDirectory())
-                return;
-
-            fileExist = true;
-        });
-        return fileExist
-    }
-
-    initConfigFile() {
+    private initConfigFile() {
         try {
             fs.writeFileSync(this.pathSettings, JSON.stringify(initSettings));
         } catch (err) {
-            console.log(err)
-            this.couldAccessFile = false;
-            return;
-        }
-    }
-
-    readSettings() {
-        try {
-            const data = fs.readFileSync(this.pathSettings, { encoding: "utf8" });
-            return JSON.parse(data);
-        } catch (err) {
-            this.couldAccessFile = false;
             console.log(err);
         }
     }
 
-    sendSettings() {
-        const data = this.readSettings();
-        console.log(data);
+    private readSettings(): boolean {
+        try {
+            const data = fs.readFileSync(this.pathSettings, { encoding: "utf8" });
+            this.customSettings = JSON.parse(data);
+            return true;
+        } catch (err: any) {
+            if (err.code !== "ENOENT") {
+                console.log("err");
+                console.log(err);
+            }
+            return false;
+        }
     }
+
+    private writeFile() {
+        fs.writeFile(this.pathSettings, JSON.stringify(this.customSettings), err => {
+            if (err) {
+                console.log(err);
+            }
+        })
+    }
+
+    updateUserName(userName: string) {
+        this.customSettings.userName = userName;
+        this.writeFile();
+    }
+
+
+    updateButton(button: KeyBoardButton) {
+        const index = this.customSettings.buttons.findIndex(buttonSettings => buttonSettings.i == button.i);
+        if (index == -1) {
+            this.customSettings.buttons.push(button);
+        } else {
+            this.customSettings.buttons[index] = button;
+        }
+
+        this.writeFile();
+    }
+
+
 };
 
 export default SettingManager

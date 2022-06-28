@@ -45,7 +45,7 @@
           </v-list-item>
         </v-list>
       </v-menu>
-   <v-btn variant="text" style="margin-right: 20px" @click="settings">
+      <v-btn variant="text" style="margin-right: 20px" @click="settings">
         Settings <v-icon right> mdi-cog-outline </v-icon>
       </v-btn>
       <v-btn variant="text" style="margin-right: 20px" @click="logOut">
@@ -97,7 +97,10 @@
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 import router from "@/renderer/router";
 import { GeneralSettingsActionTypes } from "@/renderer/store/modules/generalSettings/generalSettings";
-import { RoomMutations, RoomState } from "@/renderer/store/modules/roomSettings/roomSettings";
+import {
+  RoomMutations,
+  RoomState,
+} from "@/renderer/store/modules/roomSettings/roomSettings";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 import { sendSocketMessage } from "../../CommunicationManager/WebSocketManager";
@@ -122,7 +125,16 @@ export default defineComponent({
   watch: {
     participantMenu(newValue) {
       if (newValue == false && this.store.getters.userNameUpdated) {
+        //save that its stored to show snackbar
         this.store.dispatch(GeneralSettingsActionTypes.userNameGetSaved);
+        //save the setting inside of the config file
+        console.log("sendUserName")
+        console.log(window.api)
+        window.api.send(
+           IPC_CHANNELS.main.saveUserName,
+          this.store.state.roomSettings.user.name
+        );
+        //update user that the userName get changed
         sendSocketMessage(WS_MSG_TYPE.UPDATE_USER_ACCOUNT_SERV, {
           roomId: this.store.state.roomSettings.id,
           user: this.store.state.roomSettings.user,
@@ -140,15 +152,17 @@ export default defineComponent({
     },
     copyAdress() {
       this.store.dispatch(GeneralSettingsActionTypes.copyAdressToClipboard);
+      console.log("copyAdress")
+        console.log(window.api)
       window.api.send(
         IPC_CHANNELS.main.copyToClipBoard,
         `${this.store.state.roomSettings.roomName}#${this.store.state.roomSettings.id}`
       );
     },
-    settings(){
+    settings() {
       this.store.commit(RoomMutations.UPDATE_ROOM_STATE, RoomState.Configure);
       router.push("/setup");
-    }
+    },
   },
 });
 </script>

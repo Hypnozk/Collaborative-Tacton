@@ -6,7 +6,9 @@ const IPC_CHANNELS = {
         disconnectDevice: "tactile-jam.main.disconnectDevice",
         executeTask: "tactile-jam.main.executeTask",
         copyToClipBoard: "tactile-jam.main.copyToClipBoard",
-        modifyUserConfig: "tactile-jam.main.modifyUserConfig"
+        modifyUserConfig: "tactile-jam.main.modifyUserConfig",
+        saveUserName: "tactile-jam.main.saveUserName",
+        saveKeyBoardButton: "tactile-jam.main.saveKeyBoardButton",
     },
     renderer: {
         actuator: "tactile-jam.renderer.devices",
