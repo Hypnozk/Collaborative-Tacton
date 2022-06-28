@@ -48,8 +48,8 @@
 }
 </style>
 
-<script>
-import { PlayGroundMutations } from "@/renderer/store/modules/playGround/types";
+<script lang="ts">
+import { PlayGroundMutations, PlayGroundActionTypes } from "@/renderer/store/modules/playGround/types";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 
@@ -64,15 +64,15 @@ export default defineComponent({
       get() {
         return this.store.state.playGround.globalIntensity;
       },
-      set(value) {
-        this.store.commit(PlayGroundMutations.UPDATE_GLOBAL_INTENSITY, value);
+      set(value:number) {
+        this.store.dispatch(PlayGroundActionTypes.modifyGlobalIntensity, value);
       },
     },
     editModeOne: {
       get() {
         return this.store.state.playGround.inEditMode;
       },
-      set(value) {
+      set(value:boolean) {
         this.store.commit(PlayGroundMutations.UPDATE_EDIT_MDOE, value);
       },
     },

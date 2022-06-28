@@ -5,6 +5,7 @@ export enum PlayGroundActionTypes {
     updateKeyButton = "updateKeyButton",
     pressButtonActivated = 'pressButtonActivated',
     pressButtonDeactivated = "pressButtonDeactivated",
+    modifyGlobalIntensity = "modifyGlobalIntensity",
 }
 export enum PlayGroundMutations {
     BULK_GRID_UPDATE = "BULK_GRID_UPDATE",

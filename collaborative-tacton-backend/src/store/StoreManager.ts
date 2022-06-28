@@ -149,59 +149,64 @@ const findRoomIdOfUser = (userId: string) => {
     return roomId;
 }
 
-const updateIntensities = (clientId: string, roomId: string, keyId: string, channelsModified: string[], intensityValue: number): Array<{ channelId: string, intensity: number }> | undefined => {
+const updateIntensities = (clientId: string, roomId: string, instructionList: [{ keyId: string, channels: string[], intensity: number }]): Array<{ channelId: string, intensity: number }> | undefined => {
     const roomChannels = channelList.get(roomId);
     const clientInstruction: Array<{ channelId: string, intensity: number }> = [];
     //console.log("roomId: " + roomId)
     //console.log("clientId: " + clientId)
     //console.log("keyId: " + keyId)
-    //console.log("channelsModified: " + channelsModified)
+    //console.log("channels: " + channels)
     if (roomChannels == undefined) return;
 
-    for (let i = 0; i < channelsModified.length; i++) {
-        let roomChannel = roomChannels.find(roomChannel => roomChannel.id == channelsModified[i]);
-        let intensityIndex = -1;
-        let lastEntry = false;
-        if (roomChannel == undefined) {
-            //channel doesn't exist create new one
-            console.log("createRoomChannel");
-            const length = roomChannels.push({ id: channelsModified[i], intensityList: [] });
-            roomChannel = roomChannels[length - 1];
-        } else {
-            //channel exist, check if one intensity value could be deleted
-            intensityIndex = roomChannel.intensityList.findIndex(intensity => intensity.clientId == clientId && intensity.keyId == keyId);
-            if (intensityIndex !== -1) {
-                lastEntry = intensityIndex == roomChannel.intensityList.length - 1;
-                roomChannel.intensityList.splice(intensityIndex, 1);
-            }
-
-        }
-
-        if (intensityIndex !== -1 && intensityValue == 0) {
-            //instruction was key up event,
-            console.log("instruction was key up");
-            if (lastEntry) {
-                //the entry at the end was deleted, calculate new instruction for cli
-                if (roomChannel.intensityList.length == 0) {
-                    // there are now no entries anymore in the list  --> tell client to stop vibrate
-                    clientInstruction.push({ channelId: channelsModified[i], intensity: 0 });
-                } else {
-                    //there are still some entries --> tell client to execute latest vibration now again
-                    clientInstruction.push({ channelId: channelsModified[i], intensity: roomChannel.intensityList[roomChannel.intensityList.length - 1].intensity });
+    instructionList.forEach(instruction => {
+        for (let i = 0; i < instruction.channels.length; i++) {
+            let roomChannel = roomChannels.find(roomChannel => roomChannel.id == instruction.channels[i]);
+            let intensityIndex = -1;
+            let lastEntry = false;
+            if (roomChannel == undefined) {
+                //channel doesn't exist create new one
+                console.log("createRoomChannel");
+                const length = roomChannels.push({ id: instruction.channels[i], intensityList: [] });
+                roomChannel = roomChannels[length - 1];
+            } else {
+                //channel exist, check if one intensity value could be deleted
+                intensityIndex = roomChannel.intensityList.findIndex(intensity => intensity.clientId == clientId && intensity.keyId == instruction.keyId);
+                if (intensityIndex !== -1) {
+                    lastEntry = intensityIndex == roomChannel.intensityList.length - 1;
+                    roomChannel.intensityList.splice(intensityIndex, 1);
                 }
+
             }
-        } else {
-            //instruction was key down event
-            console.log("instruction was key down event");
-            console.log(roomChannel)
-            roomChannel.intensityList.push({
-                clientId: clientId,
-                keyId: keyId,
-                intensity: intensityValue
-            });
-            clientInstruction.push({ channelId: channelsModified[i], intensity: intensityValue });
+
+            if (intensityIndex !== -1 && instruction.intensity == 0) {
+                //instruction was key up event,
+                console.log("instruction was key up");
+                if (lastEntry) {
+                    //the entry at the end was deleted, calculate new instruction for cli
+                    if (roomChannel.intensityList.length == 0) {
+                        // there are now no entries anymore in the list  --> tell client to stop vibrate
+                        clientInstruction.push({ channelId: instruction.channels[i], intensity: 0 });
+                    } else {
+                        //there are still some entries --> tell client to execute latest vibration now again
+                        clientInstruction.push({
+                            channelId: instruction.channels[i],
+                            intensity: roomChannel.intensityList[roomChannel.intensityList.length - 1].intensity
+                        });
+                    }
+                }
+            } else {
+                //instruction was key down event
+                console.log("instruction was key down event");
+                console.log(roomChannel)
+                roomChannel.intensityList.push({
+                    clientId: clientId,
+                    keyId: instruction.keyId,
+                    intensity: instruction.intensity
+                });
+                clientInstruction.push({ channelId: instruction.channels[i], intensity: instruction.intensity });
+            }
         }
-    }
+    });
     return clientInstruction;
 }
 

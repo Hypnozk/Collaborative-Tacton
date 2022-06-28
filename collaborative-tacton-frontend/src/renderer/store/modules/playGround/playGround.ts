@@ -95,6 +95,10 @@ export interface Actions {
         { commit }: AugmentedActionContext,
         payload: { id: string, props: any }, // Obsolete in here but left as an example
     ): void;
+    [PlayGroundActionTypes.modifyGlobalIntensity](
+        { commit }: AugmentedActionContext,
+        payload: number, // Obsolete in here but left as an example
+    ): void;
 }
 
 export const actions: ActionTree<State, RootState> & Actions = {
@@ -113,23 +117,17 @@ export const actions: ActionTree<State, RootState> & Actions = {
         if (payload.keyboard !== undefined)
             isActive.keyboard = payload.keyboard;
 
-            /** 
-            console.log("isActive.mouse");
-            console.log(isActive.mouse);
-            console.log(state.gridItems[index].isActive.mouse);
-            console.log("isActive.keyboard");
-            console.log(isActive.keyboard);
-            console.log(state.gridItems[index].isActive.keyboard);
-*/
         if (isActive.mouse == state.gridItems[index].isActive.mouse && isActive.keyboard == state.gridItems[index].isActive.keyboard) return;
 
         if ((isActive.mouse || isActive.keyboard) && (!state.gridItems[index].isActive.mouse && !state.gridItems[index].isActive.keyboard)) {
             const store = useStore();
             sendSocketMessage(WS_MSG_TYPE.SEND_INSTRUCTION_SERV, {
                 roomId: store.state.roomSettings.id,
-                keyId: state.gridItems[index].i,
-                channels: state.gridItems[index].channels,
-                intensity: state.gridItems[index].intensity * state.globalIntensity
+                instructions: [{
+                    keyId: state.gridItems[index].i,
+                    channels: state.gridItems[index].channels,
+                    intensity: state.gridItems[index].intensity * state.globalIntensity
+                }]
             });
         }
         commit(PlayGroundMutations.UPDATE_GRID_ITEM, { index: index, button: { ...state.gridItems[index], isActive: isActive } });
@@ -155,9 +153,12 @@ export const actions: ActionTree<State, RootState> & Actions = {
             const store = useStore();
             sendSocketMessage(WS_MSG_TYPE.SEND_INSTRUCTION_SERV, {
                 roomId: store.state.roomSettings.id,
-                keyId: state.gridItems[index].i,
-                channels: state.gridItems[index].channels,
-                intensity: 0
+                instructions: [
+                    {
+                        keyId: state.gridItems[index].i,
+                        channels: state.gridItems[index].channels,
+                        intensity: 0
+                    }]
             });
         }
         commit(PlayGroundMutations.UPDATE_GRID_ITEM, { index: index, button: { ...state.gridItems[index], isActive: isActive } });
@@ -202,6 +203,34 @@ export const actions: ActionTree<State, RootState> & Actions = {
             state.gridItems[index]
         );
         commit(PlayGroundMutations.UPDATE_GRID_ITEM, { index: index, button: { ...state.gridItems[index], ...payload.props } });
+    },
+    [PlayGroundActionTypes.modifyGlobalIntensity]({ commit }, intensity: number) {
+        console.log("intensity " + intensity);
+        commit(PlayGroundMutations.UPDATE_GLOBAL_INTENSITY, intensity);
+
+        const instructionList: {
+            keyId: string,
+            channels: number[],
+            intensity: number
+        }[] = []
+
+        state.gridItems.forEach(item => {
+            if (item.isActive.keyboard || item.isActive.mouse) {
+                instructionList.push({
+                    keyId: item.i,
+                    channels: item.channels,
+                    intensity: item.intensity * intensity
+                });
+            }
+        });
+
+        if (instructionList.length > 0) {
+            const store = useStore();
+            sendSocketMessage(WS_MSG_TYPE.SEND_INSTRUCTION_SERV, {
+                roomId: store.state.roomSettings.id,
+                instructions: instructionList
+            });
+        }
     },
 };
 

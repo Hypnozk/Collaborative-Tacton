@@ -16,11 +16,11 @@ const getID = (address: string): string => {
 }
 
 export const onMessage = (ws: WebSocket, data: any, client: string) => {
-    console.log(`Received message ${data} from user ${client}`);
+    //console.log(`Received message from user ${client}`);
     //StorageManager.temp()
     try {
         let msg: SocketMessage = JSON.parse(data);
-        console.log(msg.payload)
+        //console.log(msg.payload)
         switch (msg.type) {
             case WS_MSG_TYPE.UPDATE_ROOM_SERV: {
                 /**
@@ -81,6 +81,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                  * recieve "roomName#id":string as payload
                  * return {existRoom:boolean, roomInfo:Room}
                  */
+                 console.log("{ existRoom: existRoom, roomInfo: roomInfo, participants: partipantList }");
                 let existRoom = true;
                 let roomInfo = undefined;
 
@@ -135,11 +136,12 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
             }
             case WS_MSG_TYPE.SEND_INSTRUCTION_SERV: {
                 /**
-                 * recieve "{roomId:string, user:{id:string,userName:string}}" as payload
-                 * remove Room if there are no participants anymore
-                 * update all clients with new username
+                 * recieve "{roomId:string, instructions:[{keyId:string, channels:number[], intensity:number}]" as payload
+                 * {keyId:string, channels:number[], intensity:number} --> user pressed one key with some intensity, one key could assign multiple values
+                 * send the new instruction to all clients
+                 * return [{channelId:number, intensity:number}] --> for every channel new object in array
                  */
-                const newInstructions = StorageManager.updateIntensities(client, msg.payload.roomId, msg.payload.keyId, msg.payload.channels, msg.payload.intensity)
+                const newInstructions = StorageManager.updateIntensities(client, msg.payload.roomId, msg.payload.instructions)
                 if (newInstructions == undefined || newInstructions.length == 0) return;
                 console.log("sended Instruction")
                 console.log(newInstructions)
