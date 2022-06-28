@@ -4,7 +4,6 @@ import { GeneralSettingsActionTypes, VibrotactileDevice } from "@/renderer/store
 import { PlayGroundMutations } from "@/renderer/store/modules/playGround/types";
 import { CustomSettings } from "@/electron/SetingManager/initSettings";
 import { RoomMutations } from "@/renderer/store/modules/roomSettings/roomSettings";
-import { mdiConsoleNetworkOutline } from "@mdi/js";
 
 const store = useStore()
 export const initIPCListener = () => {
@@ -23,8 +22,8 @@ export const initIPCListener = () => {
   });
 
   window.api.receive(IPC_CHANNELS.renderer.initConfig, (setting:CustomSettings) => {
-    console.log("IPC_CHANNELS.renderer.initConfig")
-    console.log(setting)
+    console.log("initConfig")
+    console.log(setting.buttons)
     store.commit(PlayGroundMutations.BULK_GRID_UPDATE, setting.buttons);
     store.commit(RoomMutations.UPDATE_USER_NAME, setting.userName);
   });

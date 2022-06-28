@@ -4,7 +4,7 @@
       :col-num="store.state.playGround.gridLayout.x"
       :row-height="rowHeight"
       :maxRows="store.state.playGround.gridLayout.y"
-      :is-draggable="true"
+      :is-draggable="store.state.playGround.inEditMode"
       :is-resizable="false"
       :vertical-compact="false"
       :prevent-collision="true"

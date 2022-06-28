@@ -139,8 +139,6 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                  * remove Room if there are no participants anymore
                  * update all clients with new username
                  */
-                console.log("recieve Instruction");
-                console.log(msg.payload);
                 const newInstructions = StorageManager.updateIntensities(client, msg.payload.roomId, msg.payload.keyId, msg.payload.channels, msg.payload.intensity)
                 if (newInstructions == undefined || newInstructions.length == 0) return;
                 console.log("sended Instruction")

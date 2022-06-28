@@ -9,7 +9,10 @@ export interface KeyBoardAttributes {
   intensity: number,
   name?: string,
   key: string,
-  isActive: boolean
+  isActive: {
+    mouse:boolean,
+    keyboard:boolean,
+  }
 }
 
 export interface KeyBoardButton extends KeyBoardAttributes {

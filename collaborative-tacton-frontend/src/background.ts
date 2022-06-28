@@ -1,5 +1,5 @@
 "use strict";
-import { setBrowserWindow } from './electron/IPCMainManager/IPCController';
+import { setBrowserWindow,initSettingManager } from './electron/IPCMainManager/IPCController';
 import { app, protocol, BrowserWindow } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
@@ -43,7 +43,9 @@ async function createWindow() {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string);
     if (!process.env.IS_TEST) win.webContents.openDevTools();
+    initSettingManager();
   } else {
+    console.log("createProtocol")
     createProtocol("app");
     // Load the index.html when not in development
     win.loadURL("app://./index.html");

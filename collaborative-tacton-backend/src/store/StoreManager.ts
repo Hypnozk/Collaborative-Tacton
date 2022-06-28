@@ -152,10 +152,10 @@ const findRoomIdOfUser = (userId: string) => {
 const updateIntensities = (clientId: string, roomId: string, keyId: string, channelsModified: string[], intensityValue: number): Array<{ channelId: string, intensity: number }> | undefined => {
     const roomChannels = channelList.get(roomId);
     const clientInstruction: Array<{ channelId: string, intensity: number }> = [];
-    console.log("roomId: " + roomId)
-    console.log("clientId: " + clientId)
-    console.log("keyId: " + keyId)
-    console.log("channelsModified: " + channelsModified)
+    //console.log("roomId: " + roomId)
+    //console.log("clientId: " + clientId)
+    //console.log("keyId: " + keyId)
+    //console.log("channelsModified: " + channelsModified)
     if (roomChannels == undefined) return;
 
     for (let i = 0; i < channelsModified.length; i++) {

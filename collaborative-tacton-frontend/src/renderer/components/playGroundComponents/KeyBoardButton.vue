@@ -5,6 +5,7 @@
     min-width="100"
     min-height="100"
     @click="handleMouse(false)"
+    @mouseleave="handleMouse(false)"
     @mousedown="handleMouse(true)"
     v-bind:style="{ backgroundColor: colorActuator }"
   >
@@ -22,7 +23,7 @@
       <v-row align="center" no-gutters justify="center">
         {{ listChannels() }}
         <v-spacer />
-        <v-icon class="mr-1" small v-if="this.store.state.playGround.inEditMode">
+        <v-icon class="mr-1" small v-if="store.state.playGround.inEditMode">
           mdi-pencil
         </v-icon>
       </v-row>
@@ -34,6 +35,10 @@
 .keyButton {
   display: flex;
   flex-direction: column;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+/Edge */
+  user-select: none; /* Standard */
 }
 
 .cardMainRow {
@@ -58,6 +63,7 @@ export default defineComponent({
   data() {
     return {
       store: useStore(),
+      buttonPressed: false,
     };
   },
   props: {
@@ -69,12 +75,19 @@ export default defineComponent({
   emits: ["editButton"],
   computed: {
     colorActuator() {
-      if (this.button.isActive) return lightenDarkenColor(this.button.color, -100);
+      if (this.button.isActive.mouse || this.button.isActive.keyboard)
+        return lightenDarkenColor(this.button.color, -100);
       return this.button.color;
     },
   },
   methods: {
-    handleMouse(mouseDown: true) {
+    handleMouseLeave() {
+      this.store.dispatch(PlayGroundActionTypes.deactivateKey, {
+        buttonKey: this.button.key,
+        mouse: false,
+      });
+    },
+    handleMouse(mouseDown: boolean) {
       if (this.store.state.playGround.inEditMode) {
         if (!mouseDown) {
           //the button wanted to be edit
@@ -83,9 +96,19 @@ export default defineComponent({
       } else {
         if (mouseDown) {
           //button clicked
-          this.store.dispatch(PlayGroundActionTypes.activateKey, this.button.key);
+          this.buttonPressed = true;
+          this.store.dispatch(PlayGroundActionTypes.activateKey, {
+            buttonKey: this.button.key,
+            mouse: true,
+          });
         } else {
-          this.store.dispatch(PlayGroundActionTypes.deactivateKey, this.button.key);
+          if (this.buttonPressed) {
+            this.buttonPressed = false;
+            this.store.dispatch(PlayGroundActionTypes.deactivateKey, {
+              buttonKey: this.button.key,
+              mouse: false,
+            });
+          }
         }
       }
     },

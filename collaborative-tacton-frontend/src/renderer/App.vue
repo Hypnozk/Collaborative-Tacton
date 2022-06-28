@@ -152,14 +152,14 @@ export default defineComponent({
       if (!this.correctFrameForInput()) return;
       const key: string = e.key.toUpperCase();
       //console.log("buttonDown");
-      this.store.dispatch(PlayGroundActionTypes.activateKey, key);
+      this.store.dispatch(PlayGroundActionTypes.activateKey, {buttonKey:key, keyboard: true});
     },
     buttonUp(e: any) {
       if (this.store.state.playGround.inEditMode) return;
       if (!this.correctFrameForInput()) return;
       const key = e.key.toUpperCase();
       //console.log("buttonUp");
-      this.store.dispatch(PlayGroundActionTypes.deactivateKey, key);
+      this.store.dispatch(PlayGroundActionTypes.deactivateKey, {buttonKey:key, keyboard: false});
     },
   },
 });

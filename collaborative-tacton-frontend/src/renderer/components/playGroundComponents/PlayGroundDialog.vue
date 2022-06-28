@@ -287,7 +287,10 @@ export default defineComponent({
         intensity: this.intensity,
         name: this.name,
         key: this.key,
-        isActive: false,
+        isActive: {
+            mouse:false,
+            keyboard:false
+        },
       };
 
       if (this.keyButtonId == undefined) {

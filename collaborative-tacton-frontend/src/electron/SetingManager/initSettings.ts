@@ -14,7 +14,10 @@ export const initSettings = {
         w: 1,
         x: 5,
         y: 0,
-        isActive: false
+        isActive: {
+            mouse:false,
+            keyboard:false
+        }
     },
     {
         i: uuidv4(),
@@ -26,7 +29,10 @@ export const initSettings = {
         w: 1,
         x: 7,
         y: 1,
-        isActive: false
+        isActive: {
+            mouse:false,
+            keyboard:false
+        }
     },
     {
         i: uuidv4(),
@@ -38,7 +44,10 @@ export const initSettings = {
         w: 1,
         x: 8,
         y: 3,
-        isActive: false
+        isActive: {
+            mouse:false,
+            keyboard:false
+        }
     },
     {
         i: uuidv4(),
@@ -50,7 +59,10 @@ export const initSettings = {
         w: 1,
         x: 7,
         y: 5,
-        isActive: false
+        isActive: {
+            mouse:false,
+            keyboard:false
+        }
     },
     {
         i: uuidv4(),
@@ -62,7 +74,10 @@ export const initSettings = {
         w: 1,
         x: 5,
         y: 6,
-        isActive: false
+        isActive: {
+            mouse:false,
+            keyboard:false
+        }
     },
     {
         i: uuidv4(),
@@ -74,7 +89,10 @@ export const initSettings = {
         w: 1,
         x: 3,
         y: 5,
-        isActive: false
+        isActive: {
+            mouse:false,
+            keyboard:false
+        }
     },
     {
         i: uuidv4(),
@@ -86,7 +104,10 @@ export const initSettings = {
         w: 1,
         x: 2,
         y: 3,
-        isActive: false
+        isActive: {
+            mouse:false,
+            keyboard:false
+        }
     },
     {
         i: uuidv4(),
@@ -98,7 +119,10 @@ export const initSettings = {
         w: 1,
         x: 3,
         y: 1,
-        isActive: false
+        isActive: {
+            mouse:false,
+            keyboard:false
+        }
     }]
 }
 

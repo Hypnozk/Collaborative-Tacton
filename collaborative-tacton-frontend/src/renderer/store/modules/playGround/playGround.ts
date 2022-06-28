@@ -81,11 +81,11 @@ type AugmentedActionContext = {
 export interface Actions {
     [PlayGroundActionTypes.activateKey](
         { commit }: AugmentedActionContext,
-        payload: string, // Obsolete in here but left as an example
+        payload: { buttonKey: string, mouse?: boolean, keyboard?: boolean }, // Obsolete in here but left as an example
     ): void;
     [PlayGroundActionTypes.deactivateKey](
         { commit }: AugmentedActionContext,
-        payload: string, // Obsolete in here but left as an example
+        payload: { buttonKey: string, mouse?: boolean, keyboard?: boolean }, // Obsolete in here but left as an example
     ): void;
     [PlayGroundActionTypes.addButtonToGrid](
         { commit }: AugmentedActionContext,
@@ -98,32 +98,69 @@ export interface Actions {
 }
 
 export const actions: ActionTree<State, RootState> & Actions = {
-    [PlayGroundActionTypes.activateKey]({ commit }, buttonKey: string) {
-        const index = state.gridItems.findIndex((keyBoardButton) => keyBoardButton.key === buttonKey);
-        if (index == -1 || state.gridItems[index].isActive) return;
+    [PlayGroundActionTypes.activateKey]({ commit }, payload: { buttonKey: string, mouse?: boolean, keyboard?: boolean }) {
+        const index = state.gridItems.findIndex((keyBoardButton) => keyBoardButton.key === payload.buttonKey);
+        if (index == -1) return;
 
-        commit(PlayGroundMutations.UPDATE_GRID_ITEM, { index: index, button: { ...state.gridItems[index], isActive: true } });
-        const store = useStore();
-        sendSocketMessage(WS_MSG_TYPE.SEND_INSTRUCTION_SERV, {
-            roomId: store.state.roomSettings.id,
-            keyId: state.gridItems[index].i,
-            channels: state.gridItems[index].channels,
-            intensity: state.gridItems[index].intensity * state.globalIntensity
-        });
+        const isActive = {
+            mouse: state.gridItems[index].isActive.mouse,
+            keyboard: state.gridItems[index].isActive.keyboard
+        };
+
+        if (payload.mouse !== undefined)
+            isActive.mouse = payload.mouse;
+
+        if (payload.keyboard !== undefined)
+            isActive.keyboard = payload.keyboard;
+
+            /** 
+            console.log("isActive.mouse");
+            console.log(isActive.mouse);
+            console.log(state.gridItems[index].isActive.mouse);
+            console.log("isActive.keyboard");
+            console.log(isActive.keyboard);
+            console.log(state.gridItems[index].isActive.keyboard);
+*/
+        if (isActive.mouse == state.gridItems[index].isActive.mouse && isActive.keyboard == state.gridItems[index].isActive.keyboard) return;
+
+        if ((isActive.mouse || isActive.keyboard) && (!state.gridItems[index].isActive.mouse && !state.gridItems[index].isActive.keyboard)) {
+            const store = useStore();
+            sendSocketMessage(WS_MSG_TYPE.SEND_INSTRUCTION_SERV, {
+                roomId: store.state.roomSettings.id,
+                keyId: state.gridItems[index].i,
+                channels: state.gridItems[index].channels,
+                intensity: state.gridItems[index].intensity * state.globalIntensity
+            });
+        }
+        commit(PlayGroundMutations.UPDATE_GRID_ITEM, { index: index, button: { ...state.gridItems[index], isActive: isActive } });
     },
-    [PlayGroundActionTypes.deactivateKey]({ commit }, buttonKey: string) {
-        const index = state.gridItems.findIndex((keyBoardButton) => keyBoardButton.key === buttonKey);
-        if (index == -1 || !state.gridItems[index].isActive) return;
+    [PlayGroundActionTypes.deactivateKey]({ commit }, payload: { buttonKey: string, mouse?: boolean, keyboard?: boolean }) {
+        const index = state.gridItems.findIndex((keyBoardButton) => keyBoardButton.key === payload.buttonKey);
+        if (index == -1) return;
 
-        commit(PlayGroundMutations.UPDATE_GRID_ITEM, { index: index, button: { ...state.gridItems[index], isActive: false } });
-        const store = useStore();
-        sendSocketMessage(WS_MSG_TYPE.SEND_INSTRUCTION_SERV, {
-            roomId: store.state.roomSettings.id,
-            keyId: state.gridItems[index].i,
-            channels: state.gridItems[index].channels,
-            intensity: 0
-        });
+        const isActive = {
+            mouse: state.gridItems[index].isActive.mouse,
+            keyboard: state.gridItems[index].isActive.keyboard
+        };
 
+        if (payload.mouse !== undefined)
+            isActive.mouse = payload.mouse;
+
+        if (payload.keyboard !== undefined)
+            isActive.keyboard = payload.keyboard;
+
+        if (isActive.mouse == state.gridItems[index].isActive.mouse && isActive.keyboard == state.gridItems[index].isActive.keyboard) return;
+
+        if (!isActive.mouse && !isActive.keyboard && (state.gridItems[index].isActive.mouse || state.gridItems[index].isActive.keyboard)) {
+            const store = useStore();
+            sendSocketMessage(WS_MSG_TYPE.SEND_INSTRUCTION_SERV, {
+                roomId: store.state.roomSettings.id,
+                keyId: state.gridItems[index].i,
+                channels: state.gridItems[index].channels,
+                intensity: 0
+            });
+        }
+        commit(PlayGroundMutations.UPDATE_GRID_ITEM, { index: index, button: { ...state.gridItems[index], isActive: isActive } });
     },
     [PlayGroundActionTypes.addButtonToGrid]({ commit }, button: KeyBoardAttributes) {
         const uid = uuidv4();
@@ -189,7 +226,7 @@ export const getters: GetterTree<State, RootState> & Getters = {
         if (index == -1)
             return false;
 
-        return state.gridItems[index].isActive;
+        return state.gridItems[index].isActive.mouse || state.gridItems[index].isActive.keyboard;
     },
     isKeyAlreadyTaken: (state) => (originalId, key) => {
         const index = state.gridItems.findIndex((keyBoardButton) => keyBoardButton.key === key);

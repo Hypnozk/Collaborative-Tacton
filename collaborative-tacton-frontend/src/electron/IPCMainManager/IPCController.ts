@@ -61,17 +61,17 @@ ipcMain.on(IPC_CHANNELS.main.copyToClipBoard, (event, adress: string) => {
 });
 
 ipcMain.on(IPC_CHANNELS.main.modifyUserConfig, (event, setting: { key: string, value: any }) => {
-    //console.log("copyToClipBoard");
+    //console.log("modifyUserConfig");
     _settingManager.sendSettings();
 });
 
 ipcMain.on(IPC_CHANNELS.main.saveUserName, (event, userName: string) => {
-    console.log("copyToClipBoard");
+    //console.log("saveUserName");
     _settingManager.updateUserName(userName);
 });
 
 ipcMain.on(IPC_CHANNELS.main.saveKeyBoardButton, (event, button: KeyBoardButton) => {
-    //console.log("copyToClipBoard");
+    //console.log("saveKeyBoardButton");
     _settingManager.updateButton(button);
 });
 
@@ -81,5 +81,9 @@ export function sendMessageToRenderer(channel: string, payload: any): void {
 
 export function setBrowserWindow(browserWindow: BrowserWindow) {
     _win = browserWindow;
+
+}
+
+export function initSettingManager(){
     _settingManager = new SettingManager();
 }
