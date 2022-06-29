@@ -8,7 +8,7 @@ Vibrotactile pattern generator for collaborative development. All instruction wi
 4. navigate inside of a terminal to the directory "Collaborative-Tacton\collaborative-tacton-frontend"
 5. run npm install
     1. there could be an error, that you have to remove the electron module
-    2. if this error occure  --> remove all folder, which contain the name "electron"
+    2. if this error occure  --> remove all folder, which contain the name "electron" inside of the node_modules folder
     3. run npm install
 6. ensure that you plugged in your bluetooth-dongle, with the correct driver and that it's currently not used
 7. run npm electron:serve
