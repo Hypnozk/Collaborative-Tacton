@@ -55,6 +55,8 @@ export const handleMessage = (store: Store, msg: SocketMessage) => {
             break;
         }
         case WS_MSG_TYPE.SEND_INSTRUCTION_CLI: {
+            console.log("SEND_INSTRUCTION_CLI")
+            console.log(msg.payload)
             store.dispatch(TactonSettingsActionTypes.modifySpecificChannel, msg.payload)
             store.commit(TactonMutations.UPDATE_INSERT_VALUES, true);
             if (store.state.generalSettings.currentView == RouterNames.PLAY_GROUND && !store.state.playGround.inEditMode) {

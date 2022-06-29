@@ -15,7 +15,9 @@
       </v-col>
     </v-row>
     <v-row class="subRow">
-      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px">Description</v-col>
+      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px"
+        >Description</v-col
+      >
       <v-col cols="5">
         <v-textarea
           variant="underlined"
@@ -27,7 +29,9 @@
       </v-col>
     </v-row>
     <v-row class="subRow">
-      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px">Username</v-col>
+      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px"
+        >Username</v-col
+      >
       <v-col cols="5">
         <v-text-field
           variant="underlined"
@@ -37,7 +41,9 @@
       </v-col>
     </v-row>
     <v-row class="subRow">
-      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px">Connected Device</v-col>
+      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px"
+        >Connected Device</v-col
+      >
       <v-col cols="5">
         {{ store.getters.getConnectedDevice?.name }}
       </v-col>
@@ -62,7 +68,9 @@
         <v-row>
           <v-btn elevation="2" color="primary" @click="cancelRoomEnter">
             {{
-              store.state.roomSettings.roomState == configureState ? "Log Out" : "Cancel"
+              store.state.roomSettings.roomState == configureState
+                ? "Log Out"
+                : "Cancel"
             }}
           </v-btn>
           <v-spacer />
@@ -100,7 +108,7 @@
   text-decoration: underline;
   justify-content: center;
   font-weight: bold;
-  padding-bottom:10px;
+  padding-bottom: 10px;
 }
 .subRow {
   flex: 0;
@@ -185,7 +193,10 @@ export default defineComponent({
             name: this.store.state.roomSettings.roomName,
             description: this.description,
           },
-          userName: this.userName,
+          user: {
+            id: this.store.state.roomSettings.user.id,
+            name: this.store.state.roomSettings.user.name,
+          },
         });
       } else {
         sendSocketMessage(WS_MSG_TYPE.ENTER_ROOM_SERV, {
