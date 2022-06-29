@@ -47,7 +47,6 @@ class LoggingManager {
         }
     }
 
-
     writeLog(level: LoggingLevel, type: string, latency: number) {
         fs.appendFile(this.pathSettings, JSON.stringify({ type: type, latency: latency+"ms", level: level }) + "\r\n", err => {
             if (err) {
