@@ -32,10 +32,7 @@
 </template>
 
 <script>
-import {
-  PlayGroundActionTypes,
-  PlayGroundMutations,
-} from "@/renderer/store/modules/playGround/types";
+import { PlayGroundActionTypes } from "@/renderer/store/modules/playGround/types";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 import { GridLayout, GridItem } from "vue-grid-layout";
@@ -69,7 +66,7 @@ export default defineComponent({
         },
       });
     },
-    moveEvent: function (i, newX, newY) {
+    moveEvent: function () {
       //console.log("MOVED i=" + i + ", X=" + newX + ", Y=" + newY);
       this.isMoved = true;
     },

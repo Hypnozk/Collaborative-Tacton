@@ -30,7 +30,6 @@ class LoggingManager {
 
             fs.writeFileSync(this.pathSettings, "");
         } catch (err) {
-            console.log("initLoggingFile")
             console.log(err);
         }
     }
@@ -50,11 +49,7 @@ class LoggingManager {
 
 
     writeLog(level: LoggingLevel, type: string, latency: number) {
-        console.log("writeFile")
-        console.log(level)
-        console.log(type)
-        console.log(latency)
-        fs.appendFile(this.pathSettings, JSON.stringify({ type: type, latency: latency, level: level }) + "\r\n", err => {
+        fs.appendFile(this.pathSettings, JSON.stringify({ type: type, latency: latency+"ms", level: level }) + "\r\n", err => {
             if (err) {
                 console.log(err);
             }

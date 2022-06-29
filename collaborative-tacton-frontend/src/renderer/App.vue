@@ -118,7 +118,7 @@
 }
 </style>
 <script lang="ts">
-import { computed, defineComponent } from "@vue/runtime-core";
+import { defineComponent } from "@vue/runtime-core";
 import { RouterNames } from "../types/Routernames";
 import { GeneralSettingsActionTypes } from "./store/modules/generalSettings/generalSettings";
 import { useStore } from "./store/store";

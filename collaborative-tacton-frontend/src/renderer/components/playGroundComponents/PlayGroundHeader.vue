@@ -2,13 +2,22 @@
   <v-container id="headerPlayGround" class="headerPlayGround">
     <v-row class="align-center" no-gutters>
       <v-col style="padding: 0px 0px 0px 10px; flex-grow: 1">
-        {{ `${store.state.roomSettings.roomName}#${store.state.roomSettings.id}` }}
-        <v-btn variant="text" icon="mdi-content-copy" @click="copyAdress"> </v-btn>
+        {{
+          `${store.state.roomSettings.roomName}#${store.state.roomSettings.id}`
+        }}
+        <v-btn variant="text" icon="mdi-content-copy" @click="copyAdress">
+        </v-btn>
       </v-col>
-      <v-menu class="customMenu" stlye="margin-right:5px" v-model="participantMenu">
+      <v-menu
+        class="customMenu"
+        stlye="margin-right:5px"
+        v-model="participantMenu"
+      >
         <template v-slot:activator="{ props }">
           <v-btn variant="text" v-bind="props">
-            {{ `Participants: ${store.state.roomSettings.participants.length}` }}
+            {{
+              `Participants: ${store.state.roomSettings.participants.length}`
+            }}
           </v-btn>
         </template>
         <v-list>
@@ -20,7 +29,9 @@
                 v-on:keyup.enter="onEnter"
                 v-model="userName"
               />
-              <v-icon right @click="participantMenu = false"> mdi-content-save </v-icon>
+              <v-icon right @click="participantMenu = false">
+                mdi-content-save
+              </v-icon>
             </div>
           </div>
           <v-list-item
@@ -86,10 +97,7 @@
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 import router from "@/renderer/router";
 import { GeneralSettingsActionTypes } from "@/renderer/store/modules/generalSettings/generalSettings";
-import {
-  RoomMutations,
-  RoomState,
-} from "@/renderer/store/modules/roomSettings/roomSettings";
+import { RoomMutations } from "@/renderer/store/modules/roomSettings/roomSettings";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 import { sendSocketMessage } from "../../CommunicationManager/WebSocketManager";
@@ -122,10 +130,10 @@ export default defineComponent({
         //save that its stored to show snackbar
         this.store.dispatch(GeneralSettingsActionTypes.userNameGetSaved);
         //save the setting inside of the config file
-        console.log("sendUserName")
-        console.log(window.api)
+        console.log("sendUserName");
+        console.log(window.api);
         window.api.send(
-           IPC_CHANNELS.main.saveUserName,
+          IPC_CHANNELS.main.saveUserName,
           this.store.state.roomSettings.user.name
         );
         //update user that the userName get changed
@@ -149,15 +157,18 @@ export default defineComponent({
     },
     copyAdress() {
       this.store.dispatch(GeneralSettingsActionTypes.copyAdressToClipboard);
-      console.log("copyAdress")
-        console.log(window.api)
+      console.log("copyAdress");
+      console.log(window.api);
       window.api.send(
         IPC_CHANNELS.main.copyToClipBoard,
         `${this.store.state.roomSettings.roomName}#${this.store.state.roomSettings.id}`
       );
     },
     settings() {
-      sendSocketMessage(WS_MSG_TYPE.ROOM_INFO_SERV, this.store.state.roomSettings.id);
+      sendSocketMessage(
+        WS_MSG_TYPE.ROOM_INFO_SERV,
+        this.store.state.roomSettings.id
+      );
     },
   },
 });
