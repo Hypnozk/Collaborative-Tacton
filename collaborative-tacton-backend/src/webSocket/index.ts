@@ -127,8 +127,8 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                  */
                 const newInstructions = RoomModule.updateIntensities(client, msg.payload.roomId, msg.payload.instructions)
                 if (newInstructions == undefined || newInstructions.length == 0) return;
-                console.log("sended Instruction")
-                console.log(newInstructions)
+                //console.log("sended Instruction")
+                //console.log(newInstructions)
                 StorageManager.broadCastMessage(msg.payload.roomId, WS_MSG_TYPE.SEND_INSTRUCTION_CLI, newInstructions, msg.startTimeStamp)
                 break;
             }
