@@ -35,8 +35,7 @@ const enterSession = (ws: WebSocket, userID: string, userName: string, roomInfo:
     ws.send(JSON.stringify({
         type: WS_MSG_TYPE.ENTER_ROOM_CLI,
         payload: { room: roomInfo, userId: userID, participants: participantList },
-        startTimeStamp: startTimeStamp,
-        endTimeStamp: new Date().getTime(),
+        startTimeStamp: startTimeStamp
     }))
 
     broadCastMessage(roomInfo.id,
@@ -80,8 +79,7 @@ const broadCastMessage = (roomId: string, type: WS_MSG_TYPE, payload: any, start
         wsList[i].send(JSON.stringify({
             type: type,
             payload: payload,
-            startTimeStamp: startTimeStamp,
-            endTimeStamp: new Date().getTime(),
+            startTimeStamp: startTimeStamp
         }))
     };
 }

@@ -21,8 +21,9 @@ function authenticate(request: IncomingMessage, next: any) {
         const current_url = new URL("https:localhost:8080" + request.url)
         const search_params = current_url.searchParams;
         const id = search_params.get('token');
-        console.log(id)
-        if (id === "secure") {
+        //console.log(id)
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        if (id === token) {
             next(null, uuid.v1());
         } else {
             next("ERROR Authentification", null);

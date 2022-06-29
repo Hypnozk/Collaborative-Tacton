@@ -47,7 +47,6 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                     ws.send(JSON.stringify({
                         type: WS_MSG_TYPE.NO_CHANGE_ROOM_CLI,
                         startTimeStamp: msg.startTimeStamp,
-                        endTimeStamp: new Date().getTime(),
                     }))
                 }
 
@@ -91,8 +90,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 ws.send(JSON.stringify({
                     type: WS_MSG_TYPE.ROOM_INFO_CLI,
                     payload: { existRoom: existRoom, roomInfo: roomInfo, participants: partipantList },
-                    startTimeStamp: msg.startTimeStamp,
-                    endTimeStamp: new Date().getTime(),
+                    startTimeStamp: msg.startTimeStamp
                 }))
                 break;
             }
@@ -148,6 +146,18 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                  * update all clients with the new maximal duration
                  */
                 StorageManager.changeDuration(msg.payload.roomId, msg.payload.duration, msg.startTimeStamp)
+                break;
+            }
+            case WS_MSG_TYPE.PING: {
+                /**
+                 * recieve "{roomId:string,duration":number} as payload
+                 * change Max_Duration of the room, if correct roomID transmitted
+                 * update all clients with the new maximal duration
+                 */
+                 ws.send(JSON.stringify({
+                    type: WS_MSG_TYPE.PONG,
+                    startTimeStamp: msg.startTimeStamp
+                }))
                 break;
             }
         }
