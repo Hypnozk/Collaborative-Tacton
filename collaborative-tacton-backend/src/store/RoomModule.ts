@@ -68,7 +68,6 @@ const updateIntensities = (clientId: string, roomId: string, instructionList: [{
             let lastEntry = false;
             if (roomChannel == undefined) {
                 //channel doesn't exist create new one
-                console.log("createRoomChannel");
                 const length = roomChannels.push({ id: instruction.channels[i], intensityList: [] });
                 roomChannel = roomChannels[length - 1];
             } else {

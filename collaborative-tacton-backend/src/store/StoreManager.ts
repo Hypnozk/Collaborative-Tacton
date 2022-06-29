@@ -11,10 +11,6 @@ const createSession = (room: Room): Room => {
     return RoomModule.getRoomInfo(roomId)!;
 }
 const updateSession = (roomAttributes: { id: string, name: string, description: string }, user: User, startTimeStamp: number) => {
-    console.log("updateSession")
-    console.log(roomAttributes)
-    console.log(user)
-
     //update otherwise room information, return true if something is updated
     //StorageManager.updateParticipants(msg.payload.room.id, msg.payload.userName)
     const needRoomUpdate = RoomModule.updateRoomInformation(roomAttributes.id, roomAttributes.name, roomAttributes.description)
