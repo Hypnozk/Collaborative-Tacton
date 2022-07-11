@@ -1,11 +1,11 @@
 <template>
   <v-container class="playGroundView" ref="container" tabindex="-1">
     <v-row no-gutters>
-      <v-col cols="4" id="tactonScreen">
+      <v-col cols="5" id="tactonScreen">
         <TactonScreen :isMounted="isMounted" />
       </v-col>
       <v-divider vertical />
-      <v-col cols="8">
+      <v-col cols="7">
         <GridHeader @openDialog="startDialog" />
         <GridArea @editButton="startDialog" />
       </v-col>

@@ -1,10 +1,11 @@
 <template>
-  <v-row no-gutters>
-    <v-col cols="4">{{ `Name: ${device.name}` }}</v-col>
+  <v-row no-gutters style="padding-bottom:10px">
+    <v-col cols="3">{{ `Name: ${device.name}` }}</v-col>
     <v-col cols="2">{{ `Rssi: ${device.rssi}` }}</v-col>
     <v-col cols="3">{{ `Status: ${device.state}` }}</v-col>
-    <v-col
-      style="display: flex; justify-content: flex-end"
+        <v-spacer />
+    <v-col cols="1"
+      style="display: flex; justify-content: flex-end, padding:0px 5px,"
       v-if="device.state == 'connected' ? true : false"
       ><v-btn @click="vibrateDevice" elevation="2" color="primary">
         <v-progress-circular
@@ -16,8 +17,8 @@
         Retry</v-btn
       >
     </v-col>
-    <v-spacer />
-    <v-col style="display: flex; justify-content: flex-end"
+
+    <v-col style="display: flex; justify-content: flex-end" cols="3"
       ><v-btn @click="changeConnectionStatus" elevation="2" color="primary">
         {{ device.state == "connected" ? "Disconnect" : "Connect" }}</v-btn
       >

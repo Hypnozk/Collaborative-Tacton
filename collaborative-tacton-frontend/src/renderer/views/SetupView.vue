@@ -23,7 +23,7 @@
           variant="underlined"
           hide-details="auto"
           no-resize
-          rows="4"
+          rows="3"
           v-model="description"
         ></v-textarea>
       </v-col>
@@ -94,12 +94,12 @@
   min-width: 100%;
   height: 100%;
   justify-content: center;
-  font-size: 1.5em;
+  font-size: 1.3em;
   flex-shrink: 0;
 }
 .title {
   justify-content: center;
-  font-size: 2em;
+  font-size: 1.5em;
   font-weight: bold;
   text-decoration: underline;
   padding-bottom: 20px;

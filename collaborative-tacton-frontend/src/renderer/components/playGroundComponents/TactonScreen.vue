@@ -58,6 +58,7 @@
 </style>
 <script lang="ts">
 import * as PIXI from "pixi.js";
+import { PRECISION } from '@pixi/constants';
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "@/renderer/store/store";
 import { TactonSettingsActionTypes } from "@/renderer/store/modules/tactonSettings/tactonSettings";
@@ -171,10 +172,10 @@ export default defineComponent({
   mounted() {
     window.addEventListener("resize", this.resizeScreen);
 
+   PIXI.settings.PRECISION_FRAGMENT = PRECISION.HIGH;
     this.pixiApp = new PIXI.Application({
       transparent: true,
       antialias: true,
-      resolution: window.devicePixelRatio,
     });
     this.pixiApp.renderer.view.style.display = "block";
     document.getElementById("tactonDisplay")?.appendChild(this.pixiApp.view);
@@ -297,6 +298,7 @@ export default defineComponent({
           align: "center",
         });
         let xOffset = 8;
+        label.resolution =3;
         if (duration >= 10) xOffset = 12;
 
         label.x = xPosition - xOffset;

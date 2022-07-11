@@ -1,6 +1,6 @@
 <template>
   <v-container fill-height class="deviceView">
-    <v-row class="subRow">
+    <v-row no-gutters style="padding-bottom:10px">
       <v-btn elevation="2" color="primary" @click="startScanning">
         <v-progress-circular
           v-if="isScanning"
@@ -14,7 +14,7 @@
     </v-row>
     <v-row class="test">
       <v-container class="listSection">
-        <v-list-item v-for="item in deviceList" :key="item.id">
+        <v-list-item v-for="item in deviceList" :key="item.id" style="padding:0">
           <DeviceRow :device="item" />
         </v-list-item>
       </v-container>
@@ -31,6 +31,7 @@
   height: 100%;
   font-size: 0.8em;
   flex-shrink: 0;
+  padding:0 10px;
 }
 
 .listSection {
@@ -38,10 +39,6 @@
   padding: 0;
   max-width: 100% !important;
   min-width: 100% !important;
-}
-.subRow {
-  flex: 0;
-  margin: 0;
 }
 .test {
   margin: 0;
