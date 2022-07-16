@@ -1,5 +1,4 @@
 import { Channel, Room } from "../types";
-const uuid = require('uuid');
 
 let roomList: Map<string, Room> = new Map<string, Room>();
 let channelList: Map<string, Channel[]> = new Map<string, Channel[]>();
@@ -13,9 +12,23 @@ const getNewRoomName = () => {
     return `room${roomList.size}--${today.getHours()}:${today.getMinutes()}`;
 }
 
+const generateRoomId = (): string => {
+    let isNewId = false;
+    const min = 100000;
+    const max = 900000;
+    let num:string;
+    do {
+        num = (Math.floor(Math.random() * max) + min).toString();
+        isNewId = roomList.has(num);
+    } while (isNewId)
+    
+
+    return num;
+}
+
 const createRoom = (room: Room): string => {
     console.log("createRoom")
-    const roomId: string = uuid.v1();
+    const roomId = generateRoomId();
     channelList.set(roomId, []);
     roomList.set(roomId, {
         id: roomId,
@@ -111,7 +124,7 @@ const updateIntensities = (clientId: string, roomId: string, instructionList: [{
     return clientInstruction;
 }
 
-const updateRecordMode = (roomId: string, shouldRecord: boolean):boolean => {
+const updateRecordMode = (roomId: string, shouldRecord: boolean): boolean => {
     const room = roomList.get(roomId);
     if (room == undefined) return false;
 
@@ -119,7 +132,7 @@ const updateRecordMode = (roomId: string, shouldRecord: boolean):boolean => {
     return true;
 }
 
-const updateMaxDuration = (roomId: string, maxDuration: number):boolean => {
+const updateMaxDuration = (roomId: string, maxDuration: number): boolean => {
     const room = roomList.get(roomId);
     if (room == undefined) return false;
     if (room.isRecording) return false;
