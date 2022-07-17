@@ -2,6 +2,7 @@ import { WS_MSG_TYPE } from "./ws_types";
 import StorageManager from "../store/StoreManager"
 import RoomModule from "../store/RoomModule";
 import UserModule from "../store/UserModule";
+import TactonModule from "../store/TactonModule";
 
 interface SocketMessage {
     type: WS_MSG_TYPE;
@@ -123,11 +124,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                  * send the new instruction to all clients
                  * return [{channelId:number, intensity:number}] --> for every channel new object in array
                  */
-                const newInstructions = RoomModule.updateIntensities(client, msg.payload.roomId, msg.payload.instructions)
-                if (newInstructions == undefined || newInstructions.length == 0) return;
-                //console.log("sended Instruction")
-                //console.log(newInstructions)
-                StorageManager.broadCastMessage(msg.payload.roomId, WS_MSG_TYPE.SEND_INSTRUCTION_CLI, newInstructions, msg.startTimeStamp)
+                StorageManager.enterInstruction(msg.payload.roomId,client, msg.payload.instructions, msg.startTimeStamp)
                 break;
             }
             case WS_MSG_TYPE.UPDATE_RECORD_MODE_SERV: {
@@ -152,11 +149,22 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 /**
                  * recieve "{roomId:string,duration":number} as payload
                  * change Max_Duration of the room, if correct roomID transmitted
-                 * update all clients with the new maximal duration
                  */
                  ws.send(JSON.stringify({
                     type: WS_MSG_TYPE.PONG,
                     startTimeStamp: msg.startTimeStamp
+                }))
+                break;
+            }
+            case WS_MSG_TYPE.GET_TACTON_SERV: {
+                /**
+                 * recieve "{roomId:string} as payload
+                 * deliver all instructions to build a tacton in vtproto format as json
+                 * return {tacton:TactonInstruction}
+                 */
+                 ws.send(JSON.stringify({
+                    type: WS_MSG_TYPE.GET_TACTON_CLI,
+                    payload: TactonModule.getTacton(msg.payload.roomId)
                 }))
                 break;
             }

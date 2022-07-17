@@ -21,6 +21,9 @@
         ></v-select>
       </v-row>
     </v-col>
+    <v-col style="max-width: fit-content">
+      <v-btn @click="saveTacton" color="primary"> Save </v-btn>
+    </v-col>
   </v-row>
   <TactonGraph :isMounted="isMounted" />
 </template>
@@ -61,12 +64,12 @@ import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "@/renderer/store/store";
 import { sendSocketMessage } from "@/renderer/CommunicationManager/WebSocketManager";
 import { WS_MSG_TYPE } from "@/renderer/CommunicationManager/WebSocketManager/ws_types";
-import TactonGraph from "./TactonGraph.vue"
+import TactonGraph from "./TactonGraph.vue";
 
 export default defineComponent({
   name: "TactonScreen",
-  components:{
-    TactonGraph
+  components: {
+    TactonGraph,
   },
   props: {
     isMounted: {
@@ -108,6 +111,12 @@ export default defineComponent({
           shouldRecord: true,
         });
       }
+    },
+    saveTacton() {
+      sendSocketMessage(WS_MSG_TYPE.GET_TACTON_SERV, {
+        roomId: this.store.state.roomSettings.id,
+        shouldRecord: false,
+      });
     },
   },
 });

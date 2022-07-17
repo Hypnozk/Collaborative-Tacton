@@ -74,6 +74,18 @@ export const handleMessage = (store: Store, msg: SocketMessage) => {
             store.commit(RoomMutations.UPDATE_MAX_DURATION_TACTON, msg.payload)
             break;
         }
+        case WS_MSG_TYPE.GET_TACTON_CLI: {
+            console.log(msg.payload)
+            if (msg.payload.length == 0) {
+                console.log("no Tactons ")
+            } else {
+                window.api.send(IPC_CHANNELS.main.saveTacton, {
+                    savedAt: new Date().getTime(),
+                    tacton: msg.payload
+                });
+            }
+            break;
+        }
     }
 
 }

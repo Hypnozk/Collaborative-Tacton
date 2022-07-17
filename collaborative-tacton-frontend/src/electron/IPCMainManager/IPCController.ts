@@ -1,6 +1,6 @@
 const { ipcMain, clipboard } = require('electron');
-
-import { app, BrowserWindow } from "electron";
+import fs from 'fs';
+import { app, BrowserWindow, dialog } from "electron";
 import { IPC_CHANNELS } from "./IPCChannels";
 import DeviceManager from "../DeviceManager/DeviceManager"
 import { KeyBoardButton, TactileTask } from "@/types/GeneralType";
@@ -80,13 +80,30 @@ ipcMain.on(IPC_CHANNELS.main.saveKeyBoardButton, (event, button: KeyBoardButton)
 });
 
 ipcMain.on(IPC_CHANNELS.main.logMessageInfos, (event, payload: {
-    level:LoggingLevel,
+    level: LoggingLevel,
     type: string;
     startTimeStamp: number;
     endTimeStamp: number
 }
 ) => {
     _loggingManager.writeLog(payload.level, payload.type, payload.endTimeStamp - payload.startTimeStamp);
+});
+
+ipcMain.on(IPC_CHANNELS.main.saveTacton, async (event, payload: any) => {
+    //console.log("saveKeyBoardButton");
+    let file = await dialog.showSaveDialog(_win, {
+        title: 'Download to File…',
+        filters: [
+            { name: 'Json', extensions: ['.json'] }
+        ]
+    });
+    if (!file.canceled && file.filePath !== undefined) {
+        fs.writeFile(file.filePath, JSON.stringify(payload), err => {
+            if (err) {
+                console.log(err);
+            }
+        })
+    }
 });
 
 export function sendMessageToRenderer(channel: string, payload: any): void {
@@ -99,7 +116,7 @@ export function setBrowserWindow(browserWindow: BrowserWindow) {
 
 }
 
-export function initSettingManager(){
+export function initSettingManager() {
     _settingManager = new SettingManager();
 
 }

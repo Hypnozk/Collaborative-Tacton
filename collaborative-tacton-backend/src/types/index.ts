@@ -31,3 +31,24 @@ export interface Channel {
     id: string,
     intensityList: Intensity[]
 }
+
+interface InstructionSetParameter {
+    setParameter: any
+}
+
+interface InstructionWait {
+    wait: {
+        miliseconds:number
+    }
+}
+type Instructions = InstructionSetParameter | InstructionWait;
+
+export type TactonInstruction = {
+    Instruction: Instructions
+}
+
+export interface ClientInstrution{
+    channelId: string, 
+    intensity: number, 
+    author: User | undefined 
+}
