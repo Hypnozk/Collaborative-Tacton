@@ -1,4 +1,5 @@
-import { Channel, Room } from "../types";
+import { Channel, Room, User } from "../types";
+import UserModule from "./UserModule";
 
 let roomList: Map<string, Room> = new Map<string, Room>();
 let channelList: Map<string, Channel[]> = new Map<string, Channel[]>();
@@ -16,12 +17,12 @@ const generateRoomId = (): string => {
     let isNewId = false;
     const min = 100000;
     const max = 900000;
-    let num:string;
+    let num: string;
     do {
         num = (Math.floor(Math.random() * max) + min).toString();
         isNewId = roomList.has(num);
     } while (isNewId)
-    
+
 
     return num;
 }
@@ -65,9 +66,10 @@ const removeRoom = (roomId: string) => {
 
 
 
-const updateIntensities = (clientId: string, roomId: string, instructionList: [{ keyId: string, channels: string[], intensity: number }]): Array<{ channelId: string, intensity: number }> | undefined => {
+const updateIntensities = (clientId: string, roomId: string, instructionList: [{ keyId: string, channels: string[], intensity: number }]): Array<{ channelId: string, intensity: number, author:User|undefined }> | undefined => {
     const roomChannels = channelList.get(roomId);
-    const clientInstruction: Array<{ channelId: string, intensity: number }> = [];
+    const user = UserModule.getUser(roomId, clientId)
+    const clientInstruction: Array<{ channelId: string, intensity: number, author: User | undefined }> = [];
     //console.log("roomId: " + roomId)
     //console.log("clientId: " + clientId)
     //console.log("keyId: " + keyId)
@@ -100,12 +102,13 @@ const updateIntensities = (clientId: string, roomId: string, instructionList: [{
                     //the entry at the end was deleted, calculate new instruction for cli
                     if (roomChannel.intensityList.length == 0) {
                         // there are now no entries anymore in the list  --> tell client to stop vibrate
-                        clientInstruction.push({ channelId: instruction.channels[i], intensity: 0 });
+                        clientInstruction.push({ channelId: instruction.channels[i], intensity: 0, author: user });
                     } else {
                         //there are still some entries --> tell client to execute latest vibration now again
                         clientInstruction.push({
                             channelId: instruction.channels[i],
-                            intensity: roomChannel.intensityList[roomChannel.intensityList.length - 1].intensity
+                            intensity: roomChannel.intensityList[roomChannel.intensityList.length - 1].intensity,
+                            author: user
                         });
                     }
                 }
@@ -117,7 +120,7 @@ const updateIntensities = (clientId: string, roomId: string, instructionList: [{
                     keyId: instruction.keyId,
                     intensity: instruction.intensity
                 });
-                clientInstruction.push({ channelId: instruction.channels[i], intensity: instruction.intensity });
+                clientInstruction.push({ channelId: instruction.channels[i], intensity: instruction.intensity, author: user });
             }
         }
     });

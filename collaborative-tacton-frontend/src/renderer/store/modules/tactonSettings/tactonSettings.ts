@@ -1,13 +1,15 @@
 
 import { MutationTree, GetterTree, ActionTree, ActionContext } from 'vuex'
 import { RootState, useStore } from '../../store';
+import { User } from '../roomSettings/roomSettings';
 /**
  * Tyopes
  * 
  */
 interface DeviceChannel {
   channelId: number,
-  intensity: number
+  intensity: number,
+  author?:User,
 }
 /**
  * state

@@ -18,12 +18,26 @@ const removeRoomRef = (roomId: string) => {
     wsRoomList.delete(roomId);
 }
 
+const getUser = (roomId: string, userId: string): User | undefined => {
+    let user: User | undefined = undefined;
+    let participants = participantList.get(roomId);
+    if (participants !== undefined) {
+        for (let i = 0; i < participants.length; i++) {
+            if (participants[i].id == userId) {
+                user = participants[i];
+                break;
+            }
+        }
+    }
+    return user
+}
+
 const getParticipants = (roomId: string): { id: string, name: string, color: string }[] => {
     const participants = participantList.get(roomId);
     if (participants == undefined)
         return [];
 
-    return Array.from(participants, item => { return { id: item.id, name: item.name, color: item.color } });
+    return participants;
 }
 
 const getWsRoomList = (roomId: string): WebSocket[] => {
@@ -148,6 +162,7 @@ export default {
     removeRoomRef,
     enterUserInRoom,
     updateUser,
+    getUser,
     removeParticipant,
     findRoomUserOfClient
 }

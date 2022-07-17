@@ -7,7 +7,7 @@ export const initSettings = {
     buttons: [{
         i: uuidv4(),
         channels: [0],
-        color: "#65FF00",
+        color: "#ff2d2d",
         h: 1,
         intensity: 1,
         key: "Z",
@@ -22,7 +22,7 @@ export const initSettings = {
     {
         i: uuidv4(),
         channels: [1],
-        color: "#FF0014",
+        color: "#07d248",
         h: 1,
         intensity: 1,
         key: "U",
@@ -37,7 +37,7 @@ export const initSettings = {
     {
         i: uuidv4(),
         channels: [2],
-        color: "#65FF00",
+        color: "#ff2d2d",
         h: 1,
         intensity: 1,
         key: "K",
@@ -52,7 +52,7 @@ export const initSettings = {
     {
         i: uuidv4(),
         channels: [3],
-        color: "#FF0014",
+        color: "#07d248",
         h: 1,
         intensity: 1,
         key: "N",
@@ -67,7 +67,7 @@ export const initSettings = {
     {
         i: uuidv4(),
         channels: [4],
-        color: "#65FF00",
+        color: "#ff2d2d",
         h: 1,
         intensity: 1,
         key: "B",
@@ -82,7 +82,7 @@ export const initSettings = {
     {
         i: uuidv4(),
         channels: [5],
-        color: "#FF0014",
+        color: "#07d248",
         h: 1,
         intensity: 1,
         key: "V",
@@ -97,7 +97,7 @@ export const initSettings = {
     {
         i: uuidv4(),
         channels: [6],
-        color: "#65FF00",
+        color: "#ff2d2d",
         h: 1,
         intensity: 1,
         key: "F",
@@ -112,7 +112,7 @@ export const initSettings = {
     {
         i: uuidv4(),
         channels: [7],
-        color: "#FF0014",
+        color: "#07d248",
         h: 1,
         intensity: 1,
         key: "T",
