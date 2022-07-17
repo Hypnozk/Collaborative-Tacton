@@ -38,6 +38,7 @@ export const handleMessage = (store: Store, msg: SocketMessage) => {
         }
         case WS_MSG_TYPE.UPDATE_ROOM_CLI: {
             console.log("UPDATE_ROOM_CLI")
+            console.log(msg.payload)
             store.dispatch(RoomSettingsActionTypes.updateRoom, msg.payload)
             if (store.state.generalSettings.currentView == RouterNames.SETUP)
                 router.push("/playGround");

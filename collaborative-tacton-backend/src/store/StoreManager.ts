@@ -32,6 +32,7 @@ const enterSession = (ws: WebSocket, userID: string, userName: string, roomInfo:
     const participantList = UserModule.getParticipants(roomInfo.id)
     //send the new user all data and his uerid
     //roomInfo has not to be updated, his parameter are stored now for the room
+
     ws.send(JSON.stringify({
         type: WS_MSG_TYPE.ENTER_ROOM_CLI,
         payload: { room: roomInfo, userId: userID, participants: participantList },

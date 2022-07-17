@@ -1,5 +1,5 @@
 <template>
-  <v-container id="headerPlayGround" class="headerPlayGround">
+  <div id="headerPlayGround" class="headerPlayGround" no-gutters>
     <v-row class="align-center" no-gutters>
       <v-col style="padding: 0px 0px 0px 10px; flex-grow: 1">
         {{
@@ -8,42 +8,8 @@
         <v-btn variant="text" icon="mdi-content-copy" @click="copyAdress">
         </v-btn>
       </v-col>
-      <v-menu
-        class="customMenu"
-        stlye="margin-right:5px"
-        v-model="participantMenu"
-      >
-        <template v-slot:activator="{ props }">
-          <v-btn variant="text" v-bind="props">
-            {{
-              `Participants: ${store.state.roomSettings.participants.length}`
-            }}
-          </v-btn>
-        </template>
-        <v-list>
-          <div style="border: 1px solid #ddd" class="customField">
-            <div class="inline">
-              <input
-                style="padding: 5px"
-                class="inputField"
-                v-on:keyup.enter="onEnter"
-                v-model="userName"
-              />
-              <v-icon right @click="participantMenu = false">
-                mdi-content-save
-              </v-icon>
-            </div>
-          </div>
-          <v-list-item
-            v-for="(item, index) in participantList"
-            :key="index"
-            :value="index"
-            class="customMenu"
-          >
-            {{ item.name }}
-          </v-list-item>
-        </v-list>
-      </v-menu>
+      <UserMenu />
+
       <v-btn variant="text" style="margin-right: 20px" @click="settings">
         Settings <v-icon right> mdi-cog-outline </v-icon>
       </v-btn>
@@ -51,15 +17,17 @@
         Log out <v-icon right> mdi-logout </v-icon>
       </v-btn>
     </v-row>
-  </v-container>
+  </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .headerPlayGround {
   min-width: 100% !important;
   max-width: 100% !important;
   border-bottom: 1px solid rgb(48, 41, 41);
+  min-height: 50px;
   padding: 2px 10px;
+  display: flex;
 }
 
 .customField {
@@ -67,10 +35,8 @@
   align-items: center;
   margin: 0 10px;
   .inline {
-    width: 100%;
     display: flex;
     align-items: center;
-    padding-right: 5px;
   }
 }
 
@@ -85,69 +51,56 @@
   flex-grow: 1;
 }
 
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 60px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  text-decoration: none;
+  display: block;
+}
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+.dropdown:hover .dropbtn {
+  background-color: #3e8e41;
+}
 .customMenu {
   pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 280px;
 }
 </style>
 <script lang="ts">
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 import router from "@/renderer/router";
-import { GeneralSettingsActionTypes } from "@/renderer/store/modules/generalSettings/generalSettings";
-import { RoomMutations } from "@/renderer/store/modules/roomSettings/roomSettings";
+import {
+  GeneralSettingsActionTypes,
+} from "@/renderer/store/modules/generalSettings/generalSettings";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 import { sendSocketMessage } from "../../CommunicationManager/WebSocketManager";
 import { WS_MSG_TYPE } from "../../CommunicationManager/WebSocketManager/ws_types";
+import UserMenu from "./UserMenu/UserMenu.vue";
 
 export default defineComponent({
   name: "PlayGroundHeader",
+  components: {
+    UserMenu,
+  },
   data: () => ({
     store: useStore(),
-    participantMenu: false,
   }),
-  computed: {
-    userName: {
-      get(): string {
-        return this.store.state.roomSettings.user.name;
-      },
-      set(value: string) {
-        this.store.commit(RoomMutations.UPDATE_USER_NAME, value);
-      },
-    },
-    participantList() {
-      return this.store.state.roomSettings.participants.filter(
-        (user) => user.id !== this.store.state.roomSettings.user.id
-      );
-    },
-  },
-  watch: {
-    participantMenu(newValue) {
-      if (newValue == false && this.store.getters.userNameUpdated) {
-        //save that its stored to show snackbar
-        this.store.dispatch(GeneralSettingsActionTypes.userNameGetSaved);
-        //save the setting inside of the config file
-        console.log("sendUserName");
-        console.log(window.api);
-        window.api.send(
-          IPC_CHANNELS.main.saveUserName,
-          this.store.state.roomSettings.user.name
-        );
-        //update user that the userName get changed
-        sendSocketMessage(WS_MSG_TYPE.UPDATE_USER_ACCOUNT_SERV, {
-          roomId: this.store.state.roomSettings.id,
-          user: this.store.state.roomSettings.user,
-        });
-      }
-    },
-  },
   methods: {
-    onEnter() {
-      this.participantMenu = false;
-    },
     logOut() {
       sendSocketMessage(WS_MSG_TYPE.LOG_OUT, {
         roomId: this.store.state.roomSettings.id,
@@ -156,9 +109,8 @@ export default defineComponent({
       router.push("/");
     },
     copyAdress() {
+      console.log(this.store.getters);
       this.store.dispatch(GeneralSettingsActionTypes.copyAdressToClipboard);
-      console.log("copyAdress");
-      console.log(window.api);
       window.api.send(
         IPC_CHANNELS.main.copyToClipBoard,
         `${this.store.state.roomSettings.roomName}#${this.store.state.roomSettings.id}`
