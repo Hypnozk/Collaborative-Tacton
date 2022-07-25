@@ -80,7 +80,7 @@
               />
             </v-col>
             <v-col>
-              {{ item.name }}
+              {{ item.name == "" ? "Guest" : item.name }}
             </v-col>
           </v-row>
         </v-list-item>
@@ -108,6 +108,7 @@
 }
 
 .inputField {
+  padding-left: 5px;
   outline: none;
   flex-grow: 1;
 }

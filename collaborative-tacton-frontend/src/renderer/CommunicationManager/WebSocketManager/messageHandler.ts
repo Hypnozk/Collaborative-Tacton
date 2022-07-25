@@ -5,6 +5,7 @@ import { RouterNames } from "@/types/Routernames";
 import router from "@/renderer/router";
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 import { TactonMutations, TactonSettingsActionTypes } from "@/renderer/store/modules/tactonSettings/tactonSettings";
+import { GeneralMutations, GeneralSettingsActionTypes } from "@/renderer/store/modules/generalSettings/generalSettings";
 
 export interface SocketMessage {
     type: WS_MSG_TYPE;
@@ -38,7 +39,7 @@ export const handleMessage = (store: Store, msg: SocketMessage) => {
         }
         case WS_MSG_TYPE.UPDATE_ROOM_CLI: {
             console.log("UPDATE_ROOM_CLI")
-            console.log(msg.payload)
+            //console.log(msg.payload)
             store.dispatch(RoomSettingsActionTypes.updateRoom, msg.payload)
             if (store.state.generalSettings.currentView == RouterNames.SETUP)
                 router.push("/playGround");
@@ -71,18 +72,17 @@ export const handleMessage = (store: Store, msg: SocketMessage) => {
             break;
         }
         case WS_MSG_TYPE.CHANGE_DURATION_CLI: {
-            store.commit(RoomMutations.UPDATE_MAX_DURATION_TACTON, msg.payload)
+            store.commit(RoomMutations.UPDATE_MAX_DURATION_TACTON, msg.payload);
             break;
         }
         case WS_MSG_TYPE.GET_TACTON_CLI: {
             console.log(msg.payload)
             if (msg.payload.length == 0) {
-                console.log("no Tactons ")
+                store.dispatch(GeneralSettingsActionTypes.tactonLengthChanged);
             } else {
-                window.api.send(IPC_CHANNELS.main.saveTacton, {
-                    savedAt: new Date().getTime(),
-                    tacton: msg.payload
-                });
+                window.api.send(IPC_CHANNELS.main.saveTacton,
+                    msg.payload
+                );
             }
             break;
         }

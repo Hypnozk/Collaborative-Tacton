@@ -29,6 +29,7 @@ export type State = {
   socketConnectionStatus: boolean,
   userNameChanged: boolean,
   copiedToClipboard: boolean,
+  tactonLengthZero:boolean,
   deviceList: VibrotactileDevice[]
 };
 
@@ -37,6 +38,7 @@ export const state: State = {
   socketConnectionStatus: false,
   userNameChanged: false,
   copiedToClipboard: false,
+  tactonLengthZero:false,
   deviceList: []
 };
 /**
@@ -50,7 +52,8 @@ export enum GeneralMutations {
   ADD_DEVICE = "ADD_DEVICE",
   UPDATE_DEVICE_LIST = "UPDATE_DEVICE_LIST",
   UPDATE_DEVICE = "UPDATE_DEVICE",
-  COPIED_TO_CLIPBOARD = "COPIED_TO_CLIPBOARD"
+  COPIED_TO_CLIPBOARD = "COPIED_TO_CLIPBOARD",
+  TACTON_LENGTH_ZERO = "TACTON_LENGTH_ZERO"
 }
 
 export type Mutations<S = State> = {
@@ -61,6 +64,7 @@ export type Mutations<S = State> = {
   [GeneralMutations.ADD_DEVICE](state: S, device: VibrotactileDevice): void
   [GeneralMutations.UPDATE_DEVICE_LIST](state: S, deviceList: VibrotactileDevice[]): void
   [GeneralMutations.UPDATE_DEVICE](state: S, item: { index: number, device: VibrotactileDevice }): void
+  [GeneralMutations.TACTON_LENGTH_ZERO](state: S, tactonLengthZero: boolean): void
 }
 
 export const mutations: MutationTree<State> & Mutations = {
@@ -85,6 +89,9 @@ export const mutations: MutationTree<State> & Mutations = {
   [GeneralMutations.COPIED_TO_CLIPBOARD](state, copiedToClipboard) {
     state.copiedToClipboard = copiedToClipboard;
   },
+  [GeneralMutations.TACTON_LENGTH_ZERO](state, tactonLengthZero) {
+    state.tactonLengthZero = tactonLengthZero;
+  },
 };
 
 /**
@@ -98,7 +105,8 @@ export enum GeneralSettingsActionTypes {
   updateDeviceStatus = 'updateDeviceStatus',
   userNameGetSaved = "userNameGetSaved",
   copyAdressToClipboard = "copyAdressToClipboard",
-  setNumberOfOutPuts = "setNumberOfOutPuts"
+  setNumberOfOutPuts = "setNumberOfOutPuts",
+  tactonLengthChanged = "tactonLengthChanged"
 }
 
 type AugmentedActionContext = {
@@ -134,6 +142,9 @@ export interface Actions {
   [GeneralSettingsActionTypes.setNumberOfOutPuts](
     { commit }: AugmentedActionContext,
     payload: { deviceId: string, numOfOutputs: number }
+  ): void;
+  [GeneralSettingsActionTypes.tactonLengthChanged](
+    { commit }: AugmentedActionContext,
   ): void;
 }
 
@@ -173,6 +184,10 @@ export const actions: ActionTree<State, RootState> & Actions = {
       return;
 
     commit(GeneralMutations.UPDATE_DEVICE, { index: index, device: { ...state.deviceList[index], numOfOutputs: payload.numOfOutputs } });
+  },
+  [GeneralSettingsActionTypes.tactonLengthChanged]({ commit }) {
+    commit(GeneralMutations.TACTON_LENGTH_ZERO, true);
+    setTimeout(() => (commit(GeneralMutations.TACTON_LENGTH_ZERO, false)), 3000);
   },
 };
 

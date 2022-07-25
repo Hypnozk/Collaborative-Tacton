@@ -102,7 +102,7 @@ export default defineComponent({
       }
     },
     newStoreItem(newValue) {
-      console.log("newStoreItem " + newValue);
+     // console.log("newStoreItem " + newValue);
       if (this.newStoreItem == true) {
         if (this.store.state.roomSettings.isRecording == true)
           this.ticker?.start();
@@ -152,8 +152,6 @@ export default defineComponent({
       if (this.width.original == -1) {
         this.width.original = newWidth;
         this.width.actual = newWidth;
-
-        console.log(newWidth);
 
         this.height.original = newHight;
         this.height.actual = newHight;

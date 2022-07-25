@@ -84,7 +84,7 @@ export const actions: ActionTree<State, RootState> & Actions = {
     const store = useStore();
 
     const numberOfOutputs = store.getters.getNumberOfOutputs;
-    console.log("instantiate channels: " + numberOfOutputs)
+    //console.log("instantiate channels: " + numberOfOutputs)
     const deviceChannelArray: DeviceChannel[] = [];
     for (let i = 0; i < numberOfOutputs; i++) {
       deviceChannelArray.push({ channelId: i, intensity: 0 })

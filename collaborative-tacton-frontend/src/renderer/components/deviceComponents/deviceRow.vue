@@ -1,10 +1,11 @@
 <template>
-  <v-row no-gutters style="padding-bottom:10px">
+  <v-row no-gutters>
     <v-col cols="3">{{ `Name: ${device.name}` }}</v-col>
-    <v-col cols="2">{{ `Rssi: ${device.rssi}` }}</v-col>
+    <v-col cols="2"><ConnectionLevel :connectionQuality="device.rssi"/></v-col>
     <v-col cols="3">{{ `Status: ${device.state}` }}</v-col>
-        <v-spacer />
-    <v-col cols="1"
+    <v-spacer />
+    <v-col
+      cols="1"
       style="display: flex; justify-content: flex-end, padding:0px 5px,"
       v-if="device.state == 'connected' ? true : false"
       ><v-btn @click="vibrateDevice" elevation="2" color="primary">
@@ -38,9 +39,14 @@ import {
 } from "../../store/modules/generalSettings/generalSettings";
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 import { useStore } from "@/renderer/store/store";
+import ConnectionLevel from "./ConnectionLevel.vue";
+import { v4 as uuidv4 } from 'uuid';
 
 export default defineComponent({
   name: "DeviceRow",
+  components: {
+    ConnectionLevel,
+  },
   props: {
     device: {
       type: Object as () => VibrotactileDevice,

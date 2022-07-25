@@ -1,14 +1,24 @@
 <template>
   <v-row no-gutters style="margin: 5px 10px 40px 10px" id="gridHeader">
-    <v-btn elevation="2" color="primary" @click="openDialog"> Add Button </v-btn>
-    <v-switch
-      v-model="editModeOne"
-      :label="`Edite Mode: ${editModeOne ? 'on' : 'off'}`"
-      color="primary"
-      :value="true"
-      hide-details
-      class="customSwitch black--text"
-    ></v-switch>
+    <v-col style="display:flex">
+      <v-switch
+        v-model="editModeOne"
+        :label="`Edite Mode: ${editModeOne ? 'on' : 'off'}`"
+        color="primary"
+        :value="true"
+        hide-details
+        class="customSwitch black--text"
+      ></v-switch>
+      <v-btn
+        elevation="2"
+        color="primary"
+        style="margin-left:5px"
+        @click="openDialog"
+        :disabled="!store.state.playGround.inEditMode"
+      >
+        Add Button
+      </v-btn>
+    </v-col>
     <v-spacer />
     <v-col cols="4">
       <v-row no-gutters class="slider">
@@ -49,7 +59,10 @@
 </style>
 
 <script lang="ts">
-import { PlayGroundMutations, PlayGroundActionTypes } from "@/renderer/store/modules/playGround/types";
+import {
+  PlayGroundMutations,
+  PlayGroundActionTypes,
+} from "@/renderer/store/modules/playGround/types";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 
@@ -64,7 +77,7 @@ export default defineComponent({
       get() {
         return this.store.state.playGround.globalIntensity;
       },
-      set(value:number) {
+      set(value: number) {
         this.store.dispatch(PlayGroundActionTypes.modifyGlobalIntensity, value);
       },
     },
@@ -72,7 +85,7 @@ export default defineComponent({
       get() {
         return this.store.state.playGround.inEditMode;
       },
-      set(value:boolean) {
+      set(value: boolean) {
         this.store.commit(PlayGroundMutations.UPDATE_EDIT_MDOE, value);
       },
     },

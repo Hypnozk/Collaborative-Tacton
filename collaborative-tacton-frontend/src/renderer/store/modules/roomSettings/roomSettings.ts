@@ -105,7 +105,6 @@ export const mutations: MutationTree<State> & Mutations = {
   },
   [RoomMutations.UPDATE_PARTICIPANTS](state, participants) {
     state.participants = participants;
-    console.log(state.participants);
   },
   [RoomMutations.UPDATE_RECORD_MODE](state, shouldRecord) {
     state.isRecording = shouldRecord;

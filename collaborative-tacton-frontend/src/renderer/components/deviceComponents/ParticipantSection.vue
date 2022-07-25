@@ -7,10 +7,22 @@
     style="justify-content: center"
   >
     <v-col cols="2">
-      <v-icon style="opacity: 0.6; padding: 0">mdi-account-circle</v-icon>
+      <CustomProfile
+        v-if="item.name !== ''"
+        :letter="item.name.charAt(0).toUpperCase()"
+        :color="item.color"
+        :isFirstEntry="true"
+        :clickable="false"
+      />
+      <DefaultProfile
+        v-else
+        :color="item.color"
+        :isFirstEntry="true"
+        :clickable="false"
+      />
     </v-col>
-    <v-col cols="7">
-      {{ item.name }}
+    <v-col cols="7" style="padding-top: 4px">
+      {{ item.name == "" ? "Guest" : item.name }}
     </v-col>
   </v-row>
 </template>
@@ -19,16 +31,20 @@
 <script lang="ts">
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
-
+import DefaultProfile from "../playGroundComponents/UserMenu/DefaultProfile.vue";
+import CustomProfile from "../playGroundComponents/UserMenu/CustomProfile.vue";
 export default defineComponent({
   name: "ParticipantSection",
+  components: {
+    DefaultProfile,
+    CustomProfile,
+  },
   data: () => ({
     store: useStore(),
   }),
   computed: {
     participantList() {
       if (this.store.state.roomSettings.participants == undefined) return [];
-
       return this.store.state.roomSettings.participants.filter(
         (user) => user.id !== this.store.state.roomSettings.user.id
       );

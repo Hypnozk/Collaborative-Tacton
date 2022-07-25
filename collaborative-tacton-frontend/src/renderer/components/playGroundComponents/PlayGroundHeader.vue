@@ -29,63 +29,11 @@
   padding: 2px 10px;
   display: flex;
 }
-
-.customField {
-  display: flex;
-  align-items: center;
-  margin: 0 10px;
-  .inline {
-    display: flex;
-    align-items: center;
-  }
-}
-
-.customField:focus-within {
-  border: solid !important;
-  border-color: black !important;
-  border-width: thin !important;
-}
-
-.inputField {
-  outline: none;
-  flex-grow: 1;
-}
-
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-content {
-  position: absolute;
-  background-color: #f1f1f1;
-  min-width: 60px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-}
-
-.dropdown-content a {
-  color: black;
-  text-decoration: none;
-  display: block;
-}
-.dropdown-content a:hover {
-  background-color: #ddd;
-}
-
-.dropdown:hover .dropbtn {
-  background-color: #3e8e41;
-}
-.customMenu {
-  pointer-events: none;
-}
 </style>
 <script lang="ts">
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 import router from "@/renderer/router";
-import {
-  GeneralSettingsActionTypes,
-} from "@/renderer/store/modules/generalSettings/generalSettings";
+import { GeneralSettingsActionTypes } from "@/renderer/store/modules/generalSettings/generalSettings";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 import { sendSocketMessage } from "../../CommunicationManager/WebSocketManager";
