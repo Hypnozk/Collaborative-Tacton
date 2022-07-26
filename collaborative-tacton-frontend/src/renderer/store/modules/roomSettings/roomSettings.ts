@@ -7,6 +7,7 @@ import { RootState } from '../../store';
 export interface User {
   id: string,
   name: string,
+  color:string
 }
 
 export interface Room {
@@ -45,7 +46,7 @@ export const state: State = {
   roomName: "",
   description: "",
   participants: [],
-  user: { id: "", name: "" },
+  user: { id: "", name: "", color:"" },
   isRecording: false,
   maxDuration: 5000,
 };
@@ -104,7 +105,6 @@ export const mutations: MutationTree<State> & Mutations = {
   },
   [RoomMutations.UPDATE_PARTICIPANTS](state, participants) {
     state.participants = participants;
-    console.log(state.participants);
   },
   [RoomMutations.UPDATE_RECORD_MODE](state, shouldRecord) {
     state.isRecording = shouldRecord;
@@ -146,7 +146,7 @@ export const actions: ActionTree<State, RootState> & Actions = {
     const user = props.participants.find(participant => participant.id == props.userId);
 
     if (user !== undefined)
-      commit(RoomMutations.UPDATE_USER, { id: user.id, name: user.name });
+      commit(RoomMutations.UPDATE_USER, { id: user.id, name: user.name, color:user.color});
 
     commit(RoomMutations.CHANGE_ROOM, {
       roomState: RoomState.Enter,
@@ -183,6 +183,7 @@ export const actions: ActionTree<State, RootState> & Actions = {
 export type Getters = {
   roomTitle(state: State): string,
   userNameUpdated(state: State): boolean,
+  userNameFromServer(state: State): User,
 }
 
 export const getters: GetterTree<State, RootState> & Getters = {
@@ -192,5 +193,11 @@ export const getters: GetterTree<State, RootState> & Getters = {
     if (serverItem == undefined) return false;
 
     return serverItem.name !== state.user.name;
+  },
+  userNameFromServer: (state) => {
+    const serverItem = state.participants.find(participant => participant.id == state.user.id)
+    if (serverItem == undefined) return state.user;
+
+    return serverItem;
   }
 };

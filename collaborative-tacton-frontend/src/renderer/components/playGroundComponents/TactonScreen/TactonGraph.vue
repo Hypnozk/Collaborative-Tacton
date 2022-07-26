@@ -1,72 +1,20 @@
 <template>
-  <v-row
-    no-gutters
-    align="center"
-    style="justify-content: space-evenly; margin: 5px 0"
-    id="tactonHeader"
-  >
-    <v-col style="max-width: fit-content">
-      <v-btn @click="changeRecordMode" color="primary">
-        {{ store.state.roomSettings.isRecording ? "Stop" : "Start" }} Record
-      </v-btn>
-    </v-col>
-    <v-col style="max-width: fit-content">
-      <v-row align="center">
-        Duration:
-        <v-select
-          class="durationBox"
-          :items="items"
-          v-model="duration"
-          :disabled="isRecordingStore"
-        ></v-select>
-      </v-row>
-    </v-col>
-  </v-row>
   <div id="tactonDisplay"></div>
 </template>
 
-<style lang="scss">
-.durationBox {
-  padding-left: 10px;
-  max-width: 100px;
-  .v-input__control {
-    height: 40px !important;
-    max-height: 40px !important;
-    display: flex;
-    .v-field {
-      .v-label {
-        display: none;
-      }
-      .v-field__append-inner {
-        display: flex;
-        height: 40px !important;
-        align-items: center;
-        padding-top: 0;
-      }
-      .v-field__field {
-        height: 40px !important;
-        max-height: 40px !important;
-        display: flex;
-        padding-top: 0;
-      }
-    }
-  }
-  .v-input__details {
-    display: none;
-  }
-}
-</style>
 <script lang="ts">
 import * as PIXI from "pixi.js";
-import { PRECISION } from '@pixi/constants';
+import { PRECISION } from "@pixi/constants";
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "@/renderer/store/store";
 import { TactonSettingsActionTypes } from "@/renderer/store/modules/tactonSettings/tactonSettings";
 import { sendSocketMessage } from "@/renderer/CommunicationManager/WebSocketManager";
 import { WS_MSG_TYPE } from "@/renderer/CommunicationManager/WebSocketManager/ws_types";
+import { User } from "@/renderer/store/modules/roomSettings/roomSettings";
 
 interface IntensityObject {
   intensity: number;
+  author?: User;
   startTime?: number;
   endTime?: number;
   index?: number;
@@ -82,7 +30,7 @@ interface ChannelGraph extends GraphicObject {
   intensities: IntensityObject[];
 }
 export default defineComponent({
-  name: "TactonScreen",
+  name: "TactonGraph",
   props: {
     isMounted: {
       type: Boolean,
@@ -117,17 +65,6 @@ export default defineComponent({
     maxDurationStore(): number {
       return this.store.state.roomSettings.maxDuration;
     },
-    duration: {
-      get(): string {
-        return (this.maxDurationStore / 1000).toString() + "s";
-      },
-      set(newValue: any) {
-        sendSocketMessage(WS_MSG_TYPE.CHANGE_DURATION_SERV, {
-          roomId: this.store.state.roomSettings.id,
-          duration: newValue.substring(0, newValue.length - 1) * 1000,
-        });
-      },
-    },
     newStoreItem(): boolean {
       return this.store.state.tactonSettings.insertValues;
     },
@@ -144,7 +81,8 @@ export default defineComponent({
     },
     maxDurationStore() {
       this.calcLegend();
-      this.growRatio = (this.width.original - 2 * this.paddingRL) / this.maxDurationStore;
+      this.growRatio =
+        (this.width.original - 2 * this.paddingRL) / this.maxDurationStore;
       this.resizeRectangles();
     },
     isRecordingStore(recordMode) {
@@ -155,7 +93,8 @@ export default defineComponent({
           graph.container.removeChildren();
         });
         this.channelGraphs = [];
-        if (this.ticker !== null && this.ticker.count > 0) this.ticker?.remove(this.loop);
+        if (this.ticker !== null && this.ticker.count > 0)
+          this.ticker?.remove(this.loop);
         this.ticker?.add(this.loop);
       } else {
         this.ticker?.stop();
@@ -163,16 +102,17 @@ export default defineComponent({
       }
     },
     newStoreItem(newValue) {
-      console.log("newStoreItem " + newValue);
+     // console.log("newStoreItem " + newValue);
       if (this.newStoreItem == true) {
-        if (this.store.state.roomSettings.isRecording == true) this.ticker?.start();
+        if (this.store.state.roomSettings.isRecording == true)
+          this.ticker?.start();
       }
     },
   },
   mounted() {
     window.addEventListener("resize", this.resizeScreen);
 
-   PIXI.settings.PRECISION_FRAGMENT = PRECISION.HIGH;
+    PIXI.settings.PRECISION_FRAGMENT = PRECISION.HIGH;
     this.pixiApp = new PIXI.Application({
       transparent: true,
       antialias: true,
@@ -191,7 +131,8 @@ export default defineComponent({
     if (this.isMounted) this.resizeScreen();
   },
   beforeUnmount() {
-    if (this.ticker !== null && this.ticker.count > 0) this.ticker?.remove(this.loop);
+    if (this.ticker !== null && this.ticker.count > 0)
+      this.ticker?.remove(this.loop);
 
     window.removeEventListener("resize", this.resizeScreen);
   },
@@ -212,14 +153,14 @@ export default defineComponent({
         this.width.original = newWidth;
         this.width.actual = newWidth;
 
-        console.log(newWidth);
-
         this.height.original = newHight;
         this.height.actual = newHight;
 
         this.pixiApp!.stage.removeChildren;
         this.coordinateContainer = new PIXI.Container();
-        this.pixiApp!.stage.addChild(this.coordinateContainer! as PIXI.Container);
+        this.pixiApp!.stage.addChild(
+          this.coordinateContainer! as PIXI.Container
+        );
         const graphContainer = new PIXI.Container();
         this.pixiApp!.stage.addChild(graphContainer);
         this.graphContainer = graphContainer;
@@ -248,11 +189,13 @@ export default defineComponent({
 
       this.pixiApp?.renderer.resize(this.width.actual, this.height.actual);
       this.createMask();
-      this.growRatio = (this.width.original - 2 * this.paddingRL) / this.maxDurationStore;
+      this.growRatio =
+        (this.width.original - 2 * this.paddingRL) / this.maxDurationStore;
       this.calcLegend();
     },
     createMask() {
-      if (this.maskIndex !== -1) this.pixiApp?.stage.removeChildAt(this.maskIndex);
+      if (this.maskIndex !== -1)
+        this.pixiApp?.stage.removeChildAt(this.maskIndex);
       const px_mask_outter_bounds = new PIXI.Graphics();
       px_mask_outter_bounds.beginFill();
       px_mask_outter_bounds.drawRect(
@@ -298,7 +241,7 @@ export default defineComponent({
           align: "center",
         });
         let xOffset = 8;
-        label.resolution =3;
+        label.resolution = 3;
         if (duration >= 10) xOffset = 12;
 
         label.x = xPosition - xOffset;
@@ -335,18 +278,21 @@ export default defineComponent({
             intensity: graph.intensities[z].intensity,
             startTime: graph.intensities[z].startTime,
             endTime: graph.intensities[z].endTime,
+            author: graph.intensities[z].author,
           });
         }
 
         graph.intensities = [];
         for (let z = intensityArray.length - 1; z >= 0; z--) {
-          const duration = intensityArray[z].endTime! - intensityArray[z].startTime!;
+          const duration =
+            intensityArray[z].endTime! - intensityArray[z].startTime!;
           const intensityObject = this.drawRectangle(
             graph.channelId,
             intensityArray[z].startTime! * this.growRatio + this.paddingRL,
             duration * this.growRatio,
             intensityArray[z].intensity,
-            graph.container as PIXI.Container
+            graph.container as PIXI.Container,
+            intensityArray[z].author
           );
 
           graph.intensities.push({
@@ -362,7 +308,8 @@ export default defineComponent({
       xPosition: number,
       additionalWidth: number,
       intensity: number,
-      container: PIXI.Container
+      container: PIXI.Container,
+      author?: User
     ) {
       if (intensity == 0) return { intensity: 0 };
       const numberOfRows = this.numberOfOutputs + 1 + 1;
@@ -377,8 +324,15 @@ export default defineComponent({
       //console.log("draw Rectangle height: " + height);
       // draw the rectangle
       const rect = new PIXI.Graphics();
-      rect.beginFill(0x5353c6);
-      rect.lineStyle(5, 0x5353c6);
+
+      if (author == undefined) {
+        rect.beginFill(0x6c6c60);
+        rect.lineStyle(5, 0x6c6c60);
+      } else {
+        const customColor: number = parseInt("0x" + author.color.slice(1));
+        rect.beginFill(customColor);
+        rect.lineStyle(5, customColor);
+      }
       rect.drawRect(0, 0, additionalWidth, height);
       rect.position.set(xPosition, yPosition);
 
@@ -389,6 +343,7 @@ export default defineComponent({
         intensity: intensity,
         width: additionalWidth,
         object: rect,
+        author: author,
       };
     },
     loop() {
@@ -414,14 +369,16 @@ export default defineComponent({
           let xPosition = this.width.original - this.paddingRL;
           if (this.currentTime < this.maxDurationStore)
             xPosition =
-              (xPosition * this.currentTime) / this.maxDurationStore + this.paddingRL;
+              (xPosition * this.currentTime) / this.maxDurationStore +
+              this.paddingRL;
 
           const intensityObject = this.drawRectangle(
             i,
             xPosition,
             additionalWidth,
             channels[i].intensity,
-            container
+            container,
+            channels[i].author
           );
           this.channelGraphs.push({
             channelId: channels[i].channelId,
@@ -462,7 +419,8 @@ export default defineComponent({
               lastIntensityObject.object!.x,
               lastIntensityObject.width! + additionalWidth,
               channels[i].intensity,
-              graph.container as PIXI.Container
+              graph.container as PIXI.Container,
+              lastIntensityObject.author
             );
 
             graph.intensities[index] = {
@@ -481,7 +439,8 @@ export default defineComponent({
               xPosition,
               additionalWidth,
               channels[i].intensity,
-              graph.container as PIXI.Container
+              graph.container as PIXI.Container,
+              channels[i].author
             );
 
             graph.intensities.push({

@@ -6,7 +6,9 @@
           <router-view />
           <transition name="fade">
             <div class="snackbar" v-show="!store.getters.isConnectedToSocket">
-              <div class="label">It seems you are offline pleasy try to reconnect</div>
+              <div class="label">
+                It seems you are offline pleasy try to reconnect
+              </div>
               <v-btn
                 text
                 color="transparent"
@@ -27,6 +29,22 @@
           <transition name="fade">
             <div
               class="snackbarSucess"
+              style="background-color: rgb(218, 141, 27)"
+              v-show="
+                store.getters.isConnectedToSocket &&
+                store.state.generalSettings.tactonLengthZero
+              "
+            >
+              <div class="label">
+                You have to record one tacton, before you could save it.
+              </div>
+            </div>
+          </transition>
+
+          <transition name="fade">
+            <div
+              class="snackbarSucess"
+              style="background-color: rgb(49, 146, 62)"
               v-show="
                 store.getters.isConnectedToSocket &&
                 (store.state.generalSettings.userNameChanged ||
@@ -94,7 +112,6 @@
   box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) !important;
   border-radius: 5px !important;
   // box-shadow: #333;
-  background-color: rgb(49, 146, 62); /* Black background color */
   color: #fff; /* White text color */
   text-align: center; /* Centered text */
   border-radius: 2px; /* Rounded borders */
@@ -135,7 +152,10 @@ export default defineComponent({
   watch: {
     $route(to) {
       //this.show = false;
-      this.store.dispatch(GeneralSettingsActionTypes.changeCurrentView, to.name);
+      this.store.dispatch(
+        GeneralSettingsActionTypes.changeCurrentView,
+        to.name
+      );
     },
   },
   methods: {
@@ -152,14 +172,20 @@ export default defineComponent({
       if (!this.correctFrameForInput()) return;
       const key: string = e.key.toUpperCase();
       //console.log("buttonDown");
-      this.store.dispatch(PlayGroundActionTypes.activateKey, {buttonKey:key, keyboard: true});
+      this.store.dispatch(PlayGroundActionTypes.activateKey, {
+        buttonKey: key,
+        keyboard: true,
+      });
     },
     buttonUp(e: any) {
       if (this.store.state.playGround.inEditMode) return;
       if (!this.correctFrameForInput()) return;
       const key = e.key.toUpperCase();
       //console.log("buttonUp");
-      this.store.dispatch(PlayGroundActionTypes.deactivateKey, {buttonKey:key, keyboard: false});
+      this.store.dispatch(PlayGroundActionTypes.deactivateKey, {
+        buttonKey: key,
+        keyboard: false,
+      });
     },
   },
 });

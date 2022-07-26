@@ -1,5 +1,6 @@
-import { Channel, Room } from "../types";
-const uuid = require('uuid');
+import { Channel, ClientInstrution, Room, User } from "../types";
+import TactonModule from "./TactonModule";
+import UserModule from "./UserModule";
 
 let roomList: Map<string, Room> = new Map<string, Room>();
 let channelList: Map<string, Channel[]> = new Map<string, Channel[]>();
@@ -13,9 +14,23 @@ const getNewRoomName = () => {
     return `room${roomList.size}--${today.getHours()}:${today.getMinutes()}`;
 }
 
+const generateRoomId = (): string => {
+    let isNewId = false;
+    const min = 100000;
+    const max = 900000;
+    let num: string;
+    do {
+        num = (Math.floor(Math.random() * max) + min).toString();
+        isNewId = roomList.has(num);
+    } while (isNewId)
+
+
+    return num;
+}
+
 const createRoom = (room: Room): string => {
     console.log("createRoom")
-    const roomId: string = uuid.v1();
+    const roomId = generateRoomId();
     channelList.set(roomId, []);
     roomList.set(roomId, {
         id: roomId,
@@ -52,15 +67,15 @@ const removeRoom = (roomId: string) => {
 
 
 
-const updateIntensities = (clientId: string, roomId: string, instructionList: [{ keyId: string, channels: string[], intensity: number }]): Array<{ channelId: string, intensity: number }> | undefined => {
+const updateIntensities = (clientId: string, roomId: string, instructionList: [{ keyId: string, channels: string[], intensity: number }]): Array<{ channelId: string, intensity: number, author:User|undefined }> | undefined => {
     const roomChannels = channelList.get(roomId);
-    const clientInstruction: Array<{ channelId: string, intensity: number }> = [];
+    const user = UserModule.getUser(roomId, clientId)
+    const clientInstruction: ClientInstrution[] = [];
     //console.log("roomId: " + roomId)
     //console.log("clientId: " + clientId)
     //console.log("keyId: " + keyId)
     //console.log("channels: " + channels)
     if (roomChannels == undefined) return;
-
     instructionList.forEach(instruction => {
         for (let i = 0; i < instruction.channels.length; i++) {
             let roomChannel = roomChannels.find(roomChannel => roomChannel.id == instruction.channels[i]);
@@ -87,12 +102,13 @@ const updateIntensities = (clientId: string, roomId: string, instructionList: [{
                     //the entry at the end was deleted, calculate new instruction for cli
                     if (roomChannel.intensityList.length == 0) {
                         // there are now no entries anymore in the list  --> tell client to stop vibrate
-                        clientInstruction.push({ channelId: instruction.channels[i], intensity: 0 });
+                        clientInstruction.push({ channelId: instruction.channels[i], intensity: 0, author: user });
                     } else {
                         //there are still some entries --> tell client to execute latest vibration now again
                         clientInstruction.push({
                             channelId: instruction.channels[i],
-                            intensity: roomChannel.intensityList[roomChannel.intensityList.length - 1].intensity
+                            intensity: roomChannel.intensityList[roomChannel.intensityList.length - 1].intensity,
+                            author: user
                         });
                     }
                 }
@@ -104,14 +120,14 @@ const updateIntensities = (clientId: string, roomId: string, instructionList: [{
                     keyId: instruction.keyId,
                     intensity: instruction.intensity
                 });
-                clientInstruction.push({ channelId: instruction.channels[i], intensity: instruction.intensity });
+                clientInstruction.push({ channelId: instruction.channels[i], intensity: instruction.intensity, author: user });
             }
         }
     });
     return clientInstruction;
 }
 
-const updateRecordMode = (roomId: string, shouldRecord: boolean):boolean => {
+const updateRecordMode = (roomId: string, shouldRecord: boolean): boolean => {
     const room = roomList.get(roomId);
     if (room == undefined) return false;
 
@@ -119,7 +135,7 @@ const updateRecordMode = (roomId: string, shouldRecord: boolean):boolean => {
     return true;
 }
 
-const updateMaxDuration = (roomId: string, maxDuration: number):boolean => {
+const updateMaxDuration = (roomId: string, maxDuration: number): boolean => {
     const room = roomList.get(roomId);
     if (room == undefined) return false;
     if (room.isRecording) return false;

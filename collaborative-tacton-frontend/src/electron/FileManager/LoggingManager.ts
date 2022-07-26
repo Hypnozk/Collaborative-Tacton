@@ -1,9 +1,7 @@
-import { mdiContentSaveSettingsOutline } from "@mdi/js";
 import { app } from "electron";
 import fs from 'fs';
 import path from 'path';
 import { LoggingLevel } from "./LoggingLevel";
-const os = require("os");
 
 class LoggingManager {
     readonly pathSettings: string;

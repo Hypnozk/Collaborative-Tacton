@@ -28,7 +28,7 @@
 <style lang="scss">
 .playGroundView {
   display: flex;
-  height: 100%;
+  height: 90%;
   min-width: 100%;
   max-width: 100%;
   padding: 1px;
@@ -41,9 +41,9 @@
 
 <script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
-import GridArea from "./GridArea.vue";
-import GridHeader from "./GridHeader.vue";
-import TactonScreen from "./TactonScreen.vue";
+import GridArea from "./GridArea/GridArea.vue";
+import GridHeader from "./GridArea/GridHeader.vue";
+import TactonScreen from "./TactonScreen/TactonScreen.vue";
 import PlayGroundDialog from "./PlayGroundDialog.vue";
 import { GeneralMutations } from "../../store/modules/generalSettings/generalSettings";
 import { RouterNames } from "@/types/Routernames";

@@ -55,7 +55,7 @@
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 import { KeyBoardButton } from "@/types/GeneralType";
-import { lightenDarkenColor } from "../../lib/colors";
+import { lightenDarkenColor } from "../../../lib/colors";
 import { PlayGroundActionTypes } from "@/renderer/store/modules/playGround/types";
 
 export default defineComponent({

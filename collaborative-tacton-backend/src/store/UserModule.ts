@@ -1,25 +1,43 @@
 import { User } from "../types";
+import { defaultColorUsers } from "../types/defaultColorUsers";
 
 let participantList: Map<string, User[]> = new Map<string, User[]>();
+let usedColorsList: Map<string, number[]> = new Map<string, number[]>();
 let wsRoomList: Map<string, WebSocket[]> = new Map<string, WebSocket[]>();
 
 const createRoomRef = (roomId: string) => {
     console.log("createRoomRef")
     participantList.set(roomId, []);
+    usedColorsList.set(roomId, new Array(defaultColorUsers.length).fill(0));
     wsRoomList.set(roomId, []);
 }
 
 const removeRoomRef = (roomId: string) => {
     participantList.delete(roomId);
+    usedColorsList.delete(roomId);
     wsRoomList.delete(roomId);
 }
 
-const getParticipants = (roomId: string): { id: string, name: string }[] => {
+const getUser = (roomId: string, userId: string): User | undefined => {
+    let user: User | undefined = undefined;
+    let participants = participantList.get(roomId);
+    if (participants !== undefined) {
+        for (let i = 0; i < participants.length; i++) {
+            if (participants[i].id == userId) {
+                user = participants[i];
+                break;
+            }
+        }
+    }
+    return user
+}
+
+const getParticipants = (roomId: string): { id: string, name: string, color: string }[] => {
     const participants = participantList.get(roomId);
     if (participants == undefined)
         return [];
 
-    return Array.from(participants, item => { return { id: item.id, name: item.name } });
+    return participants;
 }
 
 const getWsRoomList = (roomId: string): WebSocket[] => {
@@ -28,6 +46,38 @@ const getWsRoomList = (roomId: string): WebSocket[] => {
         return [];
 
     return wList;
+}
+
+/**
+     * calculate the new color for user
+     */
+const calculateUserColor = (roomId: string, amountOfParticipants: number): string => {
+    const usedColors = usedColorsList.get(roomId)!;
+    let colorId = 0;
+    if (amountOfParticipants <= usedColors.length) {
+        colorId = amountOfParticipants;
+    } else {
+        for (let i = 0; i < usedColors.length - 1; i++) {
+            if (usedColors[i] > usedColors[i + 1]) {
+                colorId = i + 1;
+                break;
+            }
+        }
+    }
+
+    usedColors[colorId]++;
+    return defaultColorUsers[colorId];
+}
+const resetUserColors = (roomId: string, participColor: string) => {
+    const usedColors = usedColorsList.get(roomId);
+    if (usedColors !== undefined) {
+        for (let x = 0; x < defaultColorUsers.length; x++) {
+            if (participColor == defaultColorUsers[x]) {
+                usedColors[x]--;
+                break;
+            }
+        }
+    }
 }
 
 const updateUser = (roomId: string, user: User): boolean => {
@@ -58,7 +108,8 @@ const enterUserInRoom = (ws: WebSocket, userID: string, userName: string, roomId
         }
     }
     if (newUser) {
-        participantList.set(roomId, [...participants, { id: userID, name: userName }])
+        const color = calculateUserColor(roomId, participants.length);
+        participantList.set(roomId, [...participants, { id: userID, name: userName, color: color }])
         const wsList = wsRoomList.get(roomId)
         if (wsList !== undefined)
             wsRoomList.set(roomId, [...wsList, ws])
@@ -78,6 +129,7 @@ const removeParticipant = (roomId: string, userId: string): number | undefined =
 
     for (let i = 0; i < participants.length; i++) {
         if (participants[i].id == userId) {
+            resetUserColors(roomId, participants[i].color)
             participants.splice(i, 1);
             break;
         }
@@ -110,6 +162,7 @@ export default {
     removeRoomRef,
     enterUserInRoom,
     updateUser,
+    getUser,
     removeParticipant,
     findRoomUserOfClient
 }
