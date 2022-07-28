@@ -54,16 +54,16 @@ const getWsRoomList = (roomId: string): WebSocket[] => {
 const calculateUserColor = (roomId: string, amountOfParticipants: number): string => {
     const usedColors = usedColorsList.get(roomId)!;
     let colorId = 0;
-    if (amountOfParticipants <= usedColors.length) {
-        colorId = amountOfParticipants;
-    } else {
         for (let i = 0; i < usedColors.length - 1; i++) {
             if (usedColors[i] > usedColors[i + 1]) {
                 colorId = i + 1;
                 break;
             }
+            if(usedColors[i] < usedColors[i + 1]){
+                colorId = i;
+                break;
+            }
         }
-    }
 
     usedColors[colorId]++;
     return defaultColorUsers[colorId];

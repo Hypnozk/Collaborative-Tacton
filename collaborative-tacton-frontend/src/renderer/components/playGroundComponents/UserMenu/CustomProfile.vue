@@ -1,19 +1,13 @@
 <template>
   <svg
-    width="40"
-    height="37"
+    width="30"
+    height="30"
+    viewBox="0 0 30 30"
     @click="$emit('displayMenuDialog')"
-    :class="[isFirstEntry ? '' : 'secondEntries']"
-    :cursor="clickable == true? 'pointer':''"
+    :class="['svgImage', isFirstEntry ? '' : 'secondEntries']"
+    :cursor="clickable == true ? 'pointer' : ''"
   >
-    <circle
-      cx="20"
-      cy="19"
-      r="16"
-      :fill="color"
-      stroke="black"
-      stroke-width="1"
-    />
+   <path :fill="color" d="m0,15a15,15 0 1 1 30,0a15,15 0 1 1 -30,0" />
     <text
       x="50%"
       y="50%"
@@ -22,12 +16,17 @@
       stroke-width="2px"
       dy=".4em"
     >
-     {{letter}}
+      {{ letter }}
     </text>
   </svg>
 </template>
 
 <style lang="scss" scoped>
+.svgImage {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
 .secondEntries {
   margin-left: -15px;
 }
@@ -46,12 +45,12 @@ export default defineComponent({
     color: {
       type: String,
     },
-    isFirstEntry:{
-      type:Boolean
+    isFirstEntry: {
+      type: Boolean,
     },
-    clickable:{
-      type:Boolean
-    }
+    clickable: {
+      type: Boolean,
+    },
   },
 });
 </script>

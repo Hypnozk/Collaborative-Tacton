@@ -37,12 +37,10 @@
     </div>
     <div class="dropdown-content" v-if="displayUserDialog">
       <v-list>
-        <div style="display: flex">
+        <div style="display: flex; padding-left: 5px">
           <CustomProfile
             v-if="store.getters.userNameFromServer.name !== ''"
-            :letter="
-              store.getters.userNameFromServer.name.charAt(0).toUpperCase()
-            "
+            :letter="store.getters.userNameFromServer.name.charAt(0).toUpperCase()"
             :color="store.getters.userNameFromServer.color"
             :isFirstEntry="true"
             :clickable="false"
@@ -56,11 +54,7 @@
 
           <div style="border: 1px solid #ddd" class="customField">
             <div class="inline">
-              <input
-                class="inputField"
-                v-on:keyup.enter="leaveMenu"
-                v-model="userName"
-              />
+              <input class="inputField" v-on:keyup.enter="leaveMenu" v-model="userName" />
               <v-icon right @click="leaveMenu"> mdi-content-save </v-icon>
             </div>
           </div>
@@ -71,18 +65,12 @@
           :value="index"
           class="customMenu"
         >
-          <v-row>
-            <v-col>
-              <DefaultProfile
-                :color="item.color"
-                :isFirstEntry="true"
-                :clickable="false"
-              />
-            </v-col>
-            <v-col>
+          <div style="display: flex; padding-left: 3px">
+            <DefaultProfile :color="item.color" :isFirstEntry="true" :clickable="false" />
+            <div class="partName">
               {{ item.name == "" ? "Guest" : item.name }}
-            </v-col>
-          </v-row>
+            </div>
+          </div>
         </v-list-item>
       </v-list>
     </div>
@@ -90,7 +78,6 @@
 </template>
 
 <style lang="scss" scoped>
-
 .customField {
   display: flex;
   align-items: center;
@@ -140,6 +127,13 @@
 }
 .customMenu {
   pointer-events: none;
+  padding: 0 0 0 3px !important;
+}
+
+.partName {
+  margin: 0 10px;
+  display: flex;
+  align-items: center;
 }
 </style>
 <script lang="ts">
@@ -183,8 +177,7 @@ export default defineComponent({
     },
     displayUserDialog() {
       return (
-        this.store.state.generalSettings.currentView ==
-        RouterNames.PLAY_GROUND_USERS
+        this.store.state.generalSettings.currentView == RouterNames.PLAY_GROUND_USERS
       );
     },
   },
@@ -208,24 +201,16 @@ export default defineComponent({
   },
   methods: {
     leaveMenu() {
-      this.store.commit(
-        GeneralMutations.CHANGE_VISIBILE_VIEW,
-        RouterNames.PLAY_GROUND
-      );
+      this.store.commit(GeneralMutations.CHANGE_VISIBILE_VIEW, RouterNames.PLAY_GROUND);
     },
     switchMenu() {
-      if (
-        this.store.state.generalSettings.currentView == RouterNames.PLAY_GROUND
-      ) {
+      if (this.store.state.generalSettings.currentView == RouterNames.PLAY_GROUND) {
         this.store.commit(
           GeneralMutations.CHANGE_VISIBILE_VIEW,
           RouterNames.PLAY_GROUND_USERS
         );
       } else {
-        this.store.commit(
-          GeneralMutations.CHANGE_VISIBILE_VIEW,
-          RouterNames.PLAY_GROUND
-        );
+        this.store.commit(GeneralMutations.CHANGE_VISIBILE_VIEW, RouterNames.PLAY_GROUND);
       }
     },
   },
