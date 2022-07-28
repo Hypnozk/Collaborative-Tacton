@@ -29,7 +29,7 @@ export type State = {
   socketConnectionStatus: boolean,
   userNameChanged: boolean,
   copiedToClipboard: boolean,
-  tactonLengthZero:boolean,
+  tactonLengthZero: boolean,
   deviceList: VibrotactileDevice[]
 };
 
@@ -38,7 +38,7 @@ export const state: State = {
   socketConnectionStatus: false,
   userNameChanged: false,
   copiedToClipboard: false,
-  tactonLengthZero:false,
+  tactonLengthZero: false,
   deviceList: []
 };
 /**
@@ -218,15 +218,18 @@ export const getters: GetterTree<State, RootState> & Getters = {
     return state.deviceList.find(device => device.state == "connected");
   },
   getNumberOfOutputs: (state) => {
-        /**
-    const device = getters.getConnectedDevice(state);
-    //12 is default so the user without the device will at least see 12 graphs
+    /**
+ 
+//12 is default so the user without the device will at least see 12 graphs
 
-     * for testing we use only 8 actauators always just, uncomment the code to set default to 12 and use the number you get from the device
+ * for testing we use only 8 actauators always just, uncomment the code to set default to 12 and use the number you get from the device
+  return 8;
+*/
+    const device = getters.getConnectedDevice(state);
     if (device == undefined) return 12;
     if (device.numOfOutputs == undefined) return 12;
     return device.numOfOutputs;
-     */
-    return 8;
+
+
   }
 };
