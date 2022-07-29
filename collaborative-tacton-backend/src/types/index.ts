@@ -29,7 +29,7 @@ export interface Intensity {
 
 export interface Channel {
     id: string,
-    intensityList: Intensity[]
+    intensityList: Intensity[],
 }
 
 interface InstructionSetParameter {

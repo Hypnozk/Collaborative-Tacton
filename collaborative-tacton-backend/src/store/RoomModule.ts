@@ -67,9 +67,8 @@ const removeRoom = (roomId: string) => {
 
 
 
-const updateIntensities = (clientId: string, roomId: string, instructionList: [{ keyId: string, channels: string[], intensity: number }]): Array<{ channelId: string, intensity: number, author:User|undefined }> | undefined => {
+const updateIntensities = (clientId: string, roomId: string, instructionList: [{ keyId: string, channels: string[], intensity: number }]): Array<{ channelId: string, intensity: number, author: User | undefined }> | undefined => {
     const roomChannels = channelList.get(roomId);
-    const user = UserModule.getUser(roomId, clientId)
     const clientInstruction: ClientInstrution[] = [];
     //console.log("roomId: " + roomId)
     //console.log("clientId: " + clientId)
@@ -102,9 +101,11 @@ const updateIntensities = (clientId: string, roomId: string, instructionList: [{
                     //the entry at the end was deleted, calculate new instruction for cli
                     if (roomChannel.intensityList.length == 0) {
                         // there are now no entries anymore in the list  --> tell client to stop vibrate
+                        const user = UserModule.getUser(roomId, clientId)
                         clientInstruction.push({ channelId: instruction.channels[i], intensity: 0, author: user });
                     } else {
                         //there are still some entries --> tell client to execute latest vibration now again
+                        const user = UserModule.getUser(roomId, roomChannel.intensityList[roomChannel.intensityList.length - 1].clientId)
                         clientInstruction.push({
                             channelId: instruction.channels[i],
                             intensity: roomChannel.intensityList[roomChannel.intensityList.length - 1].intensity,
@@ -120,6 +121,7 @@ const updateIntensities = (clientId: string, roomId: string, instructionList: [{
                     keyId: instruction.keyId,
                     intensity: instruction.intensity
                 });
+                const user = UserModule.getUser(roomId, clientId)
                 clientInstruction.push({ channelId: instruction.channels[i], intensity: instruction.intensity, author: user });
             }
         }

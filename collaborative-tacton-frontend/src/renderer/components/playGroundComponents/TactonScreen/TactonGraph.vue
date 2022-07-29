@@ -410,7 +410,8 @@ export default defineComponent({
             continue;
           }
 
-          if (lastIntensityObject.intensity == channels[i].intensity) {
+          console.log(channels[i].author?.name)
+          if (lastIntensityObject.intensity == channels[i].intensity && lastIntensityObject.author == channels[i].author) {
             //delete old rectangle and draw a new at same position with more width
             graph.container.removeChildAt(lastIntensityObject.index!);
 
@@ -429,7 +430,7 @@ export default defineComponent({
               endTime: lastIntensityObject.endTime! + this.ticker!.elapsedMS,
             };
           } else {
-            //intensity changed, draw new rectangle
+            //intensity or author changed, draw new rectangle
             const xPosition =
               ((this.width.original - 2 * this.paddingRL) * this.currentTime) /
                 this.maxDurationStore +
