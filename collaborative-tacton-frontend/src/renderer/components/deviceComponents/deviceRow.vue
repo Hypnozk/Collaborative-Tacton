@@ -40,7 +40,6 @@ import {
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 import { useStore } from "@/renderer/store/store";
 import ConnectionLevel from "./ConnectionLevel.vue";
-import { v4 as uuidv4 } from 'uuid';
 
 export default defineComponent({
   name: "DeviceRow",

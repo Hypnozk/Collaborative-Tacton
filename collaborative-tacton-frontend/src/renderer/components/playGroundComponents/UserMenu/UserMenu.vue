@@ -138,7 +138,6 @@
 </style>
 <script lang="ts">
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
-import router from "@/renderer/router";
 import {
   GeneralMutations,
   GeneralSettingsActionTypes,
