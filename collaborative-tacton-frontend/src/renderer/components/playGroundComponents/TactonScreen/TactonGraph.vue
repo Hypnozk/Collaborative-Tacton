@@ -314,7 +314,7 @@ export default defineComponent({
       if (intensity == 0) return { intensity: 0 };
       const numberOfRows = this.numberOfOutputs + 1 + 1;
       const distLinesY = this.height.original / numberOfRows;
-      const ratioHeight = 40 / numberOfRows;
+      const ratioHeight = 30 / numberOfRows;
       const height = (distLinesY - ratioHeight * numberOfRows) * intensity;
       let yPosition = (idGraph + 1) * distLinesY - height * 0.5;
 
