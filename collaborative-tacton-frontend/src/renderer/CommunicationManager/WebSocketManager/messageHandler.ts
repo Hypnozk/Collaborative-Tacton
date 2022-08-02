@@ -16,15 +16,8 @@ export const handleMessage = (store: Store, msg: SocketMessage) => {
     switch (msg.type) {
         case WS_MSG_TYPE.ROOM_INFO_CLI: {
             console.log(msg.payload)
-            if (store.state.generalSettings.currentView == RouterNames.ROOM || store.state.generalSettings.currentView == RouterNames.PLAY_GROUND) {
-                let roomState = RoomState.Create;
-                if (msg.payload.existRoom == true) {
-                    roomState = RoomState.Enter
-                    if (store.state.generalSettings.currentView == RouterNames.PLAY_GROUND)
-                        roomState = RoomState.Configure;
-                }
-
-                store.commit(RoomMutations.CHANGE_ROOM, { roomState: roomState, roomInfo: { ...msg.payload.roomInfo, participants: msg.payload.participants, } })
+            if (store.state.generalSettings.currentView == RouterNames.ROOM) {
+                store.commit(RoomMutations.CHANGE_ROOM, { roomState: RoomState.Create, roomInfo: { ...msg.payload.roomInfo, participants: msg.payload.participants, } })
                 router.push("/setup");
             }
 
@@ -46,6 +39,7 @@ export const handleMessage = (store: Store, msg: SocketMessage) => {
             break;
         }
         case WS_MSG_TYPE.NO_CHANGE_ROOM_CLI: {
+            console.log("NO_CHANGE_ROOM_CLI")
             if (store.state.generalSettings.currentView == RouterNames.SETUP)
                 router.push("/playGround");
             break;

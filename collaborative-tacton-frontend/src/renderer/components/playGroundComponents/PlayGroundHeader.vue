@@ -34,6 +34,10 @@
 import { IPC_CHANNELS } from "@/electron/IPCMainManager/IPCChannels";
 import router from "@/renderer/router";
 import { GeneralSettingsActionTypes } from "@/renderer/store/modules/generalSettings/generalSettings";
+import {
+  RoomMutations,
+  RoomState,
+} from "@/renderer/store/modules/roomSettings/roomSettings";
 import { useStore } from "@/renderer/store/store";
 import { defineComponent } from "@vue/runtime-core";
 import { sendSocketMessage } from "../../CommunicationManager/WebSocketManager";
@@ -65,10 +69,8 @@ export default defineComponent({
       );
     },
     settings() {
-      sendSocketMessage(
-        WS_MSG_TYPE.ROOM_INFO_SERV,
-        this.store.state.roomSettings.id
-      );
+      this.store.commit(RoomMutations.UPDATE_ROOM_STATE, RoomState.Configure);
+      router.push("/setup");
     },
   },
 });
