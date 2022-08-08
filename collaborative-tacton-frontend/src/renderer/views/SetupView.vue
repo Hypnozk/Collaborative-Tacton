@@ -15,9 +15,7 @@
       </v-col>
     </v-row>
     <v-row class="subRow">
-      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px"
-        >Description</v-col
-      >
+      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px">Description</v-col>
       <v-col cols="5">
         <v-textarea
           variant="underlined"
@@ -29,9 +27,7 @@
       </v-col>
     </v-row>
     <v-row class="subRow">
-      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px"
-        >Username</v-col
-      >
+      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px">Username</v-col>
       <v-col cols="5">
         <v-text-field
           variant="underlined"
@@ -41,9 +37,7 @@
       </v-col>
     </v-row>
     <v-row class="subRow">
-      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px"
-        >Connected Device</v-col
-      >
+      <v-col cols="2" style="paddingtop: 25px; paddingleft: 60px">Connected Device</v-col>
       <v-col cols="5">
         {{ store.getters.getConnectedDevice?.name }}
       </v-col>
@@ -68,9 +62,7 @@
         <v-row>
           <v-btn elevation="2" color="primary" @click="cancelRoomEnter">
             {{
-              store.state.roomSettings.roomState == configureState
-                ? "Log Out"
-                : "Cancel"
+              store.state.roomSettings.roomState == configureState ? "Log Out" : "Cancel"
             }}
           </v-btn>
           <v-spacer />
@@ -126,10 +118,7 @@
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "../store/store";
 import router from "../router";
-import {
-  RoomMutations,
-  RoomState,
-} from "../store/modules/roomSettings/roomSettings";
+import { RoomMutations, RoomState } from "../store/modules/roomSettings/roomSettings";
 import DeviceSection from "../components/deviceComponents/DeviceSection.vue";
 import ParticipantSection from "../components/deviceComponents/ParticipantSection.vue";
 import { sendSocketMessage } from "../CommunicationManager/WebSocketManager";

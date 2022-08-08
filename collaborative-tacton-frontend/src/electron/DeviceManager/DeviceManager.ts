@@ -29,9 +29,9 @@ const addDevice = (peripheral: Peripheral) => {
 }
 
 const updateConnectedDevice = async (peripheral: Peripheral) => {
-    if(peripheral.state == "connected"){
+    if (peripheral.state == "connected") {
         connectedDevice = peripheral;
-    }else{
+    } else {
         connectedDevice = undefined;
     }
     sendMessageToRenderer(IPC_CHANNELS.renderer.deviceStatusChanged, {
@@ -46,6 +46,9 @@ const connectDevice = (deviceID: string) => {
     const device = discoveredDevices.find(device => device.id === deviceID);
     //check if device is already connected
     if (device == undefined || device.state === "connected") return;
+    if (connectedDevice !== undefined && connectedDevice !== null)
+        disconnectBlutetoothDevice(connectedDevice);
+        
     connectBlutetoothDevice(device);
 }
 
@@ -61,7 +64,7 @@ const executeTask = (taskList: TactileTask[]) => {
     executeInstruction(connectedDevice, taskList)
 }
 
-const initialVibration =async () => {
+const initialVibration = async () => {
     executeTask([{
         channelId: 0,
         intensity: 1

@@ -15,36 +15,39 @@ export interface SocketMessage {
 export const handleMessage = (store: Store, msg: SocketMessage) => {
     switch (msg.type) {
         case WS_MSG_TYPE.ROOM_INFO_CLI: {
-            console.log(msg.payload)
+            //console.log("ROOM_INFO_CLI")
             if (store.state.generalSettings.currentView == RouterNames.ROOM) {
-                store.commit(RoomMutations.CHANGE_ROOM, { roomState: RoomState.Create, roomInfo: { ...msg.payload.roomInfo, participants: msg.payload.participants, } })
+                let roomState = RoomState.Create;
+                if(msg.payload.existRoom == true)
+                    roomState = RoomState.Enter;
+                store.commit(RoomMutations.CHANGE_ROOM, { roomState: roomState, roomInfo: { ...msg.payload.roomInfo, participants: msg.payload.participants, } })
                 router.push("/setup");
             }
 
             break;
         }
         case WS_MSG_TYPE.ENTER_UPDATE_ROOM_CLI: {
-            console.log("ENTER_ROOM_CLI")
+            //console.log("ENTER_UPDATE_ROOM_CLI")
             store.dispatch(RoomSettingsActionTypes.enterRoom, msg.payload)
             if (store.state.generalSettings.currentView == RouterNames.SETUP)
                 router.push("/playGround");
             break;
         }
         case WS_MSG_TYPE.UPDATE_ROOM_CLI: {
-            console.log("UPDATE_ROOM_CLI")
+            //console.log("UPDATE_ROOM_CLI")
             //console.log(msg.payload)
             store.dispatch(RoomSettingsActionTypes.updateRoom, msg.payload)
             break;
         }
         case WS_MSG_TYPE.ENTER_ROOM_CLI: {
-            console.log("NO_CHANGE_ROOM_CLI")
+            //console.log("NO_CHANGE_ROOM_CLI")
             if (store.state.generalSettings.currentView == RouterNames.SETUP)
                 router.push("/playGround");
             break;
         }
         case WS_MSG_TYPE.UPDATE_USER_ACCOUNT_CLI: {
-            console.log("UPDATE_USER_ACCOUNT_CLI")
-            console.log(msg.payload)
+            //console.log("UPDATE_USER_ACCOUNT_CLI")
+            //console.log(msg.payload)
             store.commit(RoomMutations.UPDATE_PARTICIPANTS, msg.payload)
             break;
         }
@@ -59,15 +62,18 @@ export const handleMessage = (store: Store, msg: SocketMessage) => {
             break;
         }
         case WS_MSG_TYPE.UPDATE_RECORD_MODE_CLI: {
+             //console.log("UPDATE_RECORD_MODE_CLI")
             store.commit(RoomMutations.UPDATE_RECORD_MODE, msg.payload)
             store.commit(TactonMutations.UPDATE_INSERT_VALUES, !msg.payload);
             break;
         }
         case WS_MSG_TYPE.CHANGE_DURATION_CLI: {
+             //console.log("CHANGE_DURATION_CLI")
             store.commit(RoomMutations.UPDATE_MAX_DURATION_TACTON, msg.payload);
             break;
         }
         case WS_MSG_TYPE.GET_TACTON_CLI: {
+             //console.log("GET_TACTON_CLI")
             console.log(msg.payload)
             if (msg.payload.length == 0) {
                 store.dispatch(GeneralSettingsActionTypes.tactonLengthChanged);
