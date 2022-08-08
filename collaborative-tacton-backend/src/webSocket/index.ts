@@ -35,8 +35,9 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 * return {room:Room, participants:User[]}
                 * participants is list, of all users of the room
                 */
-                const neeedUpdate = StorageManager.updateSession(msg.payload.room, msg.payload.user, msg.startTimeStamp)
-                if (neeedUpdate) {
+                const updateRoom = RoomModule.updateRoomInformation(msg.payload.room.id, msg.payload.room.name, msg.payload.room.description)
+                const updateUser = UserModule.updateUser(msg.payload.room.id.id, msg.payload.user);
+                if ((updateRoom !== undefined && updateRoom == true) || updateUser == true) {
                     const roomInfo = RoomModule.getRoomInfo(msg.payload.room.id);
                     const participants = UserModule.getParticipants(msg.payload.room.id);
 
@@ -47,16 +48,20 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 }
 
                 ws.send(JSON.stringify({
-                    type: WS_MSG_TYPE.NO_CHANGE_ROOM_CLI,
+                    type: WS_MSG_TYPE.ENTER_ROOM_CLI,
                     startTimeStamp: msg.startTimeStamp,
                 }))
 
                 break;
             }
             case WS_MSG_TYPE.ENTER_ROOM_SERV: {
-                let roomInfo = RoomModule.getRoomInfo(msg.payload.room.id)
-                if (roomInfo == undefined)
+                const updateRoom = RoomModule.updateRoomInformation(msg.payload.room.id, msg.payload.room.name, msg.payload.room.description)
+                let roomInfo = null;
+                if (updateRoom == undefined) {
                     roomInfo = StorageManager.createSession(msg.payload.room);
+                } else {
+                    roomInfo = RoomModule.getRoomInfo(msg.payload.room.id)!
+                }
 
                 StorageManager.enterSession(ws, client, msg.payload.userName, roomInfo, msg.payload.startTimeStamp);
 

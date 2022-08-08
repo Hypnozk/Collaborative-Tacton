@@ -25,18 +25,16 @@ const updateSession = (roomAttributes: { id: string, name: string, description: 
 
 
 const enterSession = (ws: WebSocket, userID: string, userName: string, roomInfo: Room, startTimeStamp: number) => {
-    const needRoomUpdate = RoomModule.updateRoomInformation(roomInfo.id, roomInfo.name, roomInfo.description)
-    const needUserUpdate = UserModule.enterUserInRoom(ws, userID, userName, roomInfo.id);
+    const userData = UserModule.enterUserInRoom(ws, userID, userName, roomInfo.id);
     //its about entering should never return at this point
-    if (!needRoomUpdate && !needUserUpdate) return;
-
+    if (userData == undefined) return;
 
     const participantList = UserModule.getParticipants(roomInfo.id)
     //send the new user all data and his uerid
     //roomInfo has not to be updated, his parameter are stored now for the room
 
     ws.send(JSON.stringify({
-        type: WS_MSG_TYPE.ENTER_ROOM_CLI,
+        type: WS_MSG_TYPE.ENTER_UPDATE_ROOM_CLI,
         payload: { room: roomInfo, userId: userID, participants: participantList },
         startTimeStamp: startTimeStamp
     }))

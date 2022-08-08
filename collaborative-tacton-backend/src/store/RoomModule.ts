@@ -45,7 +45,7 @@ const createRoom = (room: Room): string => {
 
 const updateRoomInformation = (id: string, name: string, description: string) => {
     const room = getRoomInfo(id)
-    if (room == undefined) return false;
+    if (room == undefined) return undefined;
 
     let needUpdate = false;
     if (room.name !== name) {

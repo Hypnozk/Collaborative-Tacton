@@ -33,6 +33,7 @@ export const startBluetoothScan = () => {
 
 export const stopBluetoothScan = () => {
     console.log("[Bluetooth] Stop Scan");
+    console.log(blueToothState);
     noble.stopScanning();
 }
 

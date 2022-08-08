@@ -54,16 +54,16 @@ const getWsRoomList = (roomId: string): WebSocket[] => {
 const calculateUserColor = (roomId: string, amountOfParticipants: number): string => {
     const usedColors = usedColorsList.get(roomId)!;
     let colorId = 0;
-        for (let i = 0; i < usedColors.length - 1; i++) {
-            if (usedColors[i] > usedColors[i + 1]) {
-                colorId = i + 1;
-                break;
-            }
-            if(usedColors[i] < usedColors[i + 1]){
-                colorId = i;
-                break;
-            }
+    for (let i = 0; i < usedColors.length - 1; i++) {
+        if (usedColors[i] > usedColors[i + 1]) {
+            colorId = i + 1;
+            break;
         }
+        if (usedColors[i] < usedColors[i + 1]) {
+            colorId = i;
+            break;
+        }
+    }
 
     usedColors[colorId]++;
     return defaultColorUsers[colorId];
@@ -97,25 +97,23 @@ const updateUser = (roomId: string, user: User): boolean => {
     return updated
 }
 
-const enterUserInRoom = (ws: WebSocket, userID: string, userName: string, roomId: string): boolean => {
+const enterUserInRoom = (ws: WebSocket, userID: string, userName: string, roomId: string): User | undefined => {
     const participants = participantList.get(roomId);
-    if (participants == undefined) return false;
-    let newUser = true;
+    if (participants == undefined) return;
+
     for (let i = 0; i < participants.length; i++) {
         if (participants[i].id == userID) {
-            newUser = false;
-            break;
+            return;
         }
     }
-    if (newUser) {
-        const color = calculateUserColor(roomId, participants.length);
-        participantList.set(roomId, [...participants, { id: userID, name: userName, color: color }])
-        const wsList = wsRoomList.get(roomId)
-        if (wsList !== undefined)
-            wsRoomList.set(roomId, [...wsList, ws])
-    }
 
-    return newUser;
+    const color = calculateUserColor(roomId, participants.length);
+    participantList.set(roomId, [...participants, { id: userID, name: userName, color: color }])
+    const wsList = wsRoomList.get(roomId)
+    if (wsList !== undefined)
+        wsRoomList.set(roomId, [...wsList, ws])
+
+    return { id: userID, name: userName, color: color };
 
 }
 

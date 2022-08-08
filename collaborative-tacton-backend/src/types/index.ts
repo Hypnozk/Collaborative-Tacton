@@ -4,10 +4,13 @@ export interface User {
     color:string
 }
 
-export interface Room {
+export interface RoomMetaData {
     id: string,
     name: string,
     description: string,
+}
+
+export interface Room extends RoomMetaData{
     isRecording:boolean,
     maxDurationRecord:number,
 }

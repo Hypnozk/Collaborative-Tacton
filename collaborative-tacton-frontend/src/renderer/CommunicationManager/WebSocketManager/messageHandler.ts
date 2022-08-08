@@ -23,7 +23,7 @@ export const handleMessage = (store: Store, msg: SocketMessage) => {
 
             break;
         }
-        case WS_MSG_TYPE.ENTER_ROOM_CLI: {
+        case WS_MSG_TYPE.ENTER_UPDATE_ROOM_CLI: {
             console.log("ENTER_ROOM_CLI")
             store.dispatch(RoomSettingsActionTypes.enterRoom, msg.payload)
             if (store.state.generalSettings.currentView == RouterNames.SETUP)
@@ -36,7 +36,7 @@ export const handleMessage = (store: Store, msg: SocketMessage) => {
             store.dispatch(RoomSettingsActionTypes.updateRoom, msg.payload)
             break;
         }
-        case WS_MSG_TYPE.NO_CHANGE_ROOM_CLI: {
+        case WS_MSG_TYPE.ENTER_ROOM_CLI: {
             console.log("NO_CHANGE_ROOM_CLI")
             if (store.state.generalSettings.currentView == RouterNames.SETUP)
                 router.push("/playGround");
