@@ -36,7 +36,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 * participants is list, of all users of the room
                 */
                 const updateRoom = RoomModule.updateRoomInformation(msg.payload.room.id, msg.payload.room.name, msg.payload.room.description)
-                const updateUser = UserModule.updateUser(msg.payload.room.id.id, msg.payload.user);
+                const updateUser = UserModule.updateUser(msg.payload.room.id, msg.payload.user);
                 if ((updateRoom !== undefined && updateRoom == true) || updateUser == true) {
                     const roomInfo = RoomModule.getRoomInfo(msg.payload.room.id);
                     const participants = UserModule.getParticipants(msg.payload.room.id);
