@@ -1,5 +1,5 @@
 # Collaborative-Tacton
-Vibrotactile pattern generator for collaborative development. All instruction will send to the backend, which will distribute the instruction to other clients from the same room
+Vibrotactile pattern generator for collaborative development. All instruction will send to a webscoket server, which will distribute the instruction to other clients from the same room
 
 ## Frontend installation ##
 1. install node version 14.18.2
