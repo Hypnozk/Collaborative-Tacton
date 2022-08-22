@@ -1,3 +1,4 @@
+<!--svg for image with profile icon -->
 <template>
   <svg
     width="30"

@@ -3,7 +3,7 @@ import { MutationTree, GetterTree, ActionTree, ActionContext } from 'vuex'
 import { RootState, useStore } from '../../store';
 import { User } from '../roomSettings/roomSettings';
 /**
- * Tyopes
+ * Types
  * 
  */
 interface DeviceChannel {

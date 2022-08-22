@@ -1,3 +1,4 @@
+<!--svg for image with letter icon -->
 <template>
   <svg
     width="30"

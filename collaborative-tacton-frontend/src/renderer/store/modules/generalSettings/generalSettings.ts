@@ -2,7 +2,7 @@ import { MutationTree, GetterTree, ActionTree, ActionContext } from 'vuex'
 import { RootState } from '../../store';
 import { RouterNames } from '../../../../types/Routernames';
 /**
- * Tyopes
+ * Types
  * 
  */
 export enum DeviceStatus {

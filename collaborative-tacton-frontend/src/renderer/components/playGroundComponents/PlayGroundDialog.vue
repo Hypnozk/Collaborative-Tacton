@@ -20,10 +20,10 @@
             <div>
               {{ key }}
             </div>
-            <div class="errorField" v-if="keyIsTaken.oneTime">
+            <div class="errorField" v-if="keyIsTaken">
               The Key is already taken.
             </div>
-            <div class="errorField" v-if="!keyIsTaken.oneTime && keyIsRequired">
+            <div class="errorField" v-if="!keyIsTaken && keyIsRequired">
               You have to enter a key.
             </div>
           </v-col>
@@ -64,7 +64,15 @@
       <v-col cols="7">
         <v-row style="justify-content: space-between" no-gutters>
           <v-col cols="1" v-for="(item, index) in colors" v-bind:key="index">
-            <span class="dot" :style="[item==colorButtons ? {backgroundColor:item, border:'solid 0.11em'}:{backgroundColor:item}]" @click="colorButtons=item"></span>
+            <span
+              class="dot"
+              :style="[
+                item == colorButtons
+                  ? { backgroundColor: item, border: 'solid 0.11em' }
+                  : { backgroundColor: item },
+              ]"
+              @click="colorButtons = item"
+            ></span>
           </v-col>
         </v-row>
       </v-col>
@@ -172,7 +180,7 @@ export default defineComponent({
     return {
       store: useStore(),
       isKeyDetecting: false,
-      keyIsTaken: { oneTime: false, always: false },
+      keyIsTaken: false,
       keyIsRequired: false,
       name: "",
       key: "",
@@ -200,15 +208,15 @@ export default defineComponent({
     set channels active, if the area button get modified
     */
     if (this.keyButtonId == undefined) return;
-    const keyButton = this.store.getters.getKeyButton(this.keyButtonId);
-    if (keyButton == undefined) return;
+    const keyButtonStore = this.store.getters.getKeyButton(this.keyButtonId);
+    if (keyButtonStore == undefined) return;
 
     //insert values in dialog of found button
-    if (keyButton.name !== undefined) this.name = keyButton.name;
-    this.key = keyButton.key;
-    this.intensity = keyButton.intensity;
-    this.colorButtons = keyButton.color;
-    keyButton.channels.forEach((element) => {
+    if (keyButtonStore.name !== undefined) this.name = keyButtonStore.name;
+    this.key = keyButtonStore.key;
+    this.intensity = keyButtonStore.intensity;
+    this.colorButtons = keyButtonStore.color;
+    keyButtonStore.channels.forEach((element) => {
       this.channelActive[element] = true;
     });
   },
@@ -226,23 +234,13 @@ export default defineComponent({
       this.channelActive[index] = !currentState;
     },
     stopKeyDetection() {
-      console.log("stopKeyDetection");
-      if (this.keyIsTaken.oneTime) {
-        //start the timer again if user selected taken key
-        if (!this.keyIsTaken.always) {
-          this.keyIsTaken = { oneTime: true, always: true };
-          const refStopKeyDetection = this.stopKeyDetection;
-          setTimeout(refStopKeyDetection, 5000);
-        }
-      }
+      //stop the key detection ;
       this.isKeyDetecting = false;
     },
     startKeyDetection() {
       if (this.isKeyDetecting) return;
-      this.keyIsTaken = { oneTime: this.keyIsTaken.oneTime, always: false };
       this.isKeyDetecting = true;
-      const refStopKeyDetection = this.stopKeyDetection;
-      setTimeout(refStopKeyDetection, 5000);
+      setTimeout(this.stopKeyDetection, 5000);
     },
     enterNewKey(e: any) {
       //check if user want to enter key
@@ -254,12 +252,14 @@ export default defineComponent({
       this.key = newKey;
       //key is already taken
       if (this.store.getters.isKeyAlreadyTaken(this.keyButtonId, newKey)) {
-        this.keyIsTaken = { oneTime: true, always: false };
+        this.keyIsTaken = true;
         return;
       }
 
-      this.keyIsTaken = { oneTime: false, always: false };
+      //key is not taken
+      this.keyIsTaken = false;
       this.isKeyDetecting = false;
+      this.stopKeyDetection();
     },
     deleteButton() {
       if (this.keyButtonId == undefined) return;
@@ -275,7 +275,7 @@ export default defineComponent({
         return;
       }
 
-      if (this.keyIsTaken.oneTime) return;
+      if (this.keyIsTaken) return;
 
       const channels: number[] = [];
       this.channelActive.forEach((isActive, index) => {
@@ -288,8 +288,8 @@ export default defineComponent({
         name: this.name,
         key: this.key,
         isActive: {
-            mouse:false,
-            keyboard:false
+          mouse: false,
+          keyboard: false,
         },
       };
 

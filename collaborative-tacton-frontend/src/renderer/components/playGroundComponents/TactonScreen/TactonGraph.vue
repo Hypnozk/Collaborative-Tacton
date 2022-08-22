@@ -75,17 +75,19 @@ export default defineComponent({
     },
   },
   watch: {
+    //start to drawing if all components are mounted
     isMounted(newVal, oldVal) {
       if (newVal == true && newVal !== oldVal) this.resizeScreen();
     },
+    //change the max Duration of the time profiles, if there are changes
     maxDurationStore() {
       this.calcLegend();
       this.growRatio =
         (this.width.original - 2 * this.paddingRL) / this.maxDurationStore;
       this.resizeRectangles();
     },
+    //update store from server, response retrieved
     isRecordingStore(recordMode) {
-      //update store from server, response retrieved
       if (recordMode) {
         this.currentTime = 0;
         this.channelGraphs.forEach((graph) => {
@@ -100,6 +102,7 @@ export default defineComponent({
         this.ticker?.remove(this.loop);
       }
     },
+    //start the drawing of figures, if there are the first user input
     newStoreItem() {
       // console.log("newStoreItem " + newValue);
       if (this.newStoreItem == true) {
@@ -109,6 +112,7 @@ export default defineComponent({
     },
   },
   mounted() {
+    //listener to recalculate time profiles
     window.addEventListener("resize", this.resizeScreen);
 
     PIXI.settings.PRECISION_FRAGMENT = PRECISION.HIGH;
@@ -127,9 +131,11 @@ export default defineComponent({
     this.ticker.stop();
     this.store.dispatch(TactonSettingsActionTypes.instantiateArray);
 
+    //start the initial resize screen
     if (this.isMounted) this.resizeScreen();
   },
   beforeUnmount() {
+    //remove listener and loop if the component is clossed
     if (this.ticker !== null && this.ticker.count > 0)
       this.ticker?.remove(this.loop);
 
@@ -168,6 +174,7 @@ export default defineComponent({
           (this.width.original - 2 * this.paddingRL) / this.maxDurationStore;
       }
 
+      //recalculate the size if of the container if something is changed
       const xRatio = newWidth / this.width.actual;
       const yRatio = newHight / this.height.actual;
       this.width.actual = newWidth;
@@ -191,9 +198,12 @@ export default defineComponent({
 
       this.pixiApp?.renderer.resize(this.width.actual, this.height.actual);
       this.createMask();
-
       this.calcLegend();
     },
+    /**
+     * method to create a mask, so you will never see figures outside of the time area
+     * if the size of time area is changed, it will create a new modified mask
+     */
     createMask() {
       if (this.maskIndex !== -1)
         this.pixiApp?.stage.removeChildAt(this.maskIndex);
@@ -213,6 +223,11 @@ export default defineComponent({
       this.maskIndex = this.pixiApp!.stage.children.length - 1;
       this.graphContainer!.mask = px_mask_outter_bounds;
     },
+      /**
+     * method to create the legen of the time are
+     * contain all lines and numbers
+     * draw the legend every time new, because numbers get blurry at scaling
+     */
     calcLegend() {
       this.coordinateContainer?.removeChildren();
       let xPosition = this.width.actual - this.paddingRL;
@@ -254,6 +269,9 @@ export default defineComponent({
 
       this.coordinateContainer?.addChild(graphics);
     },
+        /**
+     * method to resize the figures, if the max duration is changed
+     */
     resizeRectangles() {
       const channels = this.store.state.tactonSettings.deviceChannel;
       for (let i = 0; i < channels.length; i++) {
@@ -271,10 +289,7 @@ export default defineComponent({
         graph.container.x = 0 - timeToMoveContainer * this.growRatio;
         for (let z = graph.intensities.length - 1; z >= 0; z--) {
           if (graph.intensities[z].intensity == 0) continue;
-          let lastDrawTime = -1;
-          if (this.currentTime > 15000) lastDrawTime = this.currentTime - 15000;
 
-          if (graph.intensities[z].endTime! < lastDrawTime) break;
           intensityArray.push({
             intensity: graph.intensities[z].intensity,
             startTime: graph.intensities[z].startTime,

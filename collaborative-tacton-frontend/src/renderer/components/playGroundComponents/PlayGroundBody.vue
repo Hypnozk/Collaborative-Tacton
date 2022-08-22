@@ -67,6 +67,7 @@ export default defineComponent({
     };
   },
   mounted() {
+    //set the focus to the gui, so key down and up is working
     const container: any = this.$refs.container;
     this.$nextTick(() => container.$el.focus());
     this.isMounted = true;

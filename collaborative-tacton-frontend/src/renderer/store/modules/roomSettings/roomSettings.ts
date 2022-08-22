@@ -1,7 +1,7 @@
 import { MutationTree, GetterTree, ActionTree, ActionContext } from 'vuex'
 import { RootState } from '../../store';
 /**
- * Tyopes
+ * Types
  * 
  */
 export interface User {
