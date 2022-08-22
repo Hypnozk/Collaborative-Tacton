@@ -9,13 +9,20 @@ const server = createServer();
 const wss = new WebSocketServer({ noServer: true });
 
 
-
+/**
+ * if connection get established successfull, all mesages are handled by onMessage
+ * onClose handle the lost of a connection
+ */
 wss.on('connection', function connection(ws: WebSocket, request: string, client: string) {
     ws.onmessage = (ev) => onMessage(ws, ev.data, client)
     ws.onclose = (ev) => onClose(client);
     
 });
 
+/**
+ * method, to search for a specific token
+ * only if the token is provided by client, an connection will be established
+ */
 function authenticate(request: IncomingMessage, next: any) {
     if (request.url !== undefined) {
         const current_url = new URL("https:localhost:8080" + request.url)
@@ -33,6 +40,9 @@ function authenticate(request: IncomingMessage, next: any) {
     }
 }
 
+/**
+ * handle update of the http connection to websocket connection
+*/
 server.on('upgrade', function upgrade(request, socket, head) {
     // This function is not defined on purpose. Implement it with your own logic.
     //console.log(socket)

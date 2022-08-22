@@ -4,6 +4,9 @@ import RoomModule from "./RoomModule";
 import TactonModule from "./TactonModule";
 import UserModule from "./UserModule";
 
+/**
+ * Generel Module to handle different abstract operations with the 3 modules
+ */
 
 const createSession = (room: Room): Room => {
     console.log("createSession")

@@ -1,3 +1,6 @@
+/**
+ * custom types used in the backend
+ */
 export interface User {
     id: string,
     name: string,

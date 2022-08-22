@@ -2,7 +2,9 @@ import { Channel, ClientInstrution, Room, User } from "../types";
 import TactonModule from "./TactonModule";
 import UserModule from "./UserModule";
 
+//contain all metadata of one room
 let roomList: Map<string, Room> = new Map<string, Room>();
+//custom list, to calculate the operations of the vibrotactile device for the distributon
 let channelList: Map<string, Channel[]> = new Map<string, Channel[]>();
 
 const getRoomInfo = (id: string): Room | undefined => {
@@ -66,7 +68,13 @@ const removeRoom = (roomId: string) => {
 }
 
 
-
+/**
+ * method to calculate the vibrotactile device operation for every delivered instruction
+ * @param clientId:string of the user
+ * @param roomId:string the room of the user 
+ * @param instructionList:[] instructions of the user
+ * @returns clientinstructions to distribute on all clients
+ */
 const updateIntensities = (clientId: string, roomId: string, instructionList: [{ keyId: string, channels: string[], intensity: number }]): Array<{ channelId: string, intensity: number, author: User | undefined }> | undefined => {
     const roomChannels = channelList.get(roomId);
     const clientInstruction: ClientInstrution[] = [];
@@ -75,6 +83,7 @@ const updateIntensities = (clientId: string, roomId: string, instructionList: [{
     //console.log("keyId: " + keyId)
     //console.log("channels: " + channels)
     if (roomChannels == undefined) return;
+ 
     instructionList.forEach(instruction => {
         for (let i = 0; i < instruction.channels.length; i++) {
             let roomChannel = roomChannels.find(roomChannel => roomChannel.id == instruction.channels[i]);

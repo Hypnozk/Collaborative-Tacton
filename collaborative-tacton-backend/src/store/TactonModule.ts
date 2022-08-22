@@ -1,5 +1,6 @@
 import { ClientInstrution, TactonInstruction } from "../types";
 
+//contain the tacton as vtproto format; lastModified is used to calculate the wait instruction
 let tactonInstructionList: Map<string, { lastModified: number, tacton: TactonInstruction[] }> = new Map<string, { lastModified: number, tacton: TactonInstruction[] }>();
 
 const createRoomRef = (roomId: string) => {

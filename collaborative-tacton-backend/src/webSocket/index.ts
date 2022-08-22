@@ -28,11 +28,13 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
         switch (msg.type) {
             case WS_MSG_TYPE.UPDATE_ROOM_SERV: {
                 /**
+                 * method if one user, which is still part of the room, update the medata
                 * recieve {
                 *       room:{id:string,name:string,description:string}, 
-                *       user:User
-                *   } as payload --> room don't contain participants list
-                * return {room:Room, participants:User[]}
+                *       user:{id:string, name:string}
+                *   } as payload
+                * return {room:Room, participants:User[]} to all users
+                * ENTER_ROOM_CLI so that the inital user get notified and also join the play ground
                 * participants is list, of all users of the room
                 */
                 const updateRoom = RoomModule.updateRoomInformation(msg.payload.room.id, msg.payload.room.name, msg.payload.room.description)
@@ -55,6 +57,13 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 break;
             }
             case WS_MSG_TYPE.ENTER_ROOM_SERV: {
+                                /**
+                * method if one user enter the room
+                * metadata and participants list get updated
+                * recieve {
+                *       room:RoomMetaData, 
+                *   } as payload
+                */
                 const updateRoom = RoomModule.updateRoomInformation(msg.payload.room.id, msg.payload.room.name, msg.payload.room.description)
                 let roomInfo = null;
                 if (updateRoom == undefined) {
@@ -69,10 +78,14 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
             }
             case WS_MSG_TYPE.ROOM_INFO_SERV: {
                 /**
+                 * method to request all metadata of one room
                  * recieve "roomName#id":string as payload
-                 * return {existRoom:boolean, roomInfo:Room}
+                 * return {
+                 *      existRoom:boolean, 
+                 *      roomInfo:Room
+                 *      participants: User[]
+                 *  } as payload
                  */
-                console.log("{ existRoom: existRoom, roomInfo: roomInfo, participants: partipantList }");
                 let existRoom = true;
                 let roomInfo = undefined;
 
@@ -91,7 +104,7 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 }
 
                 const partipantList = UserModule.getParticipants(id);
-                console.log({ existRoom: existRoom, roomInfo: roomInfo, participants: partipantList });
+                //console.log({ existRoom: existRoom, roomInfo: roomInfo, participants: partipantList });
 
                 ws.send(JSON.stringify({
                     type: WS_MSG_TYPE.ROOM_INFO_CLI,
@@ -102,8 +115,15 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
             }
             case WS_MSG_TYPE.UPDATE_USER_ACCOUNT_SERV: {
                 /**
-                 * recieve "{roomId:string, user:{id:string,userName:string}}" as payload
-                 * update all clients with new username
+                 * method to update all clients with new username
+                 * recieve {
+                 *      roomId:string
+                 *      user: User
+                 *  } as payload
+                 * 
+                 * return {
+                 *      participants: User[] ==> modified list
+                 *  } as payload
                  */
                 const needUpdate = UserModule.updateUser(msg.payload.roomId, msg.payload.user)
                 if (needUpdate == false)
@@ -115,45 +135,50 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
             }
             case WS_MSG_TYPE.LOG_OUT: {
                 /**
-                 * recieve "{roomId:string, user:{id:string,userName:string}}" as payload
-                 * remove Room if there are no participants anymore
-                 * update all clients with new username
-                 */
+                * method to remove one client --> remove Room if there are no participants anymore
+                * recieve {
+                *      roomId:string
+                *      user: User
+                *  } as payload
+                */
                 StorageManager.removeUserOfSession(msg.payload.roomId, msg.payload.user, msg.startTimeStamp);
                 break;
             }
             case WS_MSG_TYPE.SEND_INSTRUCTION_SERV: {
                 /**
-                 * recieve "{roomId:string, instructions:[{keyId:string, channels:number[], intensity:number}]" as payload
-                 * {keyId:string, channels:number[], intensity:number} --> user pressed one key with some intensity, one key could assign multiple values
-                 * send the new instruction to all clients
-                 * return [{channelId:number, intensity:number}] --> for every channel new object in array
-                 */
+                * method to distribute one vibrotactile instruction
+                * recieve {
+                *      "roomId":string
+                *      instructions:[{ keyId: string, channels: string[], intensity: number }]
+                *  } as payload
+                */
                 StorageManager.enterInstruction(msg.payload.roomId, client, msg.payload.instructions, msg.startTimeStamp)
                 break;
             }
             case WS_MSG_TYPE.UPDATE_RECORD_MODE_SERV: {
                 /**
-                 * recieve "{roomId:string,shouldRecord":boolean} as payload
-                 * change RecordMode of the room, if correct roomID transmitted
-                 * update all clients with the new recordmode
-                 */
+                * method to update all clients with the new recordmode
+                * recieve {
+                *      "roomId":string
+                *      shouldRecord:boolen
+                *  } as payload
+                */
                 StorageManager.changeRecordMode(msg.payload.roomId, msg.payload.shouldRecord, msg.startTimeStamp)
                 break;
             }
             case WS_MSG_TYPE.CHANGE_DURATION_SERV: {
                 /**
+                 * method to update all clients with the new max duration of time profile
                  * recieve "{roomId:string,duration":number} as payload
-                 * change Max_Duration of the room, if correct roomID transmitted
-                 * update all clients with the new maximal duration
                  */
                 StorageManager.changeDuration(msg.payload.roomId, msg.payload.duration, msg.startTimeStamp)
                 break;
             }
             case WS_MSG_TYPE.PING: {
                 /**
-                 * recieve "{roomId:string,duration":number} as payload
-                 * change Max_Duration of the room, if correct roomID transmitted
+                 * method to measure the latency
+                 * recieve no payload
+                 * return no payload
                  */
                 ws.send(JSON.stringify({
                     type: WS_MSG_TYPE.PONG,
@@ -163,8 +188,8 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
             }
             case WS_MSG_TYPE.GET_TACTON_SERV: {
                 /**
+                 * method to request one tacton as json in vtproto format
                  * recieve "{roomId:string} as payload
-                 * deliver all instructions to build a tacton in vtproto format as json
                  * return {tacton:TactonInstruction}
                  */
                 ws.send(JSON.stringify({
@@ -180,6 +205,9 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
     }
 }
 
+/**
+ * method to remove one user from the room, if he lost the connection
+ */
 export const onClose = (client: string) => {
     console.log(`Received close message  from user ${client}`);
     const payload = UserModule.findRoomUserOfClient(client);

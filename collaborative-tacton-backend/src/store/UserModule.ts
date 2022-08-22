@@ -1,8 +1,11 @@
 import { User } from "../types";
 import { defaultColorUsers } from "../types/defaultColorUsers";
 
+//contain all metadata of one user
 let participantList: Map<string, User[]> = new Map<string, User[]>();
+//custom array to distribute the user colours equally
 let usedColorsList: Map<string, number[]> = new Map<string, number[]>();
+//contain ws objects to communicate wit the clients
 let wsRoomList: Map<string, WebSocket[]> = new Map<string, WebSocket[]>();
 
 const createRoomRef = (roomId: string) => {
@@ -49,8 +52,8 @@ const getWsRoomList = (roomId: string): WebSocket[] => {
 }
 
 /**
-     * calculate the new color for user
-     */
+* calculate the new color for new user
+*/
 const calculateUserColor = (roomId: string, amountOfParticipants: number): string => {
     const usedColors = usedColorsList.get(roomId)!;
     let colorId = 0;
@@ -68,6 +71,10 @@ const calculateUserColor = (roomId: string, amountOfParticipants: number): strin
     usedColors[colorId]++;
     return defaultColorUsers[colorId];
 }
+
+/**
+* update usedColorsList, because user left the room
+*/
 const resetUserColors = (roomId: string, participColor: string) => {
     const usedColors = usedColorsList.get(roomId);
     if (usedColors !== undefined) {
@@ -80,6 +87,9 @@ const resetUserColors = (roomId: string, participColor: string) => {
     }
 }
 
+/**
+* method to change the username of specific user
+*/
 const updateUser = (roomId: string, user: User): boolean => {
     let updated = false;
     const participants = participantList.get(roomId);
@@ -97,6 +107,10 @@ const updateUser = (roomId: string, user: User): boolean => {
     return updated
 }
 
+/**
+* method that new user entered the room
+* return the new User as object
+*/
 const enterUserInRoom = (ws: WebSocket, userID: string, userName: string, roomId: string): User | undefined => {
     const participants = participantList.get(roomId);
     if (participants == undefined) return;
@@ -117,6 +131,10 @@ const enterUserInRoom = (ws: WebSocket, userID: string, userName: string, roomId
 
 }
 
+/**
+* method to update data, in cause of somebody left the room
+* return the new number of participants from the room
+*/
 const removeParticipant = (roomId: string, userId: string): number | undefined => {
     //console.log("removeParticipant")
     //console.log(roomList)
