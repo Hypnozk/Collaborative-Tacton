@@ -1,3 +1,4 @@
+//file to initiate the vuex store, with all modules
 import {
   createStore,
 } from 'vuex'

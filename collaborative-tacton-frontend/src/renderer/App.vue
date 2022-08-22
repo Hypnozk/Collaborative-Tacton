@@ -1,3 +1,4 @@
+<!--inital view initiate the router and the toast for user messages -->
 <template>
   <div tabindex="0" class="main" @keyup="buttonUp" @keydown="buttonDown">
     <div class="root">

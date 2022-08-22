@@ -1,3 +1,5 @@
+<!-- Component for the playGround -->
+<!-- display the time profiles and the buttons to control the vibrotactile device -->
 <template>
   <PlayGroundHeader />
   <PlayGroundBody />

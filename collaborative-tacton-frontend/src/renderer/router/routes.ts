@@ -4,6 +4,10 @@ import SetupView from "../views/SetupView.vue"
 import { RouteRecordRaw } from "vue-router";
 import { RouterNames } from "@/types/Routernames";
 
+/**
+ * set the paths for the single components in the views folder
+ * / default path
+ */
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",

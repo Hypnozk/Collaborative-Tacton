@@ -1,3 +1,6 @@
+<!-- Component for the room -->
+<!-- input field to enter a name or adress of the room -->
+
 <template>
   <v-container fill-height class="roomView">
     <v-container fill-height>

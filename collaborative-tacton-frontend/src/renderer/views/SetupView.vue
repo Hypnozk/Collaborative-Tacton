@@ -1,3 +1,6 @@
+<!-- Component for the setup -->
+<!-- display metadata of the room, connecting with vibrotactile device -->
+
 <template>
   <v-container class="setupView">
     <v-row class="subRow title">

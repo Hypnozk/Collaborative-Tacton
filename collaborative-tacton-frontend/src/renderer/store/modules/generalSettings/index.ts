@@ -9,6 +9,7 @@ import { RootState } from '../../store';
 
 import { mutations, Mutations, Actions, actions, getters, Getters, state, State } from './generalSettings';
 
+//build the store module
 export type GeneralSettingsStore<S = State> = Omit<VuexStore<S>, 'getters' | 'commit' | 'dispatch'>
 & {
   commit<K extends keyof Mutations, P extends Parameters<Mutations[K]>[1]>(

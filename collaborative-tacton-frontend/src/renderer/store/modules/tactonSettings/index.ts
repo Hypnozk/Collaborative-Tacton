@@ -9,6 +9,7 @@ import { RootState } from '../../store';
 
 import { mutations, Mutations, Actions, actions, getters, Getters, state, State } from './tactonSettings';
 
+//build the store module
 export type TactonSettingsStore<S = State> = Omit<VuexStore<S>, 'getters' | 'commit' | 'dispatch'>
 & {
   commit<K extends keyof Mutations, P extends Parameters<Mutations[K]>[1]>(

@@ -33,6 +33,7 @@ async function createWindow() {
   });
 
   win.once('ready-to-show', () => {
+    //show the GUI in full screen mode
     win.maximize();
     win.show()
   })
@@ -95,7 +96,9 @@ if (isDevelopment) {
       app.quit();
     });
   }
-}/**
+}
+
+/** let the app quit if there are an error with the bluetooth state; restart is needed
 process.on('uncaughtException', function (err) {
   console.log("Unexpected Exception: " + err);
 });
