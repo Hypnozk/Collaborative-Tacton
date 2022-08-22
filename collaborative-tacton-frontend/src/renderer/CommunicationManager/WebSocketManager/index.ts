@@ -8,6 +8,10 @@ import { WS_MSG_TYPE } from "./ws_types";
 
 let clientWs = null as WebSocket | null;
 
+/**
+ * method to calculate the latency to the server every 30second 
+ * result get logged
+ */
 function heartbeat(store:Store) {
     if(!store.state.generalSettings.socketConnectionStatus) return;
 
@@ -21,8 +25,12 @@ function heartbeat(store:Store) {
     //setInterval(heartbeat(store),1000*5)
   }
 
+  /**
+ * method to initiate the websocket connection
+ * in onmessage Function all custom messages are handled
+ */
 export const initWebsocket = (store: Store) => {
-    //store.dispatch(GeneralSettingsActionTypes.addSocketClient, new WebSocket("ws://localhost:8080/patth?token=secure"));
+    //add this token to establish a connection
     const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
     clientWs = new WebSocket("ws://localhost:8080/path?token="+token)
     if (clientWs !== null) {

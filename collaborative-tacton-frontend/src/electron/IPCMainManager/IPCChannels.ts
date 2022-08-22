@@ -1,4 +1,5 @@
 const IPC_CHANNELS = {
+    //channels to communicate with main process
     main: {
         actuator: "tactile-jam.main.actuator",
         changeScan: "tactile-jam.main.changeScan",
@@ -12,6 +13,7 @@ const IPC_CHANNELS = {
         logMessageInfos: "tactile-jam.main.logMessageInfos",
         saveTacton: "tactile-jam.main.saveTacton",
     },
+    //channels to communicate with renderer process
     renderer: {
         actuator: "tactile-jam.renderer.devices",
         foundDevice: "tactile-jam.renderer.foundDevice",

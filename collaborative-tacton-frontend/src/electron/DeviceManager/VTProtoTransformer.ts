@@ -57,6 +57,12 @@ const convertTaskToInstruction = (taskList: TactileTask[], InstSetParamDef: prot
     return instructionList
 }
 
+/**
+ * method to controll the vibrotactile device
+ * it needed the peripheral, with the specicic characteristic
+ * and a custom format for the vibrotactile instructions, 
+ * it will transform it to the VTProto format and will use the characteristic to controll the device 
+ */
 export const executeInstruction = (device: Peripheral, taskList: TactileTask[]) => {
     protobuf.load("src/protobuf/vtproto.proto", function (err, root) {
         if (err) {

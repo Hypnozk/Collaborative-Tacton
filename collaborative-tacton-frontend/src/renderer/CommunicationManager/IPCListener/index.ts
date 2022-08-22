@@ -6,6 +6,9 @@ import { CustomSettings } from "@/electron/FileManager/initSettings";
 import { RoomMutations } from "@/renderer/store/modules/roomSettings/roomSettings";
 
 const store = useStore()
+/**
+ * initiate listener from the main process
+ */
 export const initIPCListener = () => {
   window.api.receive(IPC_CHANNELS.renderer.foundDevice, (device: VibrotactileDevice) => {
     //console.log("Get from main " + device);

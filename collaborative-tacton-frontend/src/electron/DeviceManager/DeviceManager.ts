@@ -5,6 +5,10 @@ import { sendMessageToRenderer } from "../IPCMainManager/IPCController";
 import { connectBlutetoothDevice, disconnectBlutetoothDevice, startBluetoothScan, stopBluetoothScan } from "./BluetoothController"
 import { executeInstruction } from "./VTProtoTransformer";
 
+/**
+ * Generell Device Module, which will handle all devices
+ * it will controll the device with the bluetooth controller and and the vtproto transformer
+ */
 let discoveredDevices = [] as Peripheral[]
 let connectedDevice: Peripheral | undefined = undefined;
 

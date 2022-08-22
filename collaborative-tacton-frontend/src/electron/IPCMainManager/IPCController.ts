@@ -30,11 +30,15 @@ electronCache.getBrowserWindow().webContents.send('tactile-jam.receive', 'pong')
 ---function to send informations to the renderer
 */
 
+/**
+ * initiate listener for the renderer process
+ */
+
 ipcMain.on(IPC_CHANNELS.main.actuator, (event, actuator) => {
-    console.log("User pressed " + actuator)
     _win.webContents.send(IPC_CHANNELS.renderer.actuator, actuator)
 });
 
+//change scan for the ble devices
 ipcMain.on(IPC_CHANNELS.main.changeScan, (event, scanStatus: boolean) => {
     //console.log("recieved meesage to make Scan: " + scanStatus)
     if (scanStatus) {
@@ -44,41 +48,49 @@ ipcMain.on(IPC_CHANNELS.main.changeScan, (event, scanStatus: boolean) => {
     }
 });
 
+//connect with specific device
 ipcMain.on(IPC_CHANNELS.main.connectDevice, (event, deviceID: string) => {
     //console.log("Starting Connection");
     DeviceManager.connectDevice(deviceID);
 });
 
+//disconnect with specific device
 ipcMain.on(IPC_CHANNELS.main.disconnectDevice, () => {
     //console.log("Starting Discconnect");
     DeviceManager.disconnectDevice();
 });
 
+//controll the vibrotactile device
 ipcMain.on(IPC_CHANNELS.main.executeTask, (event, taskList: TactileTask[]) => {
     //console.log("executeTask");
     DeviceManager.executeTask(taskList)
 });
 
+//copy roomName and adress 
 ipcMain.on(IPC_CHANNELS.main.copyToClipBoard, (event, adress: string) => {
     //console.log("copyToClipBoard");
     clipboard.writeText(adress);
 });
 
+//read the current user configs and send it to renderer
 ipcMain.on(IPC_CHANNELS.main.modifyUserConfig, (event, setting: { key: string, value: any }) => {
     //console.log("modifyUserConfig");
     _settingManager.sendSettings();
 });
 
+//save the user name in the config
 ipcMain.on(IPC_CHANNELS.main.saveUserName, (event, userName: string) => {
     //console.log("saveUserName");
     _settingManager.updateUserName(userName);
 });
 
+//save one updated keyboard buttton
 ipcMain.on(IPC_CHANNELS.main.saveKeyBoardButton, (event, button: KeyBoardButton) => {
     //console.log("saveKeyBoardButton");
     _settingManager.updateButton(button);
 });
 
+//log informations
 ipcMain.on(IPC_CHANNELS.main.logMessageInfos, (event, payload: {
     level: LoggingLevel,
     type: string;
@@ -89,6 +101,7 @@ ipcMain.on(IPC_CHANNELS.main.logMessageInfos, (event, payload: {
     _loggingManager.writeLog(payload.level, payload.type, payload.endTimeStamp - payload.startTimeStamp);
 });
 
+//save one tacton as json in vtproto format
 ipcMain.on(IPC_CHANNELS.main.saveTacton, async (event, payload: any) => {
     //console.log("saveKeyBoardButton");
     let file = await dialog.showSaveDialog(_win, {
@@ -106,16 +119,19 @@ ipcMain.on(IPC_CHANNELS.main.saveTacton, async (event, payload: any) => {
     }
 });
 
+//generell function, which get called if on module want to communicate with the renderer
 export function sendMessageToRenderer(channel: string, payload: any): void {
     _win.webContents.send(channel, payload)
 }
 
+//for internal use, get initiated at starting the application
 export function setBrowserWindow(browserWindow: BrowserWindow) {
     _win = browserWindow;
     _loggingManager = new LoggingManager();
 
 }
 
+//for internal use, get initiated at starting the application
 export function initSettingManager() {
     _settingManager = new SettingManager();
 

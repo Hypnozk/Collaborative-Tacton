@@ -2,6 +2,10 @@ import noble, { Peripheral } from "@abandonware/noble";
 import { isKnownService, knownServices, knownServiceUuids } from "./Services"
 import DeviceManager from "./DeviceManager";
 
+/**
+ * generell methods to establish a ble connection
+ * methods get used by the device manager
+ */
 let blueToothState = "";
 
 noble.on("stateChange", (state: any) => {

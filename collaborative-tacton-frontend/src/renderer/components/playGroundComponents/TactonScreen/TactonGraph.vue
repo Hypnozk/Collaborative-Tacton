@@ -223,7 +223,7 @@ export default defineComponent({
       this.maskIndex = this.pixiApp!.stage.children.length - 1;
       this.graphContainer!.mask = px_mask_outter_bounds;
     },
-      /**
+    /**
      * method to create the legen of the time are
      * contain all lines and numbers
      * draw the legend every time new, because numbers get blurry at scaling
@@ -269,7 +269,7 @@ export default defineComponent({
 
       this.coordinateContainer?.addChild(graphics);
     },
-        /**
+    /**
      * method to resize the figures, if the max duration is changed
      */
     resizeRectangles() {
@@ -319,6 +319,15 @@ export default defineComponent({
         }
       }
     },
+    /**
+     * method to draw a new rectangle
+     * idGraph = number at which row to draw figure; start at 0
+     * xPostion = x position of figure, measured at top left corner
+     * additionalWidth = width of figure
+     * intensity = intensity to display, used for height calculation
+     * container = container, which contain all figures of one row
+     * author = user, which caused input
+     */
     drawRectangle(
       idGraph: number,
       xPosition: number,
@@ -327,7 +336,9 @@ export default defineComponent({
       container: PIXI.Container,
       author?: User
     ) {
+      // not du anything at intensity of 0
       if (intensity == 0) return { intensity: 0 };
+      //+1 for the legend, + 1 because numberOfOutputs starts counting at 0
       const numberOfRows = this.numberOfOutputs + 1 + 1;
       const distLinesY = this.height.original / numberOfRows;
       const ratioHeight = 35 / numberOfRows;
@@ -341,6 +352,7 @@ export default defineComponent({
       // draw the rectangle
       const rect = new PIXI.Graphics();
 
+      //calculate colour
       if (author == undefined) {
         rect.beginFill(0x6c6c60);
       } else {
@@ -360,7 +372,11 @@ export default defineComponent({
         author: author,
       };
     },
+    /**
+     * method wich will called every frame, to draw and update figures
+     */
     loop() {
+      //calculate the additional width, which has to add for the time frame
       const additionalWidth = this.growRatio * this.ticker!.elapsedMS;
       const channels = this.store.state.tactonSettings.deviceChannel;
       /**      console.log(
@@ -376,6 +392,11 @@ export default defineComponent({
           (graph) => graph.channelId == channels[i].channelId
         );
         if (graph == undefined) {
+          /**
+           * draw for every row a container,
+           * if there are no items, just enter 0 for the intensity as default
+           * the container is needed, to move the starting point later on, also if there are no figures
+           */
           //if (channels[i].intensity == 0) continue;
           //there is currently no rectangle
           const container = new PIXI.Container();
@@ -413,10 +434,11 @@ export default defineComponent({
           if (this.currentTime >= this.maxDurationStore) {
             graph.container.x -= additionalWidth;
           }
-          //general item
+          //get the last figure object
           const index = graph.intensities.length - 1;
           const lastIntensityObject = graph.intensities[index];
 
+          // if the new intensity is 0, dont draw a figure, just enter the new intensity
           if (channels[i].intensity == 0) {
             if (lastIntensityObject.intensity !== 0) {
               graph.intensities.push({ intensity: 0 });
@@ -428,7 +450,7 @@ export default defineComponent({
             lastIntensityObject.intensity == channels[i].intensity &&
             lastIntensityObject.author == channels[i].author
           ) {
-            //delete old rectangle and draw a new at same position with more width
+            //could use same figure, update width and the new endtime
             lastIntensityObject.object!.width =
               lastIntensityObject.object!.width + additionalWidth;
 
@@ -461,9 +483,10 @@ export default defineComponent({
         }
       }
 
+      //calculate the new time
       this.currentTime += this.ticker!.elapsedMS;
       //this.ticker!.stop();
-    }
+    },
   },
 });
 </script>

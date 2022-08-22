@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { LoggingLevel } from "./LoggingLevel";
 
+//Manager to log all user datas locally
 class LoggingManager {
     readonly pathSettings: string;
     readonly errorReading: number = 0;

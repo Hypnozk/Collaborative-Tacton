@@ -7,6 +7,7 @@ import { sendMessageToRenderer } from '../IPCMainManager/IPCController';
 import { IPC_CHANNELS } from '../IPCMainManager/IPCChannels';
 import { KeyBoardButton } from '@/types/GeneralType';
 
+//Manager to handle all user configurations and save them locally
 class SettingManager {
     readonly pathSettings: string;
     customSettings: CustomSettings;
