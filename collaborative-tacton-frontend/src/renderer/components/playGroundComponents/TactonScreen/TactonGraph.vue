@@ -18,7 +18,6 @@ interface IntensityObject {
   startTime?: number;
   endTime?: number;
   index?: number;
-  width?: number;
   object?: PIXI.Graphics;
 }
 interface GraphicObject {
@@ -81,7 +80,8 @@ export default defineComponent({
     },
     maxDurationStore() {
       this.calcLegend();
-      this.growRatio = (this.width.original - 2 * this.paddingRL) / this.maxDurationStore;
+      this.growRatio =
+        (this.width.original - 2 * this.paddingRL) / this.maxDurationStore;
       this.resizeRectangles();
     },
     isRecordingStore(recordMode) {
@@ -92,7 +92,8 @@ export default defineComponent({
           graph.container.removeChildren();
         });
         this.channelGraphs = [];
-        if (this.ticker !== null && this.ticker.count > 0) this.ticker?.remove(this.loop);
+        if (this.ticker !== null && this.ticker.count > 0)
+          this.ticker?.remove(this.loop);
         this.ticker?.add(this.loop);
       } else {
         this.ticker?.stop();
@@ -102,7 +103,8 @@ export default defineComponent({
     newStoreItem() {
       // console.log("newStoreItem " + newValue);
       if (this.newStoreItem == true) {
-        if (this.store.state.roomSettings.isRecording == true) this.ticker?.start();
+        if (this.store.state.roomSettings.isRecording == true)
+          this.ticker?.start();
       }
     },
   },
@@ -128,7 +130,8 @@ export default defineComponent({
     if (this.isMounted) this.resizeScreen();
   },
   beforeUnmount() {
-    if (this.ticker !== null && this.ticker.count > 0) this.ticker?.remove(this.loop);
+    if (this.ticker !== null && this.ticker.count > 0)
+      this.ticker?.remove(this.loop);
 
     window.removeEventListener("resize", this.resizeScreen);
   },
@@ -154,10 +157,15 @@ export default defineComponent({
 
         this.pixiApp!.stage.removeChildren;
         this.coordinateContainer = new PIXI.Container();
-        this.pixiApp!.stage.addChild(this.coordinateContainer! as PIXI.Container);
+        this.pixiApp!.stage.addChild(
+          this.coordinateContainer! as PIXI.Container
+        );
         const graphContainer = new PIXI.Container();
         this.pixiApp!.stage.addChild(graphContainer);
         this.graphContainer = graphContainer;
+
+        this.growRatio =
+          (this.width.original - 2 * this.paddingRL) / this.maxDurationStore;
       }
 
       const xRatio = newWidth / this.width.actual;
@@ -183,11 +191,12 @@ export default defineComponent({
 
       this.pixiApp?.renderer.resize(this.width.actual, this.height.actual);
       this.createMask();
-      this.growRatio = (this.width.original - 2 * this.paddingRL) / this.maxDurationStore;
+
       this.calcLegend();
     },
     createMask() {
-      if (this.maskIndex !== -1) this.pixiApp?.stage.removeChildAt(this.maskIndex);
+      if (this.maskIndex !== -1)
+        this.pixiApp?.stage.removeChildAt(this.maskIndex);
       const px_mask_outter_bounds = new PIXI.Graphics();
       px_mask_outter_bounds.beginFill();
       px_mask_outter_bounds.drawRect(
@@ -276,7 +285,8 @@ export default defineComponent({
 
         graph.intensities = [];
         for (let z = intensityArray.length - 1; z >= 0; z--) {
-          const duration = intensityArray[z].endTime! - intensityArray[z].startTime!;
+          const duration =
+            intensityArray[z].endTime! - intensityArray[z].startTime!;
           const intensityObject = this.drawRectangle(
             graph.channelId,
             intensityArray[z].startTime! * this.growRatio + this.paddingRL,
@@ -318,11 +328,9 @@ export default defineComponent({
 
       if (author == undefined) {
         rect.beginFill(0x6c6c60);
-        rect.lineStyle(1, 0x6c6c60);
       } else {
         const customColor: number = parseInt("0x" + author.color.slice(1));
         rect.beginFill(customColor);
-
       }
       rect.drawRect(0, 0, additionalWidth, height);
       rect.position.set(xPosition, yPosition);
@@ -360,7 +368,8 @@ export default defineComponent({
           let xPosition = this.width.original - this.paddingRL;
           if (this.currentTime < this.maxDurationStore)
             xPosition =
-              (xPosition * this.currentTime) / this.maxDurationStore + this.paddingRL;
+              (xPosition * this.currentTime) / this.maxDurationStore +
+              this.paddingRL;
 
           const intensityObject = this.drawRectangle(
             i,
@@ -385,7 +394,7 @@ export default defineComponent({
           this.graphContainer?.addChild(container);
           ///this.ticker?.stop();
         } else {
-          //push the container to left, to have more place for new values
+          //push the container to left, to have place for new values
           if (this.currentTime >= this.maxDurationStore) {
             graph.container.x -= additionalWidth;
           }
@@ -405,34 +414,20 @@ export default defineComponent({
             lastIntensityObject.author == channels[i].author
           ) {
             //delete old rectangle and draw a new at same position with more width
-            graph.container.removeChildAt(lastIntensityObject.index!);
-
-            const intensityObject = this.drawRectangle(
-              i,
-              lastIntensityObject.object!.x,
-              lastIntensityObject.width! + additionalWidth,
-              channels[i].intensity,
-              graph.container as PIXI.Container,
-              lastIntensityObject.author
-            );
+            lastIntensityObject.object!.width =
+              lastIntensityObject.object!.width + additionalWidth;
 
             graph.intensities[index] = {
-              ...intensityObject,
-              startTime: lastIntensityObject.startTime,
+              ...lastIntensityObject,
               endTime: lastIntensityObject.endTime! + this.ticker!.elapsedMS,
             };
           } else {
             //intensity or author changed, draw new rectangle
-            console.log("old Rectangle at x: " + lastIntensityObject.object?.x);
-            console.log("old Rectangle width: " + lastIntensityObject.width!);
-            // draw the rectangle
             const xPosition =
               ((this.width.original - 2 * this.paddingRL) * this.currentTime) /
                 this.maxDurationStore +
               this.paddingRL;
 
-            console.log("draw Rectangle at x: " + xPosition);
-            console.log("draw Rectangle width: " + additionalWidth);
             const intensityObject = this.drawRectangle(
               i,
               xPosition,
@@ -453,20 +448,7 @@ export default defineComponent({
 
       this.currentTime += this.ticker!.elapsedMS;
       //this.ticker!.stop();
-    },
-    changeRecordMode() {
-      if (this.store.state.roomSettings.isRecording) {
-        sendSocketMessage(WS_MSG_TYPE.UPDATE_RECORD_MODE_SERV, {
-          roomId: this.store.state.roomSettings.id,
-          shouldRecord: false,
-        });
-      } else {
-        sendSocketMessage(WS_MSG_TYPE.UPDATE_RECORD_MODE_SERV, {
-          roomId: this.store.state.roomSettings.id,
-          shouldRecord: true,
-        });
-      }
-    },
+    }
   },
 });
 </script>
