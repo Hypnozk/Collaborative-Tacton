@@ -33,21 +33,26 @@ const enterSession = (ws: WebSocket, userID: string, userName: string, roomInfo:
     if (userData == undefined) return;
 
     const participantList = UserModule.getParticipants(roomInfo.id)
-    //send the new user all data and his uerid
-    //roomInfo has not to be updated, his parameter are stored now for the room
 
+    //send the new user all data of the room and participants and his own userId
     ws.send(JSON.stringify({
         type: WS_MSG_TYPE.ENTER_UPDATE_ROOM_CLI,
         payload: { room: roomInfo, userId: userID, participants: participantList },
         startTimeStamp: startTimeStamp
     }))
 
+    //update all user about the new person
     broadCastMessage(roomInfo.id,
         WS_MSG_TYPE.UPDATE_ROOM_CLI,
         { room: roomInfo, participants: participantList },
         startTimeStamp)
 }
 
+/**
+ * method to remove one person of the room
+ * if there are still participants --> notify the other users
+ * if the room is now empty --> close the room
+ */
 const removeUserOfSession = (roomId: string, user: User, startTimeStamp: number) => {
     const userInRoom = UserModule.removeParticipant(roomId, user.id);
     if (userInRoom !== undefined) {
@@ -81,6 +86,14 @@ const changeDuration = (roomId: string, maxDuration: number, startTimeStamp: num
         broadCastMessage(roomId, WS_MSG_TYPE.CHANGE_DURATION_CLI, maxDuration, startTimeStamp)
 }
 
+/**
+ * generell method to notify all users of one specific room
+ * @param roomId adress of the room, where the users get notifications
+ * @param type  message type
+ * @param payload content of the message
+ * @param startTimeStamp initial timestamp of the original request
+ * @returns void
+ */
 const broadCastMessage = (roomId: string, type: WS_MSG_TYPE, payload: any, startTimeStamp: number) => {
     const wsList = UserModule.getWsRoomList(roomId);
     if (wsList.length == 0) return;
@@ -94,6 +107,10 @@ const broadCastMessage = (roomId: string, type: WS_MSG_TYPE, payload: any, start
     };
 }
 
+/**
+ * method to start the calculation of needed operations and distribute them
+ * also to store the tacton in vtproto format
+ */
 const enterInstruction = (roomId: string, clienId: string, instructions: [{ keyId: string, channels: string[], intensity: number }], startTimeStamp:number) => {
     const newInstructions = RoomModule.updateIntensities(clienId, roomId, instructions)
     if (newInstructions == undefined || newInstructions.length == 0) return;

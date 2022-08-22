@@ -34,8 +34,9 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 *       user:{id:string, name:string}
                 *   } as payload
                 * return {room:Room, participants:User[]} to all users
-                * ENTER_ROOM_CLI so that the inital user get notified and also join the play ground
                 * participants is list, of all users of the room
+                * 
+                * message ENTER_ROOM_CLI for notification of initial client about finishing the changes
                 */
                 const updateRoom = RoomModule.updateRoomInformation(msg.payload.room.id, msg.payload.room.name, msg.payload.room.description)
                 const updateUser = UserModule.updateUser(msg.payload.room.id, msg.payload.user);
@@ -57,9 +58,9 @@ export const onMessage = (ws: WebSocket, data: any, client: string) => {
                 break;
             }
             case WS_MSG_TYPE.ENTER_ROOM_SERV: {
-                                /**
+                /**
                 * method if one user enter the room
-                * metadata and participants list get updated
+                * metadata and participants get updated
                 * recieve {
                 *       room:RoomMetaData, 
                 *   } as payload
