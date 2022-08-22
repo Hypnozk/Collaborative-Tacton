@@ -1,8 +1,6 @@
 import { createServer, IncomingMessage } from 'http';
 import { WebSocketServer } from 'ws';
-import StoreManager from './store/StoreManager';
 import { onMessage, onClose } from './webSocket';
-const url = require('url');
 var uuid = require('uuid');
 
 const server = createServer();

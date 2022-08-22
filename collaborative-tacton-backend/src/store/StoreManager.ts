@@ -15,9 +15,9 @@ const createSession = (room: Room): Room => {
     TactonModule.createRoomRef(roomId)
     return RoomModule.getRoomInfo(roomId)!;
 }
+
 const updateSession = (roomAttributes: { id: string, name: string, description: string }, user: User, startTimeStamp: number) => {
-    //update otherwise room information, return true if something is updated
-    //StorageManager.updateParticipants(msg.payload.room.id, msg.payload.userName)
+    //update room information and participants list, return true if something is updated
     const needRoomUpdate = RoomModule.updateRoomInformation(roomAttributes.id, roomAttributes.name, roomAttributes.description)
     const needUserUpdate = UserModule.updateUser(roomAttributes.id, user);
 
@@ -26,7 +26,10 @@ const updateSession = (roomAttributes: { id: string, name: string, description: 
     return true;
 }
 
-
+/**
+ * method what one user enter a room initial
+ * notify all users about new participant
+ */
 const enterSession = (ws: WebSocket, userID: string, userName: string, roomInfo: Room, startTimeStamp: number) => {
     const userData = UserModule.enterUserInRoom(ws, userID, userName, roomInfo.id);
     //its about entering should never return at this point
@@ -34,7 +37,7 @@ const enterSession = (ws: WebSocket, userID: string, userName: string, roomInfo:
 
     const participantList = UserModule.getParticipants(roomInfo.id)
 
-    //send the new user all data of the room and participants and his own userId
+    //send the new user all data of the room, participants and his own userId
     ws.send(JSON.stringify({
         type: WS_MSG_TYPE.ENTER_UPDATE_ROOM_CLI,
         payload: { room: roomInfo, userId: userID, participants: participantList },
@@ -88,7 +91,7 @@ const changeDuration = (roomId: string, maxDuration: number, startTimeStamp: num
 
 /**
  * generell method to notify all users of one specific room
- * @param roomId adress of the room, where the users get notifications
+ * @param roomId adress of the room, where the users shoud get the notification
  * @param type  message type
  * @param payload content of the message
  * @param startTimeStamp initial timestamp of the original request
