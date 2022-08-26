@@ -8,8 +8,6 @@ import { PRECISION } from "@pixi/constants";
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "@/renderer/store/store";
 import { TactonSettingsActionTypes } from "@/renderer/store/modules/tactonSettings/tactonSettings";
-import { sendSocketMessage } from "@/renderer/CommunicationManager/WebSocketManager";
-import { WS_MSG_TYPE } from "@/renderer/CommunicationManager/WebSocketManager/ws_types";
 import { User } from "@/renderer/store/modules/roomSettings/roomSettings";
 
 interface IntensityObject {

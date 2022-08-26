@@ -25,8 +25,8 @@
   min-width: 100% !important;
   max-width: 100% !important;
   border-bottom: 1px solid rgb(48, 41, 41);
+  margin-top: 10px;
   min-height: 50px;
-  padding: 2px 10px;
   display: flex;
 }
 </style>
