@@ -53,10 +53,9 @@
     </v-row>
     <v-divider />
     <v-row class="expandRow">
-      <v-col cols="4">
+      <v-col cols="4" style="border-right: 1px solid rgba(0, 0, 0, .2);">
         <v-row no-gutters class="subheader"> Participants section </v-row>
         <ParticipantSection />
-        <v-divider vertical />
       </v-col>
       <v-col cols="8">
         <v-row>

@@ -4,8 +4,7 @@
       <v-col cols="5" id="tactonScreen">
         <TactonScreen :isMounted="isMounted" />
       </v-col>
-      <v-divider vertical />
-      <v-col cols="7">
+      <v-col>
         <GridHeader @openDialog="startDialog" />
         <GridArea @editButton="startDialog" />
       </v-col>
@@ -31,11 +30,15 @@
   height: 90%;
   min-width: 100%;
   max-width: 100%;
-  padding: 1px;
+  padding: 0;
 }
 
 .playGroundView:focus {
   outline: none;
+}
+
+#tactonScreen{
+  border-right: 1px solid rgba(0, 0, 0, .2);;
 }
 </style>
 
@@ -48,7 +51,7 @@ import PlayGroundDialog from "./PlayGroundDialog.vue";
 import { GeneralMutations } from "../../store/modules/generalSettings/generalSettings";
 import { RouterNames } from "@/types/Routernames";
 import { useStore } from "../../store/store";
-import {PlayGroundMutations} from "../../store/modules/playGround/types"
+import { PlayGroundMutations } from "../../store/modules/playGround/types";
 
 export default defineComponent({
   name: "PlayGroundBody",
